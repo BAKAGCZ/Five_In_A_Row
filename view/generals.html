@@ -1,0 +1,53 @@
+<style type="text/css">
+	.generals_title {
+		justify-content: center;
+	}
+
+	.generals_main_title {
+		margin-top:200px;
+		font-size: 72px;
+		color: black;
+		text-align: center;
+		text-shadow: 2px 2px blue;
+		font-family: Quicksand-Bold;
+	}
+
+	.generals_div_button {
+		display: inherit;
+		justify-content: center;
+	}
+
+	.generals_start_button {
+		width:140px;
+		height:70px;
+		font-size:32px;
+		background-color: black;
+		color:white;
+		text-shadow: 2px 2px blue;
+		font-family: Quicksand;
+		border-width: 0;
+		border-radius: 50px;
+	}
+
+	.generals_start_button:hover {
+		width:130px;
+		height: 65px;
+	}
+
+	.generals_start_button:focus {
+		outline: 0;
+	}
+
+</style>
+
+<div class="generals_title"><h1 class="generals_main_title">GENERALS</h1></div>
+<div class="generals_div_button"><button class="generals_start_button">START</button></div>
+
+<script>
+	$('.generals_start_button').click(function(){
+		$.pjax({
+			url: '/waiting',
+			container: '#container'
+		});
+	});
+</script>
