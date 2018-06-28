@@ -98,6 +98,22 @@ io.on('connection', function(socket){
 
 		socket.leave(room_id);
 	});
+
+	socket.on('play_one', function(data){
+		var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
+
+		var res = {
+			chess: data.chess,
+			state: play_state
+		};
+
+		socket.to(room_id).emit('play_state', res);
+		socket.emit('play_state', res);
+	});
+
+	socket.on('reset', function(){
+		battle_fields[room_id].reset();
+	});
 });
 
 

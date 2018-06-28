@@ -4,4 +4,19 @@
 	socket.on('battle', function(msg){
 		console.log(msg);
 	});
+
+    socket.on('play_state', function(data){
+        var chess = data.chess; // 1白棋 2黑棋
+        var play_state = data.state; // -1下棋失败 6胜利 9继续下
+        // ... your code
+    });
+
+    $("your-selector").click(function(){
+        var data = {
+            chess: 1, // 1白棋 2黑棋
+            x:1,
+            y:1 
+        };
+        socket.emit('play_one', data);
+    });
 </script>
