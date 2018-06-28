@@ -65,6 +65,8 @@ function BattleField() {
         }
         return flag;
     };
+
+    this.reset = function() {};
 };
 
 module.exports = BattleField;
