@@ -43,7 +43,7 @@ function BattleField() {
                 nx += direct[i][0];
                 ny += direct[i][1];
                 if (x<=0 || x>this.row || y<=0 || y>this.column) break;
-                if (c != this.battle_map[x][y]) break;
+                if (c != this.battle_map[nx][ny]) break;
                 count++;
             }
 
@@ -53,7 +53,7 @@ function BattleField() {
                 nx += direct[i][2];
                 ny += direct[i][3];
                 if (x<=0 || x>this.row || y<=0 || y>this.column) break;
-                if (c != this.battle_map[x][y]) break;
+                if (c != this.battle_map[nx][ny]) break;
                 count++;
             }
 
