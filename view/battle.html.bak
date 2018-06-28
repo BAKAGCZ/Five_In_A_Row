@@ -7,6 +7,7 @@
     socket.on('play_state', function(data){
         var chess = data.chess; // 1白棋 2黑棋
         var play_state = data.state; // -1下棋失败 6胜利 9继续下
+        // ... your code
     });
 
     $("your-selector").click(function(){

@@ -42,6 +42,7 @@
 
 	#nav {
 		display: flex;
+		justify-content: center;
 		width: 650px;
 		height: 40px;
 	}
@@ -93,38 +94,38 @@
 
 </style>
 
-<div class="generals_title"><h1 class="generals_main_title">äº” å­ æ£‹</h1></div>
+<div class="generals_title"><h1 class="generals_main_title">Îå ×Ó Æå</h1></div>
 <div class="generals_div_button"><button class="generals_start_button">START</button></div>
 <div id="nav">
 	<ul>
 		<li>
 			<div>
-				<a class="no1" href="index.html">é¦–é¡µ</a>
-				<a class="no2" href="index.html">é¦–é¡µ</a>
+				<a class="no1" href="index.html">Ê×Ò³</a>
+				<a class="no2" href="index.html">Ê×Ò³</a>
 			</div>
 		</li>
 		<li>
 			<div>
-				<a class="no1" href="index1.html">ä¸ªäººç®€ä»‹</a>
-				<a class="no2" href="index1.html">ä¸ªäººç®€ä»‹</a>
+				<a class="no1" href="index1.html">¸öÈË¼ò½é</a>
+				<a class="no2" href="index1.html">¸öÈË¼ò½é</a>
 			</div>
 		</li>
 		<li>
 			<div>
-				<a class="no1" href="rwjl.html">äººç‰©ç»åŽ†</a>
-				<a class="no2" href="rwjl.html">äººç‰©ç»åŽ†</a>
+				<a class="no1" href="rwjl.html">ÈËÎï¾­Àú</a>
+				<a class="no2" href="rwjl.html">ÈËÎï¾­Àú</a>
 			</div>
 		</li>
 		<li>
 			<div>
-				<a class="no1" href="dbzp.html">ä»£è¡¨ä½œå“</a>
-				<a class="no2" href="dbzp.html">ä»£è¡¨ä½œå“</a>
+				<a class="no1" href="dbzp.html">´ú±í×÷Æ·</a>
+				<a class="no2" href="dbzp.html">´ú±í×÷Æ·</a>
 			</div>
 		</li>
 		<li>
 			<div>
-				<a class="no1" href="wjdc.html">é—®å·è°ƒæŸ¥</a>
-				<a class="no2" href="wjdc.html">é—®å·è°ƒæŸ¥</a>
+				<a class="no1" href="wjdc.html">ÎÊ¾íµ÷²é</a>
+				<a class="no2" href="wjdc.html">ÎÊ¾íµ÷²é</a>
 			</div>
 		</li>
 	</ul>
