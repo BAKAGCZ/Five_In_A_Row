@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 var BattleField = require('./controller/battle_field');
 
 var rooms = [];
-var room_capacity = 4;
+var room_capacity = 2;
 var battle_fields = {};
 
 
@@ -86,7 +86,6 @@ io.on('connection', function(socket){
 		}
 	});
 
-	//如果连接断开
 	socket.on('leave', function(){
 		socket.emit('disconnect');
 	});
