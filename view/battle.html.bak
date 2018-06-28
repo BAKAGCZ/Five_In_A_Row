@@ -1,7 +1,4 @@
 <div class="battle">welcome battle!</div>
-<canvas id="cvs"></canvas>
-<p id="tips"></p>
-<button id="reStart">重新开始</button>
 
 <script>
 	socket.on('battle', function(msg){
