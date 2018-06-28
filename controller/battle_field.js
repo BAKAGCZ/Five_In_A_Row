@@ -36,21 +36,25 @@ function BattleField() {
         var flag = 0;
         for (var i=0; i<direct.length; i++)
         {
-            var count = 0;
-            var nx = 0, ny = 0;
+            var count = 1;
+            var nx = x, ny = y;
             while (true)
             {
                 nx += direct[i][0];
                 ny += direct[i][1];
                 if (x<=0 || x>this.row || y<=0 || y>this.column) break;
-                if (c == this.battle_map[x][y]) count++;
+                if (c != this.battle_map[x][y]) break;
+                count++;
             }
+
+            nx = x; ny = y;
             while (true)
             {
                 nx += direct[i][2];
                 ny += direct[i][3];
                 if (x<=0 || x>this.row || y<=0 || y>this.column) break;
-                if (c == this.battle_map[x][y]) count++;
+                if (c != this.battle_map[x][y]) break;
+                count++;
             }
 
             if (count >= 5)
