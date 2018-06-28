@@ -1,7 +1,21 @@
 <div class="battle">welcome battle!</div>
+<canvas id="cvs"></canvas>
+<p id="tips"></p>
+<button id="reStart">重新开始</button>
 
 <script>
-	socket.on('battle', function(msg){
-		console.log(msg);
-	});
+    socket.on('play_state', function(data){
+        var chess = data.chess; // 1白棋 2黑棋
+        var play_state = data.state; // -1下棋失败 6胜利 9继续下
+        // ... your code
+    });
+
+    $("your-selector").click(function(){
+        var data = {
+            chess: 1, // 1白棋 2黑棋
+            x:1, // 当前下的x坐标
+            y:1  // 当前下的y坐标
+        };
+        socket.emit('play_one', data);
+    });
 </script>
