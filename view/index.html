@@ -163,13 +163,6 @@
                 return pwd;
             }
 
-            $(function(){
-                $.pjax({
-                    url: '/generals',
-                    container: '#container'
-                });
-            });
-            
             function nav_click1() {
                 $.pjax({
                     url: '/generals',
@@ -212,10 +205,18 @@
                 }
             }
 
-            $('#navmain').on('click', '#bg1', function(){
-                exit_confirm(nav_click1)
-            });
-            $('#navmain').on('click', '#bg2', nav_click2);
+            (function(){
+                $.pjax({
+                    url: '/generals',
+                    container: '#container'
+                });
+
+                $('#navmain').on('click', '#bg1', function(){
+                    exit_confirm(nav_click1)
+                });
+                $('#navmain').on('click', '#bg2', nav_click2);
+            })();
+            
 
         </script>
     </body>

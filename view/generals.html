@@ -20,17 +20,20 @@
 <div class="div_button"><button class="button">START</button></div>
 
 <script>
-    if (player_status != 0)
-    {
-        socket.emit('leave');
-        player_status = 0;
-    }
+    (function(){
+        if (player_status != 0)
+        {
+            socket.emit('leave');
+            player_status = 0;
+        }
 
-    $('.button').click(function(){
-        $.pjax({
-            url: '/waiting',
-            container: '#container'
-        });
-    });
+        $('.button').click(function(){
+            $.pjax({
+                url: '/waiting',
+                container: '#container'
+            });
+        });        
+    })();
+
 
 </script>

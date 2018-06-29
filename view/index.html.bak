@@ -4,219 +4,219 @@
         <meta charset="UTF-8">
         <title>generals</title>
         <style type="text/css">
-			* {
-				text-shadow: 1px 1px blue;
-			}
-			
-			#main {
-				display: flex;
-				flex-direction: row;
-			}
+            * {
+                text-shadow: 1px 1px blue;
+            }
+            
+            #main {
+                display: flex;
+                flex-direction: row;
+            }
 
 
             #container {
                 display: flex;
                 flex-direction: column;
-				width: 1800px;
+                width: 1800px;
             }
 
-			
-			.div_button {
-				display: flex;
-				justify-content: center;
-				height:70px;
-			}
+            
+            .div_button {
+                display: flex;
+                justify-content: center;
+                height:70px;
+            }
 
-			.button {
-				width:140px;
-				height:70px;
-				font-size:32px;
-				background-color: black;
-				color:white;
-				text-shadow: 2px 2px blue;
-				font-family: Quicksand;
-				border-width: 0;
-				border-radius: 50px;
-			}
+            .button {
+                width:140px;
+                height:70px;
+                font-size:32px;
+                background-color: black;
+                color:white;
+                text-shadow: 2px 2px blue;
+                font-family: Quicksand;
+                border-width: 0;
+                border-radius: 50px;
+            }
 
-			.button:hover {
-				width:130px;
-				height: 65px;
-				transition: width 1s;
-				transition: height 1s;
-			}
+            .button:hover {
+                width:130px;
+                height: 65px;
+                transition: width 1s;
+                transition: height 1s;
+            }
 
-			.button:focus {
-				outline: 0;
-			}
+            .button:focus {
+                outline: 0;
+            }
 
 
-			#navmain {  
-				position: absolute;
-				width: 0px;
-				overflow: visible;
-			}
+            #navmain {  
+                position: absolute;
+                width: 0px;
+                overflow: visible;
+            }
 
-			#space {
-				height:200px;
-			}
+            #space {
+                height:200px;
+            }
 
-			.nav{
-				display: inline-block;
-				float: right;
-				clear: both;
-			}
-			.a{
-				position: relative;
-				left: 30px;
-				padding: 10px 30px 10px 60px;
-				margin: 10px;
-				background: #8DC2BC;
-				x-box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.5);
-				box-shadow: 8px 0 8px -8px rgba(0, 0, 0, 0.5);
-				transition: all 0.3s ease-in-out 0.1s;
-				-o-transition: all 0.3s ease-in-out 0.1s;
-				-ms-transition: all 0.3s ease-in-out 0.1s;
-				-moz-transition: all 0.3s ease-in-out 0.1s;
-				-webkit-transition: all 0.3s ease-in-out 0.1s;
-			}
-			.a:hover{
-				position: relative;
-				left: 100%;
-				margin-left: -32px;
-				background-color: rgba(27, 79, 147,0.5); 
-				box-shadow: 0 -8px 8px -8px rgba(0, 0, 0, 0.5),
-				0 8px 8px -8px rgba(0, 0, 0, 0.5);
-				transition: all 0.3s ease-in-out;
-				-o-transition: all 0.3s ease-in-out;
-				-ms-transition: all 0.3s ease-in-out;
-				-moz-transition: all 0.3s ease-in-out;
-				-webkit-transition: all 0.3s ease-in-out;
-			}
-			.span{
-				display: inline-block;
-				color: #fff;
-				font-family: 'Droid Sans', sans-serif;
-				font-size: 16px;
-				font-weight: bold;
-				white-space: nowrap;
-			}
+            .nav{
+                display: inline-block;
+                float: right;
+                clear: both;
+            }
+            .a{
+                position: relative;
+                left: 30px;
+                padding: 10px 30px 10px 60px;
+                margin: 10px;
+                background: #8DC2BC;
+                x-box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.5);
+                box-shadow: 8px 0 8px -8px rgba(0, 0, 0, 0.5);
+                transition: all 0.3s ease-in-out 0.1s;
+                -o-transition: all 0.3s ease-in-out 0.1s;
+                -ms-transition: all 0.3s ease-in-out 0.1s;
+                -moz-transition: all 0.3s ease-in-out 0.1s;
+                -webkit-transition: all 0.3s ease-in-out 0.1s;
+            }
+            .a:hover{
+                position: relative;
+                left: 100%;
+                margin-left: -32px;
+                background-color: rgba(27, 79, 147,0.5); 
+                box-shadow: 0 -8px 8px -8px rgba(0, 0, 0, 0.5),
+                0 8px 8px -8px rgba(0, 0, 0, 0.5);
+                transition: all 0.3s ease-in-out;
+                -o-transition: all 0.3s ease-in-out;
+                -ms-transition: all 0.3s ease-in-out;
+                -moz-transition: all 0.3s ease-in-out;
+                -webkit-transition: all 0.3s ease-in-out;
+            }
+            .span{
+                display: inline-block;
+                color: #fff;
+                font-family: 'Droid Sans', sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                white-space: nowrap;
+            }
 
-			a:hover #bg1{ background: #539770; }
-			a:hover #bg2{ background: #4B7D74; }
-			a:hover #bg3{ background: #8DC2BC; }
-			a:hover #bg4{ background: #EDD6B4; }
-			a:hover #bg5{ background: #BE7467; }
-			a:hover #bg6{ background: #E2AE63; }
+            a:hover #bg1{ background: #539770; }
+            a:hover #bg2{ background: #4B7D74; }
+            a:hover #bg3{ background: #8DC2BC; }
+            a:hover #bg4{ background: #EDD6B4; }
+            a:hover #bg5{ background: #BE7467; }
+            a:hover #bg6{ background: #E2AE63; }
         </style>
     </head>
 
     <body>
-		<div id="main">
-			<div id="navmain">
-				<div class="nav">
-					<div id="space"></div>
-					<div class="a">
-						<a href="javascript:;"><span class="span" id="bg1">首页</span></a>
-					</div>  
-				</div>
-				<div class="nav">
-					<div class="a">
-						<a href="javascript:;"><span class="span" id="bg2">进入游戏</span></a>
-					</div>  
-				</div>
-				<div class="nav">
-					<div class="a">
-						<a href="javascript:;"><span class="span" id="bg3">评论区</span></a>
-					</div>  
-				</div>
-				<div class="nav">
-					<div class="a">
-						<a href="javascript:;"><span class="span" id="bg4">游戏介绍</span></a>
-					</div>  
-				</div>
-				<div class="nav">
-					<div class="a">
-						<a href="javascript:;"><span class="span" id="bg5">开发人员</span></a>
-					</div>  
-				</div>
-			</div>
+        <div id="main">
+            <div id="navmain">
+                <div class="nav">
+                    <div id="space"></div>
+                    <div class="a">
+                        <a href="javascript:;"><span class="span" id="bg1">首页</span></a>
+                    </div>  
+                </div>
+                <div class="nav">
+                    <div class="a">
+                        <a href="javascript:;"><span class="span" id="bg2">进入游戏</span></a>
+                    </div>  
+                </div>
+                <div class="nav">
+                    <div class="a">
+                        <a href="javascript:;"><span class="span" id="bg3">评论区</span></a>
+                    </div>  
+                </div>
+                <div class="nav">
+                    <div class="a">
+                        <a href="javascript:;"><span class="span" id="bg4">游戏介绍</span></a>
+                    </div>  
+                </div>
+                <div class="nav">
+                    <div class="a">
+                        <a href="javascript:;"><span class="span" id="bg5">开发人员</span></a>
+                    </div>  
+                </div>
+            </div>
 
-			<div id="container"></div>
-		</div>	
+            <div id="container"></div>
+        </div>  
 
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>
-		<script>
-			var player_status = 0;	//0：未游戏  1：游戏中 2：等待中
-			var socket = io();
+        <script>
+            var player_status = 0;  //0：未游戏  1：游戏中 2：等待中
+            var socket = io();
 
-			function randomString(len) {
-				var len = len || 32;
-				var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
-				var maxPos = chars.length;
-				var pwd = '';
-				for (var i = 0; i < len; i++) {
-					pwd += chars.charAt(Math.floor(Math.random() * maxPos));
-				}
-				return pwd;
-			}
+            function randomString(len) {
+                var len = len || 32;
+                var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+                var maxPos = chars.length;
+                var pwd = '';
+                for (var i = 0; i < len; i++) {
+                    pwd += chars.charAt(Math.floor(Math.random() * maxPos));
+                }
+                return pwd;
+            }
 
-			$(function(){
-				$.pjax({
-					url: '/generals',
-					container: '#container'
-				});
-			});
-			
-			function nav_click1() {
-				$.pjax({
-					url: '/generals',
-					container: '#container'
-				});
-			}
-						
-			function nav_click2() {
-				if(player_status == 1)
-					alert('您已在游戏中！');
-				else if (player_status == 2)
-					alert('您已在等待中！');
-				else {
-					$.pjax({
-						url: '/waiting',
-						container: '#container'
-					});
-				}
-			}
+            (function(){
+                $.pjax({
+                    url: '/generals',
+                    container: '#container'
+                });
 
-			function exit_confirm(func){
-				if (player_status == 0)
-				{
-					func();
-				}
-				else if (player_status == 1) {
-					var r = confirm('确定退出游戏吗？');
-					if (r == true)
-					{
-						func();
-					}
-				}
-				else if (player_status == 2)
-				{
-					var r = confirm('确定退出等待吗？');
-					if (r == true)
-					{
-						func();
-					}
-				}
-			}
+                $('#navmain').on('click', '#bg1', function(){
+                    exit_confirm(nav_click1)
+                });
+                $('#navmain').on('click', '#bg2', nav_click2);
+            })();
+            
+            function nav_click1() {
+                $.pjax({
+                    url: '/generals',
+                    container: '#container'
+                });
+            }
+                        
+            function nav_click2() {
+                if(player_status == 1)
+                    alert('您已在游戏中！');
+                else if (player_status == 2)
+                    alert('您已在等待中！');
+                else {
+                    $.pjax({
+                        url: '/waiting',
+                        container: '#container'
+                    });
+                }
+            }
 
-			$('#navmain').on('click', '#bg1', function(){
-				exit_confirm(nav_click1)
-			});
-			$('#navmain').on('click', '#bg2', nav_click2);
+            function exit_confirm(func){
+                if (player_status == 0)
+                {
+                    func();
+                }
+                else if (player_status == 1) {
+                    var r = confirm('确定退出游戏吗？');
+                    if (r == true)
+                    {
+                        func();
+                    }
+                }
+                else if (player_status == 2)
+                {
+                    var r = confirm('确定退出等待吗？');
+                    if (r == true)
+                    {
+                        func();
+                    }
+                }
+            }
 
-		</script>
+        </script>
     </body>
 </html>
