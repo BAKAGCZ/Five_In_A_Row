@@ -65,7 +65,7 @@
 		}
 
 		function init() {
-			socket.emit('player_chess', user_name);
+			socket.emit('player_chess');
 			for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
 				checkerboard[i] = [];
 				for (var j = -5; j < VERTICAL_SIZE + 5; j++)
@@ -79,11 +79,6 @@
 			drawCheckerboard();
 			cvs.onclick = putChess;
 		}
-
-		socket.on('player_chess', function(chess){
-			whiteTrun = chess == 1? false: true;
-			console.log('chess ' + chess);
-		});
 
 		/*画棋盘*/
 		function drawCheckerboard() {
@@ -108,10 +103,10 @@
 		* @param {*} y
 		*/
 
-		function drawArc(x, y) {
+		function drawArc(x, y, chess) {
 			ctx.beginPath();
 			ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
-			ctx.fillStyle = (whiteTrun == true? '#eee' : '#000');
+			ctx.fillStyle = (chess == 2?  '#000': '#eee');
 			ctx.fill();
 			ctx.closePath();
 
@@ -142,19 +137,35 @@
 		}
 
 		document.getElementById('battle_return').onclick = function() {
-			document.getElementById('battle_return').innerText = 'wwww';
+			document.getElementById('battle_tips').innerText = 'wwww';
 			init();
 		}
+
+		socket.on('player_chess', function(chess){
+			whiteTrun = chess == 1? true: false;
+			console.log('chess ' + chess);
+		});
+
 
 		socket.on('play_state', function(data){
 			var chess = data.chess; // 1白棋 2黑棋
 			var play_state = data.state; // -1下棋失败 6胜利 9继续下
 			console.log(play_state);
+
 			var x = data.x;
 			var y = data.y;
 			
-			drawArc(x, y);
-			document.getElementById('battle_tips').innerText = (chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
+
+			if (play_state == 9)
+			{
+				drawArc(x, y, chess);
+				document.getElementById('battle_tips').innerText = (chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
+			}
+			else if (play_state == 6)
+			{
+				drawArc(x, y, chess);
+				document.getElementById('battle_tips').innerText = (chess == 2 ? '白棋胜': '黑棋胜');
+			}
 		});
 
 		init();
