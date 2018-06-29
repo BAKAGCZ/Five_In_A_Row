@@ -37,21 +37,25 @@ function BattleField() {
 		//四个方向
         for (var i=0; i<this.direct.length; i++)
         {
-            var count = 0;
-            var nx = 0, ny = 0;
+            var count = 1;
+            var nx = x, ny = y;
             while (true)
             {
                 nx += this.direct[i][0];
                 ny += this.direct[i][1];
                 if (x<=0 || x>this.row || y<=0 || y>this.column) break;
-                if (c == this.battle_map[x][y]) count++;
+                if (c != this.battle_map[nx][ny]) break;
+                count++;
             }
+
+            nx = x; ny = y;
             while (true)
             {
                 nx += this.direct[i][2];
                 ny += this.direct[i][3];
                 if (x<=0 || x>this.row || y<=0 || y>this.column) break;
-                if (c == this.battle_map[x][y]) count++;
+                if (c != this.battle_map[nx][ny]) break;
+                count++;
             }
 
             if (count >= 5)
@@ -62,6 +66,8 @@ function BattleField() {
         }
         return flag;
     };
+
+    this.reset = function() {};
 };
 
 module.exports = BattleField;
