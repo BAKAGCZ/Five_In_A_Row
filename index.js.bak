@@ -5,6 +5,7 @@ var io = require('socket.io')(http);
 var BattleField = require('./controller/battle_field');
 
 var rooms = [];
+var user_chess = {};
 var room_capacity = 2;
 var battle_fields = {};
 
@@ -63,14 +64,16 @@ io.on('connection', function(socket){
 		//进入房间
 		socket.join(room_id);
 
-		//人满
 		if (is_ok)
 		{
+			user_chess[rooms[room_id][0]] = 1; // 先入玩家白棋
+			user_chess[rooms[room_id][1]] = 2; // 后入玩家黑棋
 			var data = {
 				room_id: room_id
-			}
+			};
 			socket.to(room_id).emit('game_start', data);
 			socket.emit('game_start', data);
+			// 生成棋盘
 			battle_fields[room_id] = new BattleField();
 			battle_fields[room_id].create();
 		}
@@ -96,11 +99,17 @@ io.on('connection', function(socket){
 		if (index != -1)
 			rooms[room_id].splice(index, 1);
 
+		delete user_chess[user_name]; // 删除用户角色
+		battle_fields[room_id].reset(); // 复原棋盘
+
 		socket.leave(room_id);
 	});
 
 	socket.on('play_one', function(data){
 		var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
+		if (play_state == -1)
+			if (rooms[room_id].length < room_capacity)
+				play_state = -2;
 
 		var res = {
 			chess: data.chess,
@@ -111,6 +120,10 @@ io.on('connection', function(socket){
 
 		socket.to(room_id).emit('play_state', res);
 		socket.emit('play_state', res);
+	});
+
+	socket.on('player_chess', function(){
+		socket.emit('player_chess', user_chess[user_name]);
 	});
 
 	socket.on('reset', function(){

@@ -107,6 +107,9 @@ io.on('connection', function(socket){
 
 	socket.on('play_one', function(data){
 		var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
+		if (play_state == -1)
+			if (rooms[room_id].length < room_capacity)
+				play_state = -2; // 对手离开
 
 		var res = {
 			chess: data.chess,

@@ -14,6 +14,15 @@
 		border: 2px solid #000;
 	}
 
+	#battle_div_chess {
+		display: flex;
+		justify-content: center;
+	} 
+
+	#battle_chess {
+		font-size:18px;
+	}
+
 	#battle_div_tips {
 		display: flex;
 		justify-content: center;
@@ -34,8 +43,9 @@
 	}
 </style>
 
-<div id="battle">welcome battle!</div>
+<div id="battle">welcome!</div>
 <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
+<div id="battle_div_chess"><p id="battle_chess"></p></div>
 <div id="battle_div_tips"><p id="battle_tips"></p></div>
 <div id="battle_div_return"><button id="battle_return">返回</button></div>
 
@@ -136,14 +146,19 @@
 
 		}
 
-		document.getElementById('battle_return').onclick = function() {
-			document.getElementById('battle_tips').innerText = 'wwww';
-			init();
-		}
+		$('#battle_return').click(function() {
+			$.pjax({
+				url: '/waiting',
+				container: '#container'
+			});
+		});
 
 		socket.on('player_chess', function(chess){
 			whiteTrun = chess == 1? true: false;
-			console.log('chess ' + chess);
+			var chessType = chess == 1? '白棋': '黑棋';
+			$('#battle_chess').text('您的身份是：'+ chessType);
+			$('#battle_tips').text('现在轮到黑棋落子');
+			//console.log('chess ' + chess);
 		});
 
 
@@ -155,16 +170,21 @@
 			var x = data.x;
 			var y = data.y;
 			
-
 			if (play_state == 9)
 			{
 				drawArc(x, y, chess);
-				document.getElementById('battle_tips').innerText = (chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
+				$('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
 			}
 			else if (play_state == 6)
 			{
 				drawArc(x, y, chess);
-				document.getElementById('battle_tips').innerText = (chess == 2 ? '白棋胜': '黑棋胜');
+				$('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
+				cvs.onclick = null;
+			}
+			else if (play_state == -2)
+			{
+				$('#battle_tips').text('对手已离开！');
+				cvs.onclick = null;
 			}
 		});
 
