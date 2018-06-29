@@ -164,8 +164,8 @@ io.on('connection', function(socket){
             y: data.y
         };
 
-        socket.to(room_id).emit('play_state', res);
-        socket.emit('play_state', res);
+        socket.to(room_id).emit('play_one', res);
+        socket.emit('play_one', res);
     });
 
     socket.on('room_info', function(){
