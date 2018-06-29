@@ -92,16 +92,6 @@ io.on('connection', function(socket){
 	            room_info[room_id].black = play_a;
 	        }
 
-            var data_a = {
-                room_id: room_id,
-                user_name: play_a.uname
-            };
-
-            var data_b = {
-                room_id: room_id,
-                user_name: play_b.uname
-            };
-
             player_socket[user_id].emit('game_start', play_a);
             player_socket[user_id].emit('game_start', play_b);
             // 生成棋盘
