@@ -1,6 +1,6 @@
 function BattleField() {
-	this.row = 15;
-	this.column = 12;
+	this.row = 12;
+	this.column = 15;
 	this.battle_map = [];
     this.chess = 2; // 黑棋先下
     this.direct = [
@@ -23,7 +23,7 @@ function BattleField() {
         * @return int: // -1下棋失败 6胜利 9继续下
     */
     this.play = function(chess, x, y) {
-        if (this.chess!=chess || x<=0 || x>this.row || y<=0 || y>this.column) return -1;
+        if (this.chess!=chess || x<0 || x>this.row-1 || y<0 || y>this.column-1) return -1;
         this.chess = this.chess==1 ? 2 : 1;
         this.battle_map[x][y]=chess;
         if (this.judge(x, y))
@@ -43,7 +43,7 @@ function BattleField() {
             {
                 nx += this.direct[i][0];
                 ny += this.direct[i][1];
-                if (x<=0 || x>this.row || y<=0 || y>this.column) break;
+                if (nx<0 || nx>this.row-1 || ny<0 || ny>this.column-1) break;
                 if (c != this.battle_map[nx][ny]) break;
                 count++;
             }
@@ -53,7 +53,7 @@ function BattleField() {
             {
                 nx += this.direct[i][2];
                 ny += this.direct[i][3];
-                if (x<=0 || x>this.row || y<=0 || y>this.column) break;
+                if (nx<0 || nx>this.row-1 || ny<0 || ny>this.column-1) break;
                 if (c != this.battle_map[nx][ny]) break;
                 count++;
             }

@@ -28,6 +28,6 @@
 	
 	socket.emit('join', randomString());
 
-	play_status = 2;
+	player_status = 2;
 
 </script>

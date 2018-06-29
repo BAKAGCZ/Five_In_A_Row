@@ -1,17 +1,17 @@
 <style type="text/css">
-	.generals_title {
-		display: flex;
-		justify-content: center;
-	}
+    .generals_title {
+        display: flex;
+        justify-content: center;
+    }
 
-	.generals_main_title {
-		margin-top:200px;
-		font-size: 72px;
-		color: black;
-		text-align: center;
-		text-shadow: 2px 2px blue;
-		font-family: Quicksand-Bold;
-	}
+    .generals_main_title {
+        margin-top:200px;
+        font-size: 72px;
+        color: black;
+        text-align: center;
+        text-shadow: 2px 2px blue;
+        font-family: Quicksand-Bold;
+    }
 
 
 </style>
@@ -20,17 +20,17 @@
 <div class="div_button"><button class="button">START</button></div>
 
 <script>
-	if (player_status != 0)
-	{
-		socket.emit('leave');
-		player_status = 0;
-	}
+    if (player_status != 0)
+    {
+        socket.emit('leave');
+        player_status = 0;
+    }
 
-	$('.button').click(function(){
-		$.pjax({
-			url: '/waiting',
-			container: '#container'
-		});
-	});
+    $('.button').click(function(){
+        $.pjax({
+            url: '/waiting',
+            container: '#container'
+        });
+    });
 
 </script>

@@ -130,6 +130,7 @@ io.on('connection', function(socket){
 
 	socket.on('reset', function(){
 		if (battle_fields[room_id] == undefined) return;
+
 		battle_fields[room_id].reset();
 	});
 });

@@ -1,46 +1,46 @@
 <style type="text/css">
 
-	#battle {
-		display: flex;
-		justify-content: center;
-	}
+    #battle {
+        display: flex;
+        justify-content: center;
+    }
 
-	#battle_div_cvs {
-		display: flex;
-		justify-content: center;
-	}
+    #battle_div_cvs {
+        display: flex;
+        justify-content: center;
+    }
 
-	#battle_cvs {
-		border: 2px solid #000;
-	}
+    #battle_cvs {
+        border: 2px solid #000;
+    }
 
-	#battle_div_chess {
-		display: flex;
-		justify-content: center;
-	} 
+    #battle_div_chess {
+        display: flex;
+        justify-content: center;
+    } 
 
-	#battle_chess {
-		font-size:18px;
-	}
+    #battle_chess {
+        font-size:18px;
+    }
 
-	#battle_div_tips {
-		display: flex;
-		justify-content: center;
-	} 
+    #battle_div_tips {
+        display: flex;
+        justify-content: center;
+    } 
 
-	#battle_tips {
-		font-size:22px;
-	}
+    #battle_tips {
+        font-size:22px;
+    }
 
-	#battle_button {
-		width: 170px;
-		height: 90px;
-	}
+    #battle_button {
+        width: 170px;
+        height: 90px;
+    }
 
-	#battle_button:hover {
-		width: 160px;
-		height: 80px;
-	}
+    #battle_button:hover {
+        width: 160px;
+        height: 80px;
+    }
 
 </style>
 <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
@@ -49,149 +49,151 @@
 <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
 
 <script>
-	(function() {
-		var CORLOR = 'lightblue';
-		var GRID_SIZE = 40;
-		var HORIZONTAL_SIZE = 15;
-		var VERTICAL_SIZE = 12;
-		var checkerboard = [];
-		var whiteTrun = true;
+    (function() {
+        var COLOR = 'lightblue';
+        var GRID_SIZE = 40;
+        var HORIZONTAL_SIZE = 15;
+        var VERTICAL_SIZE = 12;
+        var checkerboard = [];
+        var whiteTrun = true;
 
-		var cvs = document.getElementById('battle_cvs');
-		var ctx = cvs.getContext('2d');
+        var cvs = document.getElementById('battle_cvs');
+        var ctx = cvs.getContext('2d');
 
-		cvs.width = GRID_SIZE * HORIZONTAL_SIZE;
-		cvs.height = GRID_SIZE * VERTICAL_SIZE;
-
-
-		function play_one(chess, x, y) {
-			var data = {
-				chess: chess, // 1白棋 2黑棋
-				x: x, // 当前下的x坐标
-				y: y  // 当前下的y坐标
-			};
-			socket.emit('play_one', data);
-		}
-
-		function init() {
-			socket.emit('player_chess');
-			for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
-				checkerboard[i] = [];
-				for (var j = -5; j < VERTICAL_SIZE + 5; j++)
-				{
-					checkerboard[i][j] = {
-						state: 0,
-						type: true
-					};
-				}
-			}
-			drawCheckerboard();
-			cvs.onclick = putChess;
-		}
-
-		/*画棋盘*/
-		function drawCheckerboard() {
-			for (var i = 0; i < HORIZONTAL_SIZE; i++)
-			{
-				for (var j = 0; j < VERTICAL_SIZE; j++)
-				{
-					ctx.beginPath();
-					//边框颜色
-					ctx.strokeStyle = '#000';
-					ctx.fillStyle = CORLOR;
-					ctx.fillRect(i*GRID_SIZE, j*GRID_SIZE, GRID_SIZE, GRID_SIZE);
-					ctx.strokeRect(i*GRID_SIZE, j*GRID_SIZE, GRID_SIZE, GRID_SIZE);
-					ctx.closePath();
-				}
-			}
-		}
-
-		/**
-		* 画棋子
-		* @param {*} x
-		* @param {*} y
-		*/
-
-		function drawArc(x, y, chess) {
-			ctx.beginPath();
-			ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
-			ctx.fillStyle = (chess == 2?  '#000': '#eee');
-			ctx.fill();
-			ctx.closePath();
-
-			checkerboard[x][y].state = 1;
-			checkerboard[x][y].type = whiteTrun;
-		}
+        cvs.width = GRID_SIZE * HORIZONTAL_SIZE;
+        cvs.height = GRID_SIZE * VERTICAL_SIZE;
 
 
-		/**
-		* 放置棋子
-		* @param {*} e
-		*/
-		function putChess(e) {
-			//当前鼠标点击位置
-			var x = e.pageX - cvs.offsetLeft;
-			var y = e.pageY - cvs.offsetTop;
+        //画布坐标 转换为服务器坐标后传输
+        function play_one(chess, x, y) {
+            var data = {
+                chess: chess, // 1白棋 2黑棋
+                x: y, // 当前下的x坐标
+                y: x  // 当前下的y坐标
+            };
+            socket.emit('play_one', data);
+        }
 
-			//落在哪个格子
-			x = parseInt(x/GRID_SIZE);
-			y = parseInt(y/GRID_SIZE);
+        function init() {
+            socket.emit('player_chess');
+            for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
+                checkerboard[i] = [];
+                for (var j = -5; j < VERTICAL_SIZE + 5; j++)
+                {
+                    checkerboard[i][j] = {
+                        state: 0,
+                        type: true
+                    };
+                }
+            }
+            drawCheckerboard();
+            cvs.onclick = putChess;
+        }
 
-			//有棋子
-			if(checkerboard[x][y].state) 
-				return;
+        /*画棋盘*/
+        function drawCheckerboard() {
+            for (var i = 0; i < HORIZONTAL_SIZE; i++)
+            {
+                for (var j = 0; j < VERTICAL_SIZE; j++)
+                {
+                    ctx.beginPath();
+                    //边框颜色
+                    ctx.strokeStyle = '#000';
+                    ctx.fillStyle = COLOR;
+                    ctx.fillRect(i*GRID_SIZE, j*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+                    ctx.strokeRect(i*GRID_SIZE, j*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+                    ctx.closePath();
+                }
+            }
+        }
 
-			play_one(whiteTrun == true ? 1 : 2, x, y);
+        /**
+        * 画棋子
+        * @param {*} x
+        * @param {*} y
+        */
 
-		}
+        function drawArc(x, y, chess) {
+            ctx.beginPath();
+            ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
+            ctx.fillStyle = (chess == 2?  '#000': '#eee');
+            ctx.fill();
+            ctx.closePath();
+
+            checkerboard[x][y].state = 1;
+            checkerboard[x][y].type = whiteTrun;
+        }
 
 
-		socket.on('player_chess', function(chess){
-			whiteTrun = chess == 1? true: false;
-			var chessType = chess == 1? '白棋': '黑棋';
-			$('#battle_chess').text('您的身份是：'+ chessType);
-			$('#battle_tips').text('现在轮到黑棋落子');
-			//console.log('chess ' + chess);
-		});
+        /**
+        * 放置棋子
+        * @param {*} e
+        */
+        function putChess(e) {
+            //当前鼠标点击位置
+            var x = e.pageX - cvs.offsetLeft;
+            var y = e.pageY - cvs.offsetTop;
+
+            //落在哪个格子
+            x = parseInt(x/GRID_SIZE);
+            y = parseInt(y/GRID_SIZE);
+
+            //有棋子
+            if(checkerboard[x][y].state) 
+                return;
+
+            play_one(whiteTrun == true ? 1 : 2, x, y);
+
+        }
 
 
-		socket.on('play_state', function(data){
-			var chess = data.chess; // 1白棋 2黑棋
-			var play_state = data.state; // -1下棋失败 6胜利 9继续下
-			console.log(play_state);
+        socket.on('player_chess', function(chess){
+            whiteTrun = chess == 1? true: false;
+            var chessType = chess == 1? '白棋': '黑棋';
+            $('#battle_chess').text('您的身份是：'+ chessType);
+            $('#battle_tips').text('现在轮到黑棋落子');
+            //console.log('chess ' + chess);
+        });
 
-			var x = data.x;
-			var y = data.y;
-			
-			if (play_state == 9)
-			{
-				drawArc(x, y, chess);
-				$('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
-			}
-			else if (play_state == 6)
-			{
-				drawArc(x, y, chess);
-				$('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
-				cvs.onclick = null;
-			}
-		});
-		
-		socket.on('play_break', function(){
-			alert('对手已离开，您可在此页面停留等待下一对手！')
-			$('#battle_tips').text('对手已离开！');
-			cvs.onclick = null;
-		});
 
-		init();
+        socket.on('play_state', function(data){
+            var chess = data.chess; // 1白棋 2黑棋
+            var play_state = data.state; // -1下棋失败 6胜利 9继续下
+            console.log(play_state);
 
-		player_status = 1;
-		
-		alert('游戏开始！');
+            //收到服务器坐标 转换为画布坐标
+            var x = data.y;
+            var y = data.x;
+            
+            if (play_state == 9)
+            {
+                drawArc(x, y, chess);
+                $('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
+            }
+            else if (play_state == 6)
+            {
+                drawArc(x, y, chess);
+                $('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
+                cvs.onclick = null;
+            }
+        });
+        
+        socket.on('play_break', function(){
+            alert('对手已离开，您可在此页面停留等待下一对手！')
+            $('#battle_tips').text('对手已离开！');
+            cvs.onclick = null;
+        });
 
-		$('.div_button').on('click', '#battle_button', function(){
-			exit_confirm(nav_click1);
-		});
+        init();
 
-	})();
+        player_status = 1;
+        
+        alert('游戏开始！');
+
+        $('.div_button').on('click', '#battle_button', function(){
+            exit_confirm(nav_click1);
+        });
+
+    })();
 
 </script>

@@ -208,7 +208,6 @@
 					if (r == true)
 					{
 						func();
-						player_status = 0;
 					}
 				}
 			}
