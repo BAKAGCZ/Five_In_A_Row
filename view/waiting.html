@@ -9,7 +9,6 @@
 
 <script>
 	console.log('waiting...');
-	var socket = io('http://47.94.87.47:2233');
 
 	socket.on('game_start', function(data){
 		console.log('game_start');
@@ -27,6 +26,8 @@
 		$('#waiting_people').text(player_number);
 	});
 	
-	var user_name = randomString();
-	socket.emit('join', user_name);
+	socket.emit('join', randomString());
+
+	player_status = 2;
+
 </script>

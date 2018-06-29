@@ -89,25 +89,26 @@ io.on('connection', function(socket){
 		}
 	});
 
-	socket.on('leave', function(){
-		socket.emit('disconnect');
-		socket.to(room_id).emit('play_break');
-		//console.log('breaking!!');
-	});
 
-	socket.on('disconnect', function(){
-		// console.log(rooms[room_id]);
+	function leave_room(){
+		if (rooms[room_id] == undefined) return;
+
 		var index = rooms[room_id].indexOf(user_name);
 		if (index != -1)
 			rooms[room_id].splice(index, 1);
 
-		delete user_chess[user_name]; // 删除用户角色
-		battle_fields[room_id].reset(); // 复原棋盘
-
+		if (user_chess[user_name]) delete user_chess[user_name]; // 删除用户角色
+		if (battle_fields[room_id]) battle_fields[room_id].reset(); // 复原棋盘
+		socket.to(room_id).emit('play_break');
 		socket.leave(room_id);
-	});
+	}
+
+	socket.on('leave', leave_room);
+	socket.on('disconnect', leave_room);
 
 	socket.on('play_one', function(data){
+		if (battle_fields[room_id] == undefined) return;
+
 		var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
 		if (rooms[room_id].length < room_capacity)
 			play_state = -2; // 对手离开
@@ -128,11 +129,12 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('reset', function(){
+		if (battle_fields[room_id] == undefined) return;
 		battle_fields[room_id].reset();
 	});
 });
 
 
-http.listen(3000, function(){
-	console.log('listening on *: 3000');
+http.listen(2233, function(){
+	console.log('listening on *: 2233');
 });

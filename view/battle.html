@@ -32,26 +32,25 @@
 		font-size:22px;
 	}
 
-	#battle_div_return {
-		display: flex;
-		justify-content: center;
+	#battle_button {
+		width: 170px;
+		height: 90px;
 	}
 
-	#battle_return {
-		width: 130px;
-		height: 60px;
+	#battle_button:hover {
+		width: 160px;
+		height: 80px;
 	}
+
 </style>
-
-<div id="battle">welcome!</div>
 <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
 <div id="battle_div_chess"><p id="battle_chess"></p></div>
 <div id="battle_div_tips"><p id="battle_tips"></p></div>
-<div id="battle_div_return"><button id="battle_return">返回</button></div>
+<div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
 
 <script>
 	(function() {
-		
+		var CORLOR = 'lightblue';
 		var GRID_SIZE = 40;
 		var HORIZONTAL_SIZE = 15;
 		var VERTICAL_SIZE = 12;
@@ -99,7 +98,7 @@
 					ctx.beginPath();
 					//边框颜色
 					ctx.strokeStyle = '#000';
-					ctx.fillStyle = 'yellow';
+					ctx.fillStyle = CORLOR;
 					ctx.fillRect(i*GRID_SIZE, j*GRID_SIZE, GRID_SIZE, GRID_SIZE);
 					ctx.strokeRect(i*GRID_SIZE, j*GRID_SIZE, GRID_SIZE, GRID_SIZE);
 					ctx.closePath();
@@ -146,14 +145,6 @@
 
 		}
 
-		$('#battle_return').click(function() {
-			socket.emit('leave');
-
-			$.pjax({
-				url: '/',
-				container: '#container'
-			});
-		});
 
 		socket.on('player_chess', function(chess){
 			whiteTrun = chess == 1? true: false;
@@ -186,11 +177,21 @@
 		});
 		
 		socket.on('play_break', function(){
+			alert('对手已离开，您可在此页面停留等待下一对手！')
 			$('#battle_tips').text('对手已离开！');
 			cvs.onclick = null;
 		});
+
 		init();
+
+		player_status = 1;
 		
+		alert('游戏开始！');
+
+		$('.div_button').on('click', '#battle_button', function(){
+			exit_confirm(nav_click1);
+		});
+
 	})();
 
 </script>
