@@ -1,4 +1,15 @@
 <style type="text/css">
+
+	#battel {
+		display: flex;
+		justify-content: center;
+	}
+
+	#battle_div_cvs {
+		display: flex;
+		justify-content: center;
+	}
+
 	#battle_cvs {
 		border: 2px solid #000;
 	}
@@ -7,21 +18,26 @@
 		font-size:22px;
 	}
 
+	#battle_div_reStart {
+		display: flex;
+		justify-content: center;
+	}
+
 	#battle_reStart {
 		width: 130px;
 		height: 60px;
 	}
 </style>
 
-<div class="battle">welcome battle!</div>
-<canvas id="battle_cvs"></canvas>
-<p id="battle_tips"></p>
-<button id="battle_reStart">重新开始</button>
+<div id="battle">welcome battle!</div>
+<div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
+<div id="battle_div_tips"><p id="battle_tips"></p></div>
+<div id="battle_div_reStart"><button id="battle_reStart">重新开始</button></div>
 
 <script>
 	(function() {
 		
-		var GRID_SIZE = 40;
+		var GRID_SIZE = 40px;
 		var HORIZONTAL_SIZE = 15;
 		var VERTICAL_SIZE = 12;
 		var checkerboard = [];
@@ -123,6 +139,7 @@
 		socket.on('play_state', function(data){
 			var chess = data.chess; // 1白棋 2黑棋
 			var play_state = data.state; // -1下棋失败 6胜利 9继续下
+			console.log(play_state);
 			var x = data.x;
 			var y = data.y;
 			

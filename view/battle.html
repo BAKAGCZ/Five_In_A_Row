@@ -1,10 +1,31 @@
 <style type="text/css">
+
+	#battel {
+		display: flex;
+		justify-content: center;
+	}
+
+	#battle_div_cvs {
+		display: flex;
+		justify-content: center;
+	}
+
 	#battle_cvs {
 		border: 2px solid #000;
 	}
 
+	#battle_div_tips {
+		display: flex;
+		justify-content: center;
+	} 
+
 	#battle_tips {
 		font-size:22px;
+	}
+
+	#battle_div_reStart {
+		display: flex;
+		justify-content: center;
 	}
 
 	#battle_reStart {
@@ -13,15 +34,15 @@
 	}
 </style>
 
-<div class="battle">welcome battle!</div>
-<canvas id="battle_cvs"></canvas>
-<p id="battle_tips"></p>
-<button id="battle_reStart">重新开始</button>
+<div id="battle">welcome battle!</div>
+<div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
+<div id="battle_div_tips"><p id="battle_tips"></p></div>
+<div id="battle_div_reStart"><button id="battle_reStart">重新开始</button></div>
 
 <script>
 	(function() {
 		
-		var GRID_SIZE = 40;
+		var GRID_SIZE = 40px;
 		var HORIZONTAL_SIZE = 15;
 		var VERTICAL_SIZE = 12;
 		var checkerboard = [];
