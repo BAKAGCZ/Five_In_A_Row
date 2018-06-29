@@ -66,11 +66,16 @@ io.on('connection', function(socket){
 		//人满
 		if (is_ok)
 		{
-			var data = {
-				room_id: room_id
+			var data1 = {
+				room_id: room_id,
+				chess: 1 // 白棋
 			}
-			socket.to(room_id).emit('game_start', data);
-			socket.emit('game_start', data);
+			var data2 = {
+				room_id: room_id,
+				chess: 2 // 黑棋
+			};
+			socket.to(room_id).emit('game_start', data1);
+			socket.emit('game_start', data2);
 			battle_fields[room_id] = new BattleField();
 			battle_fields[room_id].create();
 		}
@@ -104,7 +109,9 @@ io.on('connection', function(socket){
 
 		var res = {
 			chess: data.chess,
-			state: play_state
+			state: play_state,
+			x: data.x,
+			y: data.y
 		};
 
 		socket.to(room_id).emit('play_state', res);

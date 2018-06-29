@@ -2,10 +2,10 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var BattleField = require('/controller/battle_field');
+var BattleField = require('./controller/battle_field');
 
 var rooms = [];
-var room_capacity = 4;
+var room_capacity = 2;
 var battle_fields = {};
 
 
@@ -97,6 +97,24 @@ io.on('connection', function(socket){
 			rooms[room_id].splice(index, 1);
 
 		socket.leave(room_id);
+	});
+
+	socket.on('play_one', function(data){
+		var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
+
+		var res = {
+			chess: data.chess,
+			state: play_state,
+			x: data.x,
+			y: data.y
+		};
+
+		socket.to(room_id).emit('play_state', res);
+		socket.emit('play_state', res);
+	});
+
+	socket.on('reset', function(){
+		battle_fields[room_id].reset();
 	});
 });
 

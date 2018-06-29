@@ -1,3 +1,18 @@
+<style type="text/css">
+	#battle_cvs {
+		border: 2px solid #000;
+	}
+
+	#battle_tips {
+		font-size:22px;
+	}
+
+	#battle_reStart {
+		width: 130px;
+		height: 60px;
+	}
+</style>
+
 <div class="battle">welcome battle!</div>
 <canvas id="battle_cvs"></canvas>
 <p id="battle_tips"></p>
@@ -5,8 +20,7 @@
 
 <script>
 	(function() {
-
-
+		
 		var GRID_SIZE = 40;
 		var HORIZONTAL_SIZE = 15;
 		var VERTICAL_SIZE = 12;
@@ -20,11 +34,19 @@
 		cvs.height = GRID_SIZE * VERTICAL_SIZE;
 
 
-		/*初始化*/
+		function play_one(chess, x, y) {
+			var data = {
+				chess: chess, // 1白棋 2黑棋
+				x: x, // 当前下的x坐标
+				y: y  // 当前下的y坐标
+			};
+			socket.emit('play_one', data);
+		}
+
 		function init() {
-			for(var i = -5; i < row + 5; i++) {
+			for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
 				checkerboard[i] = [];
-				for (var j = -5; j < column + 5; j++)
+				for (var j = -5; j < VERTICAL_SIZE + 5; j++)
 				{
 					checkerboard[i][j] = {
 						state: 0,
@@ -38,9 +60,9 @@
 
 		/*画棋盘*/
 		function drawCheckerboard() {
-			for (var i = 0; i < row; i++)
+			for (var i = 0; i < HORIZONTAL_SIZE; i++)
 			{
-				for (var j = 0; j < column; j++)
+				for (var j = 0; j < VERTICAL_SIZE; j++)
 				{
 					ctx.beginPath();
 					//边框颜色
@@ -89,30 +111,27 @@
 			if(checkerboard[x][y].state) 
 				return;
 
-			drawArc(x, y);
-			document.getElementById('battle_tips').innerText = (whiteTrun === true? '现在轮到白棋落子': '现在轮到黑棋落子');
-		}
+			play_one(whiteTrun == true ? 2 : 1, x, y);
 
+		}
 
 		document.getElementById('battle_reStart').onclick = function() {
 			document.getElementById('battle_tips').innerText = 'wwww';
 			init();
 		}
-		
+
 		socket.on('play_state', function(data){
 			var chess = data.chess; // 1白棋 2黑棋
 			var play_state = data.state; // -1下棋失败 6胜利 9继续下
+			var x = data.x;
+			var y = data.y;
+			
+			drawArc(x, y);
+			document.getElementById('battle_tips').innerText = (chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
 		});
 
-		$("#battle_cvs").click(function(){
-			var data = {
-				chess: 1, // 1白棋 2黑棋
-				x:1, // 当前下的x坐标
-				y:1  // 当前下的y坐标
-			};
-			socket.emit('play_one', data);
-		});
-
+		init();
+		
 	})();
 
 </script>
