@@ -1,18 +1,32 @@
 <style type="text/css">
-    #enemy_info {
+    #battle_main {
+        width: 100%;
         display: flex;
-        flex-direction: column;
-        width: 30px;
-        justify-content: center;
+        flex-direction: row;
     }
 
-    #enemy_name {
+    #enemy_info, #my_info {
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+    }
+
+    #enemy_name, #my_name {
         font-size: 20px;
-        text-shadow: 1px 1px yellow;
+        color: green;
+        text-shadow: 1px 1px darkgreen;
+        justify-content: center;
+        margin-left: 60px;
+    }
+
+    #my_info_space {
+        height: 600px;
     }
 
     #battle {
+        width: 40%
         display: flex;
+        flex-direction: column;
         justify-content: center;
     }
 
@@ -44,33 +58,42 @@
     }
 
     #battle_button {
-        width: 170px;
-        height: 90px;
-    }
-
-    #battle_button:hover {
         width: 160px;
         height: 80px;
     }
 
+    #battle_button:hover {
+        width: 155px;
+        height: 75px;
+    }
+
 </style>
-<div id="enemy_info">
-    昵称：<p id="enemy_name"></p>
-</div>
-<div id="battle">
-    <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
-    <div id="battle_div_chess"><p id="battle_chess"></p></div>
-    <div id="battle_div_tips"><p id="battle_tips"></p></div>
-    <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
+<div id="battle_main">
+    <div id="enemy_info">
+        <p id="enemy_name">对手昵称：对手！</p>
+    </div>
+    <div id="battle">
+        <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
+        <div id="battle_div_chess"><p id="battle_chess"></p></div>
+        <div id="battle_div_tips"><p id="battle_tips"></p></div>
+        <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
+    </div>
+    <div id="my_info">
+        <div id="my_info_space"></div>
+        <div id="div_my_name"><p id="my_name">我的昵称：尼玛！</p></div>
+    </div>
 </div>
 <script>
     (function() {
+        if(user_name == '')
+            user_name = user_name_ran;
+        $('#my_name').text('我的昵称：'+user_name);
+
         var COLOR = 'lightblue';
         var GRID_SIZE = 40;
         var HORIZONTAL_SIZE = 15;
         var VERTICAL_SIZE = 12;
         var checkerboard = [];
-        var whiteTrun = true;
 
         var cvs = document.getElementById('battle_cvs');
         var ctx = cvs.getContext('2d');
@@ -90,7 +113,7 @@
         }
 
         function init() {
-            socket.emit('player_chess');
+            socket.emit('player_info');
             for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
                 checkerboard[i] = [];
                 for (var j = -5; j < VERTICAL_SIZE + 5; j++)
@@ -136,7 +159,7 @@
             ctx.closePath();
 
             checkerboard[x][y].state = 1;
-            checkerboard[x][y].type = whiteTrun;
+            checkerboard[x][y].type = is_white;
         }
 
 
@@ -157,35 +180,44 @@
             if(checkerboard[x][y].state) 
                 return;
 
-            play_one(whiteTrun == true ? 1 : 2, x, y);
+            play_one(is_white ? 1 : 2, x, y);
 
         }
 
 
-        socket.on('player_chess', function(chess){
-            whiteTrun = chess == 1? true: false;
-            var chessType = chess == 1? '白棋': '黑棋';
+        socket.on('player_info', function(data){
+            var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
             $('#battle_tips').text('现在轮到黑棋落子');
+            $('#room_num').text('房间号：'+data.room);
             //console.log('chess ' + chess);
         });
 
+        socket.on('room_info', function(data){
+            if (whiteTurn)  //我白
+                enemy_name = data.black.uname;
+            else
+                enemy_name = data.white.uname;
 
-        socket.on('play_state', function(data){
+            $('#enemy_name').text('对手昵称：'+enemy_name);
+        });
+
+
+        socket.on('play_one', function(data){
             var chess = data.chess; // 1白棋 2黑棋
-            var play_state = data.state; // -1下棋失败 6胜利 9继续下
-            console.log(play_state);
+            var play_one = data.state; // -1下棋失败 6胜利 9继续下
+            console.log(play_one);
 
             //收到服务器坐标 转换为画布坐标
             var x = data.y;
             var y = data.x;
             
-            if (play_state == 9)
+            if (play_one == 9)
             {
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
             }
-            else if (play_state == 6)
+            else if (play_one == 6)
             {
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');

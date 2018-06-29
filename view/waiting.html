@@ -8,6 +8,7 @@
 <div id="waiting_people">N</div>
 
 <script>
+
     (function(){
         console.log('waiting...');
 
@@ -17,6 +18,10 @@
                 url: '/battle',
                 container: '#container'
             });
+            if(data.chess == 1)
+                is_white = true;
+            else 
+                is_white = false;
         });
 
         socket.on('game_waiting', function(data){
@@ -27,7 +32,7 @@
             $('#waiting_people').text(player_number);
         });
         
-        socket.emit('join', randomString());
+        socket.emit('join', user_name);
 
         player_status = 2;
     })();

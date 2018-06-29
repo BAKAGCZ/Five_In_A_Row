@@ -5,21 +5,43 @@
     }
 
     .generals_main_title {
-        margin-top:200px;
+        margin-top:170px;
         font-size: 72px;
         color: black;
         text-align: center;
         text-shadow: 2px 2px blue;
         font-family: Quicksand-Bold;
     }
+    
+    #div_name_input {
+        display: flex;
+        justify-content: center;
+        margin-top: 100px;
+        margin-bottom: 30px;
+    }
 
+    #name_input {
+        width:250px;
+        height: 35px;
+        font-size: 25px;
+        text-align:center;
+        color: darkgreen;
+    }
+
+    #name_input::-webkit-input-placeholder {
+        text-align: center;
+        color: grey;
+        text-shadow: 1px 1px lightblue;
+    }
 
 </style>
 
-<div class="generals_title"><h1 class="generals_main_title">五 子 棋</h1></div>
+<div class="generals_title"><h1 class="generals_main_title">五&nbsp;&nbsp;&nbsp;子&nbsp;&nbsp;&nbsp;棋</h1></div>
+<div id="div_name_input"><input id="name_input" style='text' placeholder="请输入您的昵称"></input></div>
 <div class="div_button"><button class="button">START</button></div>
 
 <script>
+
     (function(){
         if (player_status != 0)
         {
@@ -32,6 +54,7 @@
                 url: '/waiting',
                 container: '#container'
             });
+            user_name = $('#name_input').val();
         });        
     })();
 

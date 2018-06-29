@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>generals</title>
+        <title>五子棋</title>
         <style type="text/css">
             * {
                 text-shadow: 1px 1px blue;
@@ -11,13 +11,14 @@
             #main {
                 display: flex;
                 flex-direction: row;
+                width: 100%;
             }
 
 
             #container {
                 display: flex;
                 flex-direction: column;
-                width: 1800px;
+                width: 99%
             }
 
             
@@ -149,6 +150,10 @@
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>
         <script>
+            var is_white = false;
+            var user_name = '五子棋用户';
+            var enemy_name = '五子棋用户x';
+            var room_id = '房间号';
             var player_status = 0;  //0：未游戏  1：游戏中 2：等待中
             var socket = io();
 
