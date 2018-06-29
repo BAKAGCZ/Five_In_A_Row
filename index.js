@@ -31,6 +31,7 @@ io.on('connection', function(socket){
 	console.log('socket.on connect');
 	var room_id;
 	var user_name;
+	var user_chess = {};
 
 	socket.on('join',function(_user_name){
 		user_name = _user_name;
@@ -63,19 +64,15 @@ io.on('connection', function(socket){
 		//进入房间
 		socket.join(room_id);
 
-		//人满
 		if (is_ok)
 		{
-			var data1 = {
-				room_id: room_id,
-				chess: 1 // 白棋
-			}
-			var data2 = {
-				room_id: room_id,
-				chess: 2 // 黑棋
+			user_chess[rooms[room_id][0]] = 1; // 先入玩家白棋
+			user_chess[rooms[room_id][1]] = 2; // 后入玩家黑棋
+			var data = {
+				room_id: room_id
 			};
-			socket.to(room_id).emit('game_start', data1);
-			socket.emit('game_start', data2);
+			socket.to(room_id).emit('game_start', data);
+			socket.emit('game_start', data);
 			battle_fields[room_id] = new BattleField();
 			battle_fields[room_id].create();
 		}
@@ -116,6 +113,10 @@ io.on('connection', function(socket){
 
 		socket.to(room_id).emit('play_state', res);
 		socket.emit('play_state', res);
+	});
+
+	socket.on('player_chess', function(user_name){
+		socket.emit('player_chess', user_chess[user_name]);
 	});
 
 	socket.on('reset', function(){
