@@ -12,16 +12,12 @@
     (function(){
         console.log('waiting...');
 
-        socket.on('game_start', function(data){
+        socket.on('game_start', function(){
             console.log('game_start');
             $.pjax({
                 url: '/battle',
                 container: '#container'
             });
-            if(data.chess == 1)
-                is_white = true;
-            else 
-                is_white = false;
         });
 
         socket.on('game_waiting', function(data){

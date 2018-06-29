@@ -184,6 +184,7 @@
 
 
         socket.on('player_info', function(data){
+            is_white = data.chess == 1 ? true : false;
             var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
             $('#battle_tips').text('现在轮到黑棋落子');
