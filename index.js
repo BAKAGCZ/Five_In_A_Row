@@ -95,8 +95,8 @@ io.on('connection', function(socket){
 	            room_info[room_id].black = play_a;
 	        }
 
-            player_socket[user_id].emit('game_start', play_a);
-            player_socket[user_id].emit('game_start', play_b);
+            player_socket[rooms[room_id][0]].emit('game_start', play_a);
+            player_socket[rooms[room_id][1]].emit('game_start', play_b);
             // 生成棋盘
             battle_fields[room_id] = new BattleField();
             battle_fields[room_id].create();
@@ -105,7 +105,8 @@ io.on('connection', function(socket){
         {
             // console.log(rooms[room_id]);
             var data = {
-                player_number: rooms[room_id].length
+                player_number: rooms[room_id].length,
+                room: room_id
             };
             socket.emit('game_waiting', data);
         }

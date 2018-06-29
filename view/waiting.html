@@ -26,7 +26,7 @@
 
         socket.on('game_waiting', function(data){
             console.log('game_waiting');
-            var room_id = data.room_id;
+            var room_id = data.room;
             var player_number = data.player_number;
             console.log(room_id, player_number);
             $('#waiting_people').text(player_number);
