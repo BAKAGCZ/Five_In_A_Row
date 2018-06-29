@@ -2,7 +2,7 @@ function BattleField() {
 	this.row = 15;
 	this.column = 12;
 	this.battle_map = [];
-    this.chess = 1; // 白棋
+    this.chess = 2; // 黑棋先下
     this.direct = [
             [-1,-1,1,1],
             [-1,0,1,0],
