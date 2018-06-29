@@ -6,7 +6,7 @@ var BattleField = require('./controller/battle_field');
 
 var rooms = [];
 /* { room_id : { room, white, black } } */
-var room_info = {}; 
+var room_info = []; 
 /* { user_id : { uname, room, chess } } */
 var player_info = {};
 /* { user_id : socket } */
