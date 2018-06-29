@@ -147,8 +147,10 @@
 		}
 
 		$('#battle_return').click(function() {
+			socket.emit('leave');
+
 			$.pjax({
-				url: '/waiting',
+				url: '/',
 				container: '#container'
 			});
 		});
@@ -181,13 +183,12 @@
 				$('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
 				cvs.onclick = null;
 			}
-			else if (play_state == -2)
-			{
-				$('#battle_tips').text('对手已离开！');
-				cvs.onclick = null;
-			}
 		});
-
+		
+		socket.on('play_break', function(){
+			$('#battle_tips').text('对手已离开！');
+			cvs.onclick = null;
+		});
 		init();
 		
 	})();

@@ -5,7 +5,7 @@
         <title>generals</title>
         <style type="text/css">
 			* {
-				text-shadow: 1px 1px blue;
+				text-shadow: 2px 2px blue;
 			}
 
             #container {
