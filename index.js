@@ -29,7 +29,7 @@ app.get('/battle', function(req, res){
 
 
 io.on('connection', function(socket){
-    console.log('socket.on connect');
+    console.log('socket ' + socket.id + ' connected');
     var room_id;
     var user_name;
 

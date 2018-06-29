@@ -11,131 +11,131 @@ var battle_fields = {};
 
 
 app.get('/', function(req, res){
-	res.sendFile(__dirname + '/view/index.html');
+    res.sendFile(__dirname + '/view/index.html');
 });
 
 app.get('/generals', function(req, res){
-	res.sendFile(__dirname + '/view/generals.html');
+    res.sendFile(__dirname + '/view/generals.html');
 });
 
 app.get('/waiting', function(req, res){
-	res.sendFile(__dirname + '/view/waiting.html');
+    res.sendFile(__dirname + '/view/waiting.html');
 });
 
 app.get('/battle', function(req, res){
-	res.sendFile(__dirname + '/view/battle.html');
+    res.sendFile(__dirname + '/view/battle.html');
 });
 
 
 
 io.on('connection', function(socket){
-	console.log('socket.on connect');
-	var room_id;
-	var user_name;
+    console.log('socket.on connect');
+    var room_id;
+    var user_name;
 
-	socket.on('join',function(_user_name){
-		user_name = _user_name;
-		var flag = 0;
-		var is_ok = 0;
+    socket.on('join',function(_user_name){
+        user_name = _user_name;
+        var flag = 0;
+        var is_ok = 0;
 
-		//有房间人数未满
-		for (var i=0; i<rooms.length; i++)
-		{
-			if (rooms[i].length < room_capacity)
-			{
-				rooms[i].push(user_name);
-				if (rooms[i].length >= room_capacity)
-					is_ok = 1;
-				room_id = i;
-				flag = 1;
-				break;
-			}
-		}
+        //有房间人数未满
+        for (var i=0; i<rooms.length; i++)
+        {
+            if (rooms[i].length < room_capacity)
+            {
+                rooms[i].push(user_name);
+                if (rooms[i].length >= room_capacity)
+                    is_ok = 1;
+                room_id = i;
+                flag = 1;
+                break;
+            }
+        }
 
-		//房间全满 或 当前没有房间
-		if (!flag || !rooms.length)
-		{
-			var users = [];
-			users.push(user_name);
-			room_id = rooms.length;
-			rooms.push(users);
-		}
+        //房间全满 或 当前没有房间
+        if (!flag || !rooms.length)
+        {
+            var users = [];
+            users.push(user_name);
+            room_id = rooms.length;
+            rooms.push(users);
+        }
 
-		//进入房间
-		socket.join(room_id);
+        //进入房间
+        socket.join(room_id);
 
-		if (is_ok)
-		{
-			user_chess[rooms[room_id][0]] = 1; // 先入玩家白棋
-			user_chess[rooms[room_id][1]] = 2; // 后入玩家黑棋
-			var data = {
-				room_id: room_id
-			};
-			socket.to(room_id).emit('game_start', data);
-			socket.emit('game_start', data);
-			// 生成棋盘
-			battle_fields[room_id] = new BattleField();
-			battle_fields[room_id].create();
-		}
-		else
-		{
-			// console.log(rooms[room_id]);
-			var data = {
-				player_number: rooms[room_id].length,
-				room_id: room_id
-			};
-			socket.to(room_id).emit('game_waiting', data);
-			socket.emit('game_waiting', data);
-		}
-	});
+        if (is_ok)
+        {
+            user_chess[rooms[room_id][0]] = 1; // 先入玩家白棋
+            user_chess[rooms[room_id][1]] = 2; // 后入玩家黑棋
+            var data = {
+                room_id: room_id
+            };
+            socket.to(room_id).emit('game_start', data);
+            socket.emit('game_start', data);
+            // 生成棋盘
+            battle_fields[room_id] = new BattleField();
+            battle_fields[room_id].create();
+        }
+        else
+        {
+            // console.log(rooms[room_id]);
+            var data = {
+                player_number: rooms[room_id].length,
+                room_id: room_id
+            };
+            socket.to(room_id).emit('game_waiting', data);
+            socket.emit('game_waiting', data);
+        }
+    });
 
 
-	function leave_room(){
-		if (rooms[room_id] == undefined) return;
+    function leave_room(){
+        if (rooms[room_id] == undefined) return;
 
-		var index = rooms[room_id].indexOf(user_name);
-		if (index != -1)
-			rooms[room_id].splice(index, 1);
+        var index = rooms[room_id].indexOf(user_name);
+        if (index != -1)
+            rooms[room_id].splice(index, 1);
 
-		if (user_chess[user_name]) delete user_chess[user_name]; // 删除用户角色
-		if (battle_fields[room_id]) battle_fields[room_id].reset(); // 复原棋盘
-		socket.to(room_id).emit('play_break');
-		socket.leave(room_id);
-	}
+        if (user_chess[user_name]) delete user_chess[user_name]; // 删除用户角色
+        if (battle_fields[room_id]) battle_fields[room_id].reset(); // 复原棋盘
+        socket.to(room_id).emit('play_break');
+        socket.leave(room_id);
+    }
 
-	socket.on('leave', leave_room);
-	socket.on('disconnect', leave_room);
+    socket.on('leave', leave_room);
+    socket.on('disconnect', leave_room);
 
-	socket.on('play_one', function(data){
-		if (battle_fields[room_id] == undefined) return;
+    socket.on('play_one', function(data){
+        if (battle_fields[room_id] == undefined) return;
 
-		var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
-		if (rooms[room_id].length < room_capacity)
-			play_state = -2; // 对手离开
+        var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
+        if (rooms[room_id].length < room_capacity)
+            play_state = -2; // 对手离开
 
-		var res = {
-			chess: data.chess,
-			state: play_state,
-			x: data.x,
-			y: data.y
-		};
+        var res = {
+            chess: data.chess,
+            state: play_state,
+            x: data.x,
+            y: data.y
+        };
 
-		socket.to(room_id).emit('play_state', res);
-		socket.emit('play_state', res);
-	});
+        socket.to(room_id).emit('play_state', res);
+        socket.emit('play_state', res);
+    });
 
-	socket.on('player_chess', function(){
-		socket.emit('player_chess', user_chess[user_name]);
-	});
+    socket.on('player_chess', function(){
+        socket.emit('player_chess', user_chess[user_name]);
+    });
 
-	socket.on('reset', function(){
-		if (battle_fields[room_id] == undefined) return;
+    socket.on('reset', function(){
+        if (battle_fields[room_id] == undefined) return;
 
-		battle_fields[room_id].reset();
-	});
+        battle_fields[room_id].reset();
+    });
 });
 
 
 http.listen(2233, function(){
-	console.log('listening on *: 2233');
+    console.log('listening on *: 2233');
 });
