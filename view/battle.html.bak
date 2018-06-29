@@ -1,4 +1,15 @@
 <style type="text/css">
+    #enemy_info {
+        display: flex;
+        flex-direction: column;
+        width: 30px;
+        justify-content: center;
+    }
+
+    #enemy_name {
+        font-size: 20px;
+
+    }
 
     #battle {
         display: flex;
@@ -43,11 +54,15 @@
     }
 
 </style>
-<div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
-<div id="battle_div_chess"><p id="battle_chess"></p></div>
-<div id="battle_div_tips"><p id="battle_tips"></p></div>
-<div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
-
+<div id="enemy_info">
+    昵称：<p id="enemy_name"></p>
+</div>
+<div id="battle">
+    <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
+    <div id="battle_div_chess"><p id="battle_chess"></p></div>
+    <div id="battle_div_tips"><p id="battle_tips"></p></div>
+    <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
+</div>
 <script>
     (function() {
         var COLOR = 'lightblue';
@@ -64,6 +79,7 @@
         cvs.height = GRID_SIZE * VERTICAL_SIZE;
 
 
+        //画布坐标 转换为服务器坐标后传输
         function play_one(chess, x, y) {
             var data = {
                 chess: chess, // 1白棋 2黑棋
@@ -160,6 +176,7 @@
             var play_state = data.state; // -1下棋失败 6胜利 9继续下
             console.log(play_state);
 
+            //收到服务器坐标 转换为画布坐标
             var x = data.y;
             var y = data.x;
             

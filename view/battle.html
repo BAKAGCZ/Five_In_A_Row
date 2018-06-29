@@ -1,4 +1,15 @@
 <style type="text/css">
+    #enemy_info {
+        display: flex;
+        flex-direction: column;
+        width: 30px;
+        justify-content: center;
+    }
+
+    #enemy_name {
+        font-size: 20px;
+        text-shadow: 1px 1px yellow;
+    }
 
     #battle {
         display: flex;
@@ -43,11 +54,15 @@
     }
 
 </style>
-<div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
-<div id="battle_div_chess"><p id="battle_chess"></p></div>
-<div id="battle_div_tips"><p id="battle_tips"></p></div>
-<div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
-
+<div id="enemy_info">
+    昵称：<p id="enemy_name"></p>
+</div>
+<div id="battle">
+    <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
+    <div id="battle_div_chess"><p id="battle_chess"></p></div>
+    <div id="battle_div_tips"><p id="battle_tips"></p></div>
+    <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
+</div>
 <script>
     (function() {
         var COLOR = 'lightblue';
