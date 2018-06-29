@@ -43,6 +43,7 @@ io.on('connection', function(socket){
     var is_leave = 0;
 
     socket.on('join',function(user_name){
+    	is_leave = 0;
         var flag = 0;
         var is_ok = 0;
 
@@ -156,8 +157,7 @@ io.on('connection', function(socket){
             y: data.y
         };
 
-        socket.to(room_id).emit('play_one', res);
-        socket.emit('play_one', res);
+        io.sockets.in(room_id).emit('play_one', res);
     });
 
     socket.on('room_info', function(){
