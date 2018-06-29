@@ -4,11 +4,11 @@ function BattleField() {
 	this.battle_map = [];
     this.chess = 2; // 黑棋先下
     this.direct = [
-            [-1,-1,1,1],
-            [-1,0,1,0],
-            [0,-1,0,1],
-            [1,-1,-1,1]
-        ];
+        [-1,-1,1,1],
+        [-1,0,1,0],
+        [0,-1,0,1],
+        [1,-1,-1,1]
+    ];
 
 	this.create = function() {
 		this.battle_map = new Array(this.row);
@@ -67,7 +67,11 @@ function BattleField() {
         return flag;
     };
 
-    this.reset = function() {};
+    this.reset = function() {
+        for (var i=0; i<this.row; i++)
+            for (var j=0; j<this.column; j++)
+                this.battle_map[i][j]=0;
+    };
 };
 
 module.exports = BattleField;

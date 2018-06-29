@@ -96,9 +96,11 @@ io.on('connection', function(socket){
 	socket.on('disconnect', function(){
 		// console.log(rooms[room_id]);
 		var index = rooms[room_id].indexOf(user_name);
-		delete user_chess[user_name];
 		if (index != -1)
 			rooms[room_id].splice(index, 1);
+
+		delete user_chess[user_name]; // 删除用户角色
+		battle_fields[room_id].reset(); // 复原棋盘
 
 		socket.leave(room_id);
 	});
