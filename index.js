@@ -37,6 +37,7 @@ app.get('/battle', function(req, res){
 io.on('connection', function(socket){
     console.log('socket ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
+    player_info[user_id] = {};
     player_socket[user_id] = socket;
     var room_id;
     var is_leave = 0;
@@ -64,6 +65,7 @@ io.on('connection', function(socket){
         {
             room_id = rooms.length;
             rooms.push([user_id]);
+            room_info.push({});
         }
 
         //进入房间
