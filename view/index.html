@@ -9,12 +9,94 @@
                 flex-direction: column;
             }
 
+			.navmain {  
+				position: absolute;
+				width: 0px;
+				overflow: visible;
+			}
+
+			.nav{
+				display: inline-block;
+				float: right;
+				clear: both;
+			}
+			.a{
+				position: relative;
+				left: 30px;
+				padding: 10px 30px 10px 60px;
+				margin: 10px;
+				background: #8DC2BC;
+				x-box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.5);
+				box-shadow: 8px 0 8px -8px rgba(0, 0, 0, 0.5);
+				transition: all 0.3s ease-in-out 0.1s;
+				-o-transition: all 0.3s ease-in-out 0.1s;
+				-ms-transition: all 0.3s ease-in-out 0.1s;
+				-moz-transition: all 0.3s ease-in-out 0.1s;
+				-webkit-transition: all 0.3s ease-in-out 0.1s;
+			}
+			.a:hover{
+				position: relative;
+				left: 100%;
+				margin-left: -32px;
+				background-color: rgba(27, 79, 147,0.5); 
+				box-shadow: 0 -8px 8px -8px rgba(0, 0, 0, 0.5),
+				0 8px 8px -8px rgba(0, 0, 0, 0.5);
+				transition: all 0.3s ease-in-out;
+				-o-transition: all 0.3s ease-in-out;
+				-ms-transition: all 0.3s ease-in-out;
+				-moz-transition: all 0.3s ease-in-out;
+				-webkit-transition: all 0.3s ease-in-out;
+			}
+			.span{
+				display: inline-block;
+				color: #fff;
+				font-family: 'Droid Sans', sans-serif;
+				font-size: 16px;
+				font-weight: bold;
+				white-space: nowrap;
+			}
+			a:hover #bg1{ background: #539770; }
+			a:hover #bg2{ background: #4B7D74; }
+			a:hover #bg3{ background: #8DC2BC; }
+			a:hover #bg4{ background: #EDD6B4; }
+			a:hover #bg5{ background: #BE7467; }
+			a:hover #bg6{ background: #E2AE63; }
         </style>
     </head>
 
     <body>
-        <div id="container"></div>
-		<div id="socket_container"></div>
+		<div class="main">
+			<div id="container"></div>
+			<div id="socket_container"></div>
+			<div class="navmain">
+			<div class="nav">
+				<div class="a">
+					<a href="#"><span class="span" id="bg1">item #1</span></a>
+				</div>  
+			</div>
+			<div class="nav">
+				<div class="a">
+					<a href="#"><span class="span" id="bg1">item #2</span></a>
+				</div>  
+			</div>
+			<div class="nav">
+				<div class="a">
+					<a href="#"><span class="span" id="bg1">item #3</span></a>
+				</div>  
+			</div>
+			<div class="nav">
+				<div class="a">
+					<a href="#"><span class="span" id="bg1">item #4</span></a>
+				</div>  
+			</div>
+			<div class="nav">
+				<div class="a">
+					<a href="#"><span class="span" id="bg1">item #5</span></a>
+				</div>  
+			</div>
+			</div>
+		</div>
+
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>

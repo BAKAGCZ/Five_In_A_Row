@@ -40,96 +40,10 @@
 	}
 
 
-	#nav {
-		display: flex;
-		width: 650px;
-		height: 40px;
-	}
-
-	#nav ul {
-		list-style: none;
-	}
-	#nav ul li {
-		width: 120px;
-		height: 40px;
-	}
-	
-	#nav ul li div {
-		width: 120px;
-		height: 40px;
-		position: relative;
-		-webkit-perspective:6000px;
-		transition:all 0.4s ease 0s;
-		-webkit-transform-style:preserve-3d;
-	}
-	#nav ul li:hover>div {
-		-webkit-transform:rotateX(-90deg);
-	}
-	#nav ul li a {
-		display: block;
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 120px;
-		height: 40px;
-		text-align: center;
-		line-height: 40px;
-		text-decoration: none;
-	}
-	#nav .no1 {
-		background-color: darkblue;
-		-webkit-transform:translateZ(20px);
-		color:white;
-		border-radius: 2px;
-	}
-				
-	#nav .no2 {
-		background-color: white;
-		-webkit-transform:rotateX(90deg) translateZ(20px);
-		color: darkblue;
-		border-radius: 2px;
-	}
-
-
 </style>
 
 <div class="generals_title"><h1 class="generals_main_title">五 子 棋</h1></div>
 <div class="generals_div_button"><button class="generals_start_button">START</button></div>
-<div id="nav">
-	<ul>
-		<li>
-			<div>
-				<a class="no1" href="index.html">首页</a>
-				<a class="no2" href="index.html">首页</a>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a class="no1" href="index1.html">个人简介</a>
-				<a class="no2" href="index1.html">个人简介</a>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a class="no1" href="rwjl.html">人物经历</a>
-				<a class="no2" href="rwjl.html">人物经历</a>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a class="no1" href="dbzp.html">代表作品</a>
-				<a class="no2" href="dbzp.html">代表作品</a>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a class="no1" href="wjdc.html">问卷调查</a>
-				<a class="no2" href="wjdc.html">问卷调查</a>
-			</div>
-		</li>
-	</ul>
-</div>
-		
 
 <script>
 	$('.generals_start_button').click(function(){
