@@ -1,6 +1,6 @@
 <style type="text/css">
 
-	#battel {
+	#battle {
 		display: flex;
 		justify-content: center;
 	}
@@ -14,16 +14,21 @@
 		border: 2px solid #000;
 	}
 
+	#battle_div_tips {
+		display: flex;
+		justify-content: center;
+	} 
+
 	#battle_tips {
 		font-size:22px;
 	}
 
-	#battle_div_reStart {
+	#battle_div_return {
 		display: flex;
 		justify-content: center;
 	}
 
-	#battle_reStart {
+	#battle_return {
 		width: 130px;
 		height: 60px;
 	}
@@ -32,12 +37,12 @@
 <div id="battle">welcome battle!</div>
 <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
 <div id="battle_div_tips"><p id="battle_tips"></p></div>
-<div id="battle_div_reStart"><button id="battle_reStart">重新开始</button></div>
+<div id="battle_div_return"><button id="battle_return">返回</button></div>
 
 <script>
 	(function() {
 		
-		var GRID_SIZE = 40px;
+		var GRID_SIZE = 40;
 		var HORIZONTAL_SIZE = 15;
 		var VERTICAL_SIZE = 12;
 		var checkerboard = [];
@@ -60,6 +65,7 @@
 		}
 
 		function init() {
+			socket.emit('player_chess', user_name);
 			for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
 				checkerboard[i] = [];
 				for (var j = -5; j < VERTICAL_SIZE + 5; j++)
@@ -73,6 +79,11 @@
 			drawCheckerboard();
 			cvs.onclick = putChess;
 		}
+
+		socket.on('player_chess', function(chess){
+			whiteTrun = chess == 1? false: true;
+			console.log('chess ' + chess);
+		});
 
 		/*画棋盘*/
 		function drawCheckerboard() {
@@ -106,7 +117,6 @@
 
 			checkerboard[x][y].state = 1;
 			checkerboard[x][y].type = whiteTrun;
-			whiteTrun = !whiteTrun;
 		}
 
 
@@ -131,8 +141,8 @@
 
 		}
 
-		document.getElementById('battle_reStart').onclick = function() {
-			document.getElementById('battle_tips').innerText = 'wwww';
+		document.getElementById('battle_return').onclick = function() {
+			document.getElementById('battle_return').innerText = 'wwww';
 			init();
 		}
 

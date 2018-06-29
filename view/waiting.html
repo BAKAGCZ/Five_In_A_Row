@@ -27,5 +27,6 @@
 		$('#waiting_people').text(player_number);
 	});
 	
-	socket.emit('join', randomString());
+	var user_name = randomString();
+	socket.emit('join', user_name);
 </script>
