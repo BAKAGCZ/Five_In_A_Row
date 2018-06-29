@@ -9,7 +9,7 @@
 
 <script>
 	console.log('waiting...');
-	var socket = io('http://47.94.87.47:2233');
+	var socket = io();
 
 	socket.on('game_start', function(data){
 		console.log('game_start');

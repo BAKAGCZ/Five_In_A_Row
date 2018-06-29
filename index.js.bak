@@ -92,7 +92,7 @@ io.on('connection', function(socket){
 	socket.on('leave', function(){
 		socket.emit('disconnect');
 		socket.to(room_id).emit('play_break');
-console.log('breaking!!');
+		//console.log('breaking!!');
 	});
 
 	socket.on('disconnect', function(){
