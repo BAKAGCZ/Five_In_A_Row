@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>五子棋</title>
+        <link rel="stylesheet" type="text/css" href='/live2D/waifu.css'>
         <style type="text/css">
             * {
                 text-shadow: 1px 1px blue;
@@ -128,7 +129,7 @@
                 </div>
                 <div class="nav">
                     <div class="a">
-                        <a href="javascript:;"><span class="span" id="bg3">评论区</span></a>
+                        <a href="javascript:;"><span class="span" id="bg3">在线交流</span></a>
                     </div>  
                 </div>
                 <div class="nav">
@@ -144,11 +145,29 @@
             </div>
 
             <div id="container"></div>
-        </div>  
 
-        <script src="/socket.io/socket.io.js"></script>
+            <div class="waifu">
+                <div class="waifu-tips"></div>
+                <canvas id="live2d" width="280" height="250" class="live2d"></canvas>
+                <div class="waifu-tool">
+                    <span class="fui-home"></span>
+                    <span class="fui-chat"></span>
+                    <span class="fui-eye"></span>
+                    <span class="fui-user"></span>
+                    <span class="fui-photo"></span>
+                    <span class="fui-info-circle"></span>
+                    <span class="fui-cross"></span>
+                </div>
+            </div> 
+        </div>
+
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script src="/live2D/waifu-tips.js"></script>
+        <script src="/live2D/live2d.js"></script>
+        <script type="text/javascript">initModel("/live2D/")</script>
+        <script src="/socket.io/socket.io.js"></script>
         <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>
+
         <script>
             var is_white = false;
             var user_name = '五子棋用户';

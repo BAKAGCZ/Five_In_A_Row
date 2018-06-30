@@ -1,6 +1,8 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const path = require('path');
 
 var BattleField = require('./controller/battle_field');
 
@@ -15,6 +17,8 @@ var room_number = 1;
 var room_capacity = 2;
 var battle_fields = {};
 
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/view/index.html');
