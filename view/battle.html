@@ -39,16 +39,16 @@
         border: 2px solid #000;
     }
 
-    #battle_div_chess {
+    #battle_div_chess, #battle_div_tips, #battle_div_room_num {
         display: flex;
         justify-content: center;
     } 
 
-    #battle_chess {
+    #battle_chess, #battle_room_num {
         font-size:18px;
     }
 
-    #battle_div_tips {
+     {
         display: flex;
         justify-content: center;
     } 
@@ -73,6 +73,7 @@
         <p id="enemy_name">对手昵称：对手！</p>
     </div>
     <div id="battle">
+        <div id="battle_div_room_num"><p id="battle_room_num"></p></div>
         <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
         <div id="battle_div_chess"><p id="battle_chess"></p></div>
         <div id="battle_div_tips"><p id="battle_tips"></p></div>
@@ -189,7 +190,7 @@
             var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
             $('#battle_tips').text('现在轮到黑棋落子');
-            $('#room_num').text('房间号：'+data.room);
+            $('#battle_room_num').text('房间号：'+data.room);
             //console.log('chess ' + chess);
         });
 
