@@ -85,6 +85,7 @@
 </div>
 <script>
     (function() {
+
         $('#my_name').text('我的昵称：'+user_name);
 
         var COLOR = 'lightblue';
@@ -182,7 +183,7 @@
 
         }
 
-
+        socket.off('player_info');
         socket.on('player_info', function(data){
             is_white = data.chess == 1 ? true : false;
             var chessType = is_white == true? '白棋': '黑棋';
@@ -192,6 +193,7 @@
             //console.log('chess ' + chess);
         });
 
+        socket.off('room_info');
         socket.on('room_info', function(data){
             if (whiteTurn)  //我白
                 enemy_name = data.black.uname;
@@ -201,7 +203,7 @@
             $('#enemy_name').text('对手昵称：'+enemy_name);
         });
 
-
+        socket.off('play_one');
         socket.on('play_one', function(data){
             var chess = data.chess; // 1白棋 2黑棋
             var play_one = data.state; // -1下棋失败 6胜利 9继续下
@@ -224,22 +226,23 @@
             }
         });
         
+        socket.off('play_break');
         socket.on('play_break', function(){
             console.log('play_break');
-            alert('对手已离开，您可在此页面停留等待下一对手！')
+            alert('对手已离开，您可在此房间等待下一对手 或者 回到首页start重新寻找房间')
             $('#battle_tips').text('对手已离开！');
             cvs.onclick = null;
         });
 
-        init();
+        $('.div_button').off('click');
+        $('.div_button').on('click', '#battle_button', function(){
+            if (exit_confirm(nav_click1));
+        });
 
+        init();
         player_status = 1;
         
         alert('游戏开始！');
-
-        $('.div_button').on('click', '#battle_button', function(){
-            exit_confirm(nav_click1);
-        });
 
     })();
 

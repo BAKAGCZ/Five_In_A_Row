@@ -155,7 +155,7 @@
             var enemy_name = '五子棋用户x';
             var room_id = '房间号';
             var player_status = 0;  //0：未游戏  1：游戏中 2：等待中
-            var socket = io();
+            var socket = io({autoConnect: false});
 
             function randomString(len) {
                 var len = len || 32;
@@ -169,6 +169,8 @@
             }
 
             function nav_click1() {
+                socket.emit('leave');
+                player_status = 0;
                 $.pjax({
                     url: '/generals',
                     container: '#container'
@@ -189,15 +191,17 @@
             }
 
             function exit_confirm(func){
+                var flag = false;
                 if (player_status == 0)
                 {
-                    func();
+                    if (func) func();
                 }
                 else if (player_status == 1) {
                     var r = confirm('确定退出游戏吗？');
                     if (r == true)
                     {
-                        func();
+                        flag = r;
+                        if (func) func();
                     }
                 }
                 else if (player_status == 2)
@@ -205,20 +209,25 @@
                     var r = confirm('确定退出等待吗？');
                     if (r == true)
                     {
-                        func();
+                        flag = r;
+                        if (func) func();
                     }
                 }
+                return flag;
             }
 
             (function(){
+                player_status = 0;
                 $.pjax({
                     url: '/generals',
                     container: '#container'
                 });
 
+                $('#navmain').off('click', '#bg1');
                 $('#navmain').on('click', '#bg1', function(){
                     exit_confirm(nav_click1)
                 });
+                $('#navmain').off('click', '#bg2');
                 $('#navmain').on('click', '#bg2', nav_click2);
             })();
             
