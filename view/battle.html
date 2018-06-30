@@ -24,7 +24,7 @@
     }
 
     #battle {
-        width: 40%
+        width: 40%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -115,6 +115,7 @@
 
         function init() {
             socket.emit('player_info');
+            socket.emit('room_info');
             for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
                 checkerboard[i] = [];
                 for (var j = -5; j < VERTICAL_SIZE + 5; j++)
@@ -229,18 +230,17 @@
             var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
             $('#battle_tips').text('现在轮到黑棋落子');
-            $('#battle_room_num').text('房间号：'+data.room);
             //console.log('chess ' + chess);
         });
 
         socket.off('room_info');
         socket.on('room_info', function(data){
-            if (whiteTurn)  //我白
+            if (is_white)  //我白
                 enemy_name = data.black.uname;
             else
                 enemy_name = data.white.uname;
-
             $('#enemy_name').text('对手昵称：'+enemy_name);
+            $('#battle_room_num').text('房间号：'+data.room_number);
         });
 
         socket.off('play_one');
