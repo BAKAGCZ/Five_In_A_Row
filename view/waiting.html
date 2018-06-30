@@ -12,29 +12,40 @@
     (function(){
         console.log('waiting...');
 
-        socket.on('game_start', function(data){
-            console.log('game_start');
-            $.pjax({
-                url: '/battle',
-                container: '#container'
-            });
-            if(data.chess == 1)
-                is_white = true;
-            else 
-                is_white = false;
-        });
+        if (player_status == 2) // 已经在等待中 
+        {
+            return;
+        }
+        else if (player_status == 1) // 已经在游戏中
+        { 
+            socket.emit('leave');
+        }
+        else if (player_status == 0) // 未游戏
+        {
+            socket.open();
 
-        socket.on('game_waiting', function(data){
-            console.log('game_waiting');
-            var room_id = data.room_id;
-            var player_number = data.player_number;
-            console.log(room_id, player_number);
-            $('#waiting_people').text(player_number);
-        });
+            socket.off('game_start');
+            socket.on('game_start', function(){
+                console.log('game_start');
+                player_status = 1; // 开始游戏
+                $.pjax({
+                    url: '/battle',
+                    container: '#container'
+                });
+            });
+
+            socket.off('game_waiting');
+            socket.on('game_waiting', function(data){
+                console.log('game_waiting');
+                var room_id = data.room;
+                var player_number = data.player_number;
+                console.log(room_id, player_number);
+                $('#waiting_people').text(player_number);
+            });
+        }
         
         socket.emit('join', user_name);
-
-        player_status = 2;
+        player_status = 2; // 进入等待
     })();
  
 

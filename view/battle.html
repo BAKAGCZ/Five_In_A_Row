@@ -86,8 +86,7 @@
 </div>
 <script>
     (function() {
-        if(user_name == '')
-            user_name = user_name_ran;
+
         $('#my_name').text('我的昵称：'+user_name);
 
         var COLOR = 'lightblue';
@@ -95,6 +94,7 @@
         var HORIZONTAL_SIZE = 15;
         var VERTICAL_SIZE = 12;
         var checkerboard = [];
+        var chess_list = []; // 棋谱
 
         var cvs = document.getElementById('battle_cvs');
         var ctx = cvs.getContext('2d');
@@ -147,13 +147,45 @@
         }
 
         /**
-        * 画棋子
+        * 恢复棋子背景色
+        * @param {*} x
+        * @param {*} y
+        */
+
+        function reDrawArc(x, y, chess) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#000'; //边框颜色
+            ctx.fillStyle = COLOR; // 深蓝
+            ctx.fillRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+            ctx.strokeRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+            // 画棋子
+            ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
+            ctx.fillStyle = (chess == 2?  '#000': '#eee');
+            ctx.fill();
+            ctx.closePath();
+
+        }
+
+        /**
+        * 画棋子并改变棋子背景色
         * @param {*} x
         * @param {*} y
         */
 
         function drawArc(x, y, chess) {
+            // 恢复上一次下棋的背景色
+            if (chess_list.length > 0)
+                reDrawArc(chess_list[chess_list.length-1].x, chess_list[chess_list.length-1].y, chess_list[chess_list.length-1].chess);
+
             ctx.beginPath();
+            ctx.strokeStyle = '#000'; //边框颜色
+            // 画当前下棋子的背景色
+            ctx.fillStyle = '#6A5ACD'; // 深蓝
+            ctx.fillRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+            ctx.strokeRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+            // 画棋子
             ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
             ctx.fillStyle = (chess == 2?  '#000': '#eee');
             ctx.fill();
@@ -161,6 +193,12 @@
 
             checkerboard[x][y].state = 1;
             checkerboard[x][y].type = is_white;
+
+            chess_list.push({
+                x: x,
+                y: y,
+                chess: chess
+            });
         }
 
 
@@ -185,8 +223,9 @@
 
         }
 
-
+        socket.off('player_info');
         socket.on('player_info', function(data){
+            is_white = data.chess == 1 ? true : false;
             var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
             $('#battle_tips').text('现在轮到黑棋落子');
@@ -194,6 +233,7 @@
             //console.log('chess ' + chess);
         });
 
+        socket.off('room_info');
         socket.on('room_info', function(data){
             if (whiteTurn)  //我白
                 enemy_name = data.black.uname;
@@ -203,7 +243,7 @@
             $('#enemy_name').text('对手昵称：'+enemy_name);
         });
 
-
+        socket.off('play_one');
         socket.on('play_one', function(data){
             var chess = data.chess; // 1白棋 2黑棋
             var play_one = data.state; // -1下棋失败 6胜利 9继续下
@@ -214,7 +254,7 @@
             var y = data.x;
             
             if (play_one == 9)
-            {
+            {   
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
             }
@@ -226,21 +266,23 @@
             }
         });
         
+        socket.off('play_break');
         socket.on('play_break', function(){
-            alert('对手已离开，您可在此页面停留等待下一对手！')
+            console.log('play_break');
+            alert('对手已离开，您可在此房间等待下一对手 或者 回到首页start重新寻找房间')
             $('#battle_tips').text('对手已离开！');
             cvs.onclick = null;
         });
 
-        init();
-
-        player_status = 1;
-        
-        alert('游戏开始！');
-
+        $('.div_button').off('click');
         $('.div_button').on('click', '#battle_button', function(){
-            exit_confirm(nav_click1);
+            if (exit_confirm(nav_click1));
         });
+
+        init();
+        player_status = 1;
+
+        alert('游戏开始！');
 
     })();
 

@@ -4,9 +4,9 @@ var io = require('socket.io')(http);
 
 var BattleField = require('./controller/battle_field');
 
-var rooms = [];
+var rooms = {};
 /* { room_id : { room, white, black } } */
-var room_info = []; 
+var room_info = {}; 
 /* { user_id : { uname, room, chess } } */
 var player_info = {};
 /* { user_id : socket } */
@@ -35,19 +35,21 @@ app.get('/battle', function(req, res){
 
 
 io.on('connection', function(socket){
-    console.log('socket ' + socket.id + ' connected. ' + Date());
+    console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
-    player_info[user_id] = {};
-    player_socket[user_id] = socket;
-    var room_id;
+    var room_id = '';
     var is_leave = 0;
 
     socket.on('join',function(user_name){
+    	// console.log('join');
         var flag = 0;
         var is_ok = 0;
 
+    	is_leave = 0;
+
+
         //有房间人数未满
-        for (var i=0; i<rooms.length; i++)
+        for (var i in rooms)
         {
             if (rooms[i].length < room_capacity)
             {
@@ -63,18 +65,23 @@ io.on('connection', function(socket){
         //房间全满 或 当前没有房间
         if (!flag)
         {
-            room_id = rooms.length;
-            rooms.push([user_id]);
-            room_info.push({});
+            room_id = user_id;
+            rooms[room_id] = [user_id];
+            room_info[room_id] = {};
         }
+
+        for (var i in rooms)
+            console.log('room[' + i + ']: ' + rooms[i].length);
 
         //进入房间
         socket.join(room_id);
+        
+        room_info[room_id].room = room_id;
+        player_info[user_id] = {};
         player_info[user_id].uname = user_name;
         player_info[user_id].room = room_id;
         player_info[user_id].chess = 0;
-        room_info[room_id].room = room_id;
-
+        
         if (is_ok)
         {
         	var play_a = player_info[rooms[room_id][0]];
@@ -94,8 +101,8 @@ io.on('connection', function(socket){
 	            room_info[room_id].black = play_a;
 	        }
 
-            player_socket[user_id].emit('game_start', play_a);
-            player_socket[user_id].emit('game_start', play_b);
+	        // 通知room里的玩家
+	        io.sockets.in(room_id).emit('game_start');
             // 生成棋盘
             battle_fields[room_id] = new BattleField();
             battle_fields[room_id].create();
@@ -104,7 +111,8 @@ io.on('connection', function(socket){
         {
             // console.log(rooms[room_id]);
             var data = {
-                player_number: rooms[room_id].length
+                player_number: rooms[room_id].length,
+                room: room_id
             };
             socket.emit('game_waiting', data);
         }
@@ -112,11 +120,9 @@ io.on('connection', function(socket){
 
 
     function leave_room(){
-    	if (!is_leave) 
-    	{
-    		is_leave = 1;
-    		return;
-    	}
+    	if (is_leave == 1) return;
+    	is_leave = 1;
+    	console.log(user_id + " leave room (" + room_id + ')');
         if (rooms[room_id] == undefined) return;
 
         var index = rooms[room_id].indexOf(user_id);
@@ -126,17 +132,17 @@ io.on('connection', function(socket){
         // 更新房间信息
         if (rooms[room_id].length == 0)
         {
-        	room_info[room_id].white = 0;
-        	room_info[room_id].black = 0;
+            delete rooms[room_id];
+            delete room_info[room_id];
         }
 
         // 删除玩家
-        if (player_socket[user_id]) delete player_socket[user_id];
         if (player_info[user_id]) delete player_info[user_id];
 
         // 初始化棋盘
         if (battle_fields[room_id]) battle_fields[room_id].reset();
 
+        socket.broadcast.to(room_id).emit('play_break');
         socket.leave(room_id);
     }
 
@@ -156,8 +162,7 @@ io.on('connection', function(socket){
             y: data.y
         };
 
-        socket.to(room_id).emit('play_one', res);
-        socket.emit('play_one', res);
+        io.sockets.in(room_id).emit('play_one', res);
     });
 
     socket.on('room_info', function(){
