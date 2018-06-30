@@ -225,6 +225,7 @@
         });
         
         socket.on('play_break', function(){
+            console.log('play_break');
             alert('对手已离开，您可在此页面停留等待下一对手！')
             $('#battle_tips').text('对手已离开！');
             cvs.onclick = null;

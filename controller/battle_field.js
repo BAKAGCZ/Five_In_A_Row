@@ -10,10 +10,17 @@ function BattleField() {
         [1,-1,-1,1]
     ];
 
+    this.reset = function() {
+        for (var i=0; i<this.row; i++)
+            for (var j=0; j<this.column; j++)
+                this.battle_map[i][j]=0;
+    };
+
 	this.create = function() {
 		this.battle_map = new Array(this.row);
 		for (var i=0; i<this.row; i++)
 			this.battle_map[i] = new Array(this.column);
+        this.reset();
 	};
 
     /**
@@ -23,8 +30,10 @@ function BattleField() {
         * @return int: // -1下棋失败 6胜利 9继续下
     */
     this.play = function(chess, x, y) {
-        if (this.chess!=chess || x<0 || x>this.row-1 || y<0 || y>this.column-1) return -1;
-        this.chess = this.chess==1 ? 2 : 1;
+        if (this.battle_map[x][y] != 0 || this.chess != chess 
+            || x < 0 || x > this.row - 1 
+            || y < 0 || y > this.column - 1) return -1;
+        this.chess = this.chess == 1 ? 2 : 1;
         this.battle_map[x][y]=chess;
         if (this.judge(x, y))
             return 6;
@@ -65,12 +74,6 @@ function BattleField() {
             }
         }
         return flag;
-    };
-
-    this.reset = function() {
-        for (var i=0; i<this.row; i++)
-            for (var j=0; j<this.column; j++)
-                this.battle_map[i][j]=0;
     };
 };
 
