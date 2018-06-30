@@ -93,6 +93,7 @@
         var HORIZONTAL_SIZE = 15;
         var VERTICAL_SIZE = 12;
         var checkerboard = [];
+        var chess_list = []; // 棋谱
 
         var cvs = document.getElementById('battle_cvs');
         var ctx = cvs.getContext('2d');
@@ -145,13 +146,45 @@
         }
 
         /**
-        * 画棋子
+        * 恢复棋子背景色
+        * @param {*} x
+        * @param {*} y
+        */
+
+        function reDrawArc(x, y, chess) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#000'; //边框颜色
+            ctx.fillStyle = COLOR; // 深蓝
+            ctx.fillRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+            ctx.strokeRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+            // 画棋子
+            ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
+            ctx.fillStyle = (chess == 2?  '#000': '#eee');
+            ctx.fill();
+            ctx.closePath();
+
+        }
+
+        /**
+        * 画棋子并改变棋子背景色
         * @param {*} x
         * @param {*} y
         */
 
         function drawArc(x, y, chess) {
+            // 恢复上一次下棋的背景色
+            if (chess_list.length > 0)
+                reDrawArc(chess_list[chess_list.length-1].x, chess_list[chess_list.length-1].y, chess_list[chess_list.length-1].chess);
+
             ctx.beginPath();
+            ctx.strokeStyle = '#000'; //边框颜色
+            // 画当前下棋子的背景色
+            ctx.fillStyle = '#6A5ACD'; // 深蓝
+            ctx.fillRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+            ctx.strokeRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+            // 画棋子
             ctx.arc(x*GRID_SIZE + GRID_SIZE/2, y*GRID_SIZE + GRID_SIZE/2, (GRID_SIZE/ 2) * 0.8, 0, 2*Math.PI);
             ctx.fillStyle = (chess == 2?  '#000': '#eee');
             ctx.fill();
@@ -159,6 +192,12 @@
 
             checkerboard[x][y].state = 1;
             checkerboard[x][y].type = is_white;
+
+            chess_list.push({
+                x: x,
+                y: y,
+                chess: chess
+            });
         }
 
 
@@ -214,7 +253,7 @@
             var y = data.x;
             
             if (play_one == 9)
-            {
+            {   
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
             }
@@ -241,7 +280,7 @@
 
         init();
         player_status = 1;
-        
+
         alert('游戏开始！');
 
     })();
