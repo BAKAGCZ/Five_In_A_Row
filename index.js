@@ -4,14 +4,14 @@ var io = require('socket.io')(http);
 
 var BattleField = require('./controller/battle_field');
 
+/* { room_id : [user_id, ...] } */
 var rooms = {};
-/* { room_id : { room, white, black } } */
+/* { room_id : { room, room_number, white, black } } */
 var room_info = {}; 
 /* { user_id : { uname, room, chess } } */
 var player_info = {};
-/* { user_id : socket } */
-var player_socket = {};
 
+var room_number = 1;
 var room_capacity = 2;
 var battle_fields = {};
 
@@ -37,7 +37,7 @@ app.get('/battle', function(req, res){
 io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
-    var room_id = '';
+    var room_id = ''; // 创建者的user_id
     var is_leave = 0;
 
     socket.on('join',function(user_name){
@@ -100,6 +100,7 @@ io.on('connection', function(socket){
 	            room_info[room_id].white = play_b;
 	            room_info[room_id].black = play_a;
 	        }
+            room_info[room_id].room_number = room_number++;
 
 	        // 通知room里的玩家
 	        io.sockets.in(room_id).emit('game_start');
