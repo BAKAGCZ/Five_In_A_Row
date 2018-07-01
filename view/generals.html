@@ -5,8 +5,8 @@
     }
 
     .generals_main_title {
-        margin-top:170px;
-        font-size: 72px;
+        margin-top:12%;
+        font-size: 4rem;
         color: black;
         text-align: center;
         text-shadow: 2px 2px blue;
@@ -16,14 +16,14 @@
     #div_name_input {
         display: flex;
         justify-content: center;
-        margin-top: 100px;
-        margin-bottom: 30px;
+        margin-top: 1%;
+        margin-bottom: 3%;
     }
 
     #name_input {
-        width:250px;
-        height: 35px;
-        font-size: 25px;
+        width:40%;
+        height: 50px;
+        font-size: 2rem;
         text-align:center;
         color: darkgreen;
     }
@@ -43,22 +43,20 @@
 <script>
 
     (function(){
-        if (player_status == 0) // 未游戏
-        {
-            $('.button').off('click');
-            $('.button').on('click', function(){
-                $.pjax({
-                    url: '/waiting',
-                    container: '#container'
-                });
-                user_name = $('#name_input').val();
-            });
-        }
-        else if (player_status == 1 || player_status == 2) // 游戏中或者等待中
+        if (player_status == 1 || player_status == 2) // 游戏中或者等待中
         {
             socket.emit('leave');
             player_status = 0;
         }
+
+        $('.button').off('click');
+        $('.button').on('click', function(){
+            $.pjax({
+                url: '/waiting',
+                container: '#container'
+            });
+            user_name = $('#name_input').val();
+        });
 
         player_status = 0;
     })();

@@ -74,16 +74,17 @@ io.on('connection', function(socket){
             room_info[room_id] = {};
         }
 
+        // 输出房间信息
         for (var i in rooms)
             console.log('room[' + i + ']: ' + rooms[i].length);
 
         //进入房间
         socket.join(room_id);
         
-        room_info[room_id].room = room_id;
+        room_info[room_id].room_id = room_id;
         player_info[user_id] = {};
         player_info[user_id].uname = user_name;
-        player_info[user_id].room = room_id;
+        player_info[user_id].room_id = room_id;
         player_info[user_id].chess = 0;
         
         if (is_ok)
@@ -117,7 +118,7 @@ io.on('connection', function(socket){
             // console.log(rooms[room_id]);
             var data = {
                 player_number: rooms[room_id].length,
-                room: room_id
+                room_id: room_id
             };
             socket.emit('game_waiting', data);
         }
@@ -178,6 +179,14 @@ io.on('connection', function(socket){
     socket.on('player_info', function(){
     	if (player_info[user_id] == undefined) return;
         socket.emit('player_info', player_info[user_id]);
+    });
+
+    socket.on('room_list', function(){
+        socket.emit('room_list', room_info);
+    });
+
+    socket.on('chat_message', function(msg){
+        io.sockets.in(room_id).emit('chat_message', msg);
     });
 
     socket.on('reset', function(){

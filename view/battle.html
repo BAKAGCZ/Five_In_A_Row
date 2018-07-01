@@ -2,32 +2,41 @@
     #battle_main {
         width: 100%;
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
     }
 
-    #enemy_info, #my_info {
+    #battle_play_info {
         display: flex;
-        flex-direction: column;
-        width: 30%;
+        flex-direction: row;
+        justify-content: center;
+        height: 1.1rem;
+        text-align: center;
+    }
+
+    #battle_play_info_blank {
+        width: 44%;
     }
 
     #enemy_name, #my_name {
-        font-size: 20px;
+        font-size: 1.3rem;
         color: green;
+        width: 250px;
         text-shadow: 1px 1px darkgreen;
-        justify-content: center;
-        margin-left: 60px;
+
+        overflow:hidden;
+        white-space:nowrap;
+        text-overflow:ellipsis;
+        text-overflow: ellipsis;/* IE/Safari */
+        -ms-text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;/* Opera */
+        -moz-binding: url("ellipsis.xml#ellipsis");/*FireFox*/
     }
 
-    #my_info_space {
-        height: 600px;
-    }
 
     #battle {
-        width: 40%;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
     }
 
     #battle_div_cvs {
@@ -69,19 +78,22 @@
 
 </style>
 <div id="battle_main">
-    <div id="enemy_info">
-        <p id="enemy_name">对手昵称：对手！</p>
+    <div id="battle_play_info">
+        <div id="enemy_info">
+            <p id="enemy_name">对手昵称：对手！</p>
+        </div>
+        <div id="battle_play_info_blank"></div>
+        <div id="div_my_name">
+            <p id="my_name">我的昵称：尼玛！</p>
+        </div>        
     </div>
+
     <div id="battle">
         <div id="battle_div_room_num"><p id="battle_room_num"></p></div>
         <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
         <div id="battle_div_chess"><p id="battle_chess"></p></div>
         <div id="battle_div_tips"><p id="battle_tips"></p></div>
         <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
-    </div>
-    <div id="my_info">
-        <div id="my_info_space"></div>
-        <div id="div_my_name"><p id="my_name">我的昵称：尼玛！</p></div>
     </div>
 </div>
 <script>
