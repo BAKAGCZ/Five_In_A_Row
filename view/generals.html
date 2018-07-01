@@ -52,16 +52,20 @@
             player_status = 0;
         }
 
+        $('#name_input').off('blur');
+        $('#name_input').on('blur', function(){
+            if ($('#name_input').val() != '') 
+                user_name = $('#name_input').val();
+            $.cookie('user_name', null);
+            $.cookie('user_name', user_name, { expires: 365 });
+        });
+
         $('.button').off('click');
         $('.button').on('click', function(){
             $.pjax({
                 url: '/waiting',
                 container: '#container'
             });
-            user_name = $('#name_input').val();
-            if (user_name == '') user_name = '(｡･∀･)ﾉﾞ';
-            $.cookie('user_name', null);
-            $.cookie('user_name', user_name, { expires: 365 });
         });
 
         player_status = 0;
