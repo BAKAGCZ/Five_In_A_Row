@@ -1,11 +1,30 @@
 <style type="text/css">
+    .wait_content {
+        position: absolute;
+        text-align: center;
+        font-size: 3rem;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -o-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+
+
     .wait_info {
         color: red;
     }
+
 </style>
 
-<div class="wait_info">Waiting...</div>
-<div id="waiting_people">N</div>
+<div class="wait_content">
+    <div class="wait_info">Waiting...</div>
+    <div id="waiting_people">N</div>
+</div>
+
+
 
 <script>
 
@@ -37,7 +56,7 @@
             socket.off('game_waiting');
             socket.on('game_waiting', function(data){
                 console.log('game_waiting');
-                var room_id = data.room;
+                var room_id = data.room_id;
                 var player_number = data.player_number;
                 console.log(room_id, player_number);
                 $('#waiting_people').text(player_number);
