@@ -1,6 +1,6 @@
 function BattleField() {
 	this.row = 13;
-	this.column = 18;
+	this.column = 20;
 	this.battle_map = [];
     this.chess = 2; // 黑棋先下
     this.direct = [
