@@ -187,7 +187,7 @@ io.on('connection', function(socket){
     });
 
     socket.on('chat_message', function(msg){
-        io.sockets.in(room_id).emit('chat_message', msg);
+        io.sockets.in(room_id).emit('chat_message', { sender: user_name, msg: msg });
     });
 
     socket.on('reset', function(){
