@@ -276,8 +276,8 @@
         
         socket.off('play_break');
         socket.on('play_break', function(){
-            console.log('play_break');
-            alert('对手已离开，您可在此房间等待下一对手 或者 回到首页start重新寻找房间')
+            // console.log('play_break');
+            alert('对手已离开，您可在此房间等待下一对手 或者 回到首页')
             $('#battle_tips').text('对手已离开！');
             cvs.onclick = null;
         });
