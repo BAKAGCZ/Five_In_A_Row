@@ -193,7 +193,6 @@ io.on('connection', function(socket){
 
     socket.on('chat_message', function(data){
         io.sockets.emit('chat_message', data);
-        console.log('*'+ data.sender + ': ' + data.msg);
     });
 
     socket.on('player_rank', function(){
