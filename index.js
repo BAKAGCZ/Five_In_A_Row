@@ -36,6 +36,9 @@ app.get('/battle', function(req, res){
     res.sendFile(__dirname + '/view/battle.html');
 });
 
+app.get('/chat_room', function(req, res){
+    res.sendFile(__dirname + '/view/chat_room.html');
+});
 
 
 io.on('connection', function(socket){

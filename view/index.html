@@ -212,6 +212,13 @@
                 }
             }
 
+            function nav_click3() {
+                    $.pjax({
+                    url: '/chat_room',
+                    container: '#container'
+                });
+            }
+
             function exit_confirm(func){
                 var flag = false;
                 if (player_status == 0)
@@ -251,6 +258,13 @@
                 });
                 $('#navmain').off('click', '#bg2');
                 $('#navmain').on('click', '#bg2', nav_click2);
+                
+                $('#navmain').off('click', '#bg3');
+                $('#navmain').on('click', '#bg3', function(){
+                    exit_confirm(nav_click3)
+                });
+
+
             })();
             
 
