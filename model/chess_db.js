@@ -24,3 +24,13 @@ const player_rank = Sequelize.define('player_rank',{
 		type: Sequelize.BIGINT
 	}
 });
+
+function ChessDB()
+{
+	this.getTopN = function(n) {
+		// body...
+	}
+}
+
+module.exports = ChessDB;
+

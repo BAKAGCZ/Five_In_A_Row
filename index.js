@@ -4,7 +4,9 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
-var BattleField = require('./controller/battle_field');
+
+const ChessDB = require('./Model/chess_db');
+const BattleField = require('./controller/battle_field');
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
@@ -191,6 +193,10 @@ io.on('connection', function(socket){
 
     socket.on('chat_message', function(msg){
         io.sockets.in(room_id).emit('chat_message', { sender: user_name, msg: msg });
+    });
+
+    socket.on('player_rank', function(){
+        socket.emit('player_rank', ChessDB.getTopN(10));
     });
 
     socket.on('reset', function(){
