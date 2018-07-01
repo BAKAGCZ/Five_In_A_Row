@@ -158,7 +158,7 @@ io.on('connection', function(socket){
 
     socket.on('play_one', function(data){
         if (battle_fields[room_id] == undefined) return;
-        if (player_info[user_id].chess == 0) return; // 观众
+        if (player_info[user_id] == undefined || player_info[user_id].chess == 0) return; // 观众
 
         var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
 
