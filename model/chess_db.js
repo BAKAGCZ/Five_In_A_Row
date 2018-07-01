@@ -1,22 +1,22 @@
-const fs = require('fs');
 const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
-var database_username = '';
-var database_password = '';
-
-fs.readFile('./db.txt', 'utf-8', function(err, data){
-    if (err) throw err;
-    var s = data.toString().split(';');
-    database_username = s[0];
-    database_password = s[1];
-});
-
-var db = new Sequelize('course_design', database_username, database_password, {
+var db = new Sequelize('course_design', '', '', {
     dialect: 'sqlite',
-    storage: './database/course_design.sqlite'
+    storage: './database/course_design.sqlite',
+    freezeTableName: true,
+    operatorsAliases: {
+		$and: Op.and,
+		$or: Op.or,
+		$eq: Op.eq,
+		$gt: Op.gt,
+		$lt: Op.lt,
+		$lte: Op.lte,
+		$like: Op.like
+    }
 });
 
-const player_rank = Sequelize.define('player_rank',{
+const player_rank = db.define('player_rank',{
 	user_name: {
 		type: Sequelize.STRING
 	},
@@ -24,3 +24,17 @@ const player_rank = Sequelize.define('player_rank',{
 		type: Sequelize.BIGINT
 	}
 });
+
+function ChessDB()
+{
+	this.getTopN = function(n) {
+		// body...
+	}
+
+	this.update = function(user_name, is_win) {
+		//
+	}
+}
+
+module.exports = ChessDB;
+
