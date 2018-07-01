@@ -106,6 +106,7 @@ io.on('connection', function(socket){
 	            room_info[room_id].black = play_a;
 	        }
             room_info[room_id].room_number = room_number++;
+            console.log(room_number + ' plays');
 
 	        // 通知room里的玩家
 	        io.sockets.in(room_id).emit('game_start');
