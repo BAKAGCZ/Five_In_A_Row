@@ -43,6 +43,9 @@
 <script>
 
     (function(){
+        if ($.cookie('user_name'))
+            $('#name_input').val($.cookie('user_name'));
+        
         if (player_status == 1 || player_status == 2) // 游戏中或者等待中
         {
             socket.emit('leave');
@@ -57,6 +60,8 @@
             });
             user_name = $('#name_input').val();
             if (user_name == '') user_name = '(｡･∀･)ﾉﾞ';
+            $.cookie('user_name', null);
+            $.cookie('user_name', user_name, { expires: 7 });
         });
 
         player_status = 0;
