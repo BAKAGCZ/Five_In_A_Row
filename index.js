@@ -191,8 +191,9 @@ io.on('connection', function(socket){
         socket.emit('room_list', room_info);
     });
 
-    socket.on('chat_message', function(msg){
-        io.sockets.in(room_id).emit('chat_message', { sender: user_name, msg: msg });
+    socket.on('chat_message', function(data){
+        io.sockets.emit('chat_message', data);
+        console.log('*'+ data.sender + ': ' + data.msg);
     });
 
     socket.on('player_rank', function(){
