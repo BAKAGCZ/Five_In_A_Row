@@ -78,8 +78,8 @@ io.on('connection', function(socket){
         }
 
         // 输出房间信息
-        for (var i in rooms)
-            console.log('room[' + i + ']: ' + rooms[i].length);
+        // for (var i in rooms)
+        //     console.log('room[' + i + ']: ' + rooms[i].length);
 
         //进入房间
         socket.join(room_id);
