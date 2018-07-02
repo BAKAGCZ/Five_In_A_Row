@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>五子棋</title>
         <link rel="stylesheet" type="text/css" href='/live2D/waifu.css'>
+        <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.css" rel="stylesheet">
         <style type="text/css">
             * {
                 text-shadow: 1px 1px blue;
@@ -110,7 +111,11 @@
             a:hover #bg6{ background: #E2AE63; }*/
 
             .waifu {
-                left: 74%;
+                left: 78%;
+            }
+
+            #modal-content {
+                display: none;
             }
         </style>
     </head>
@@ -163,20 +168,52 @@
             </div> 
         </div>
 
+        <div id="modal-content">
+            <p id="your_in_playing">您已在游戏中！</p>
+            <p id="your_in_waiting">您已在等待中！</p>
+        </div>
+
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+        <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>
+
         <script src="/live2D/waifu-tips.js"></script>
         <script src="/live2D/live2d.js"></script>
         <script type="text/javascript">initModel("/live2D/")</script>
         <script src="/socket.io/socket.io.js"></script>
-        <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>
 
-        <script>
+        <script type="text/javascript">
+            $("#your_in_playing").dialog(
+                { 
+                    modal: true, autoOpen: false,
+                    title: "确认框",
+                    buttons: {
+                    "确定": function() { $(this).dialog('close'); },
+                    "取消": function() { $(this).dialog('close'); }
+                }
+            }); 
+
+            $("#your_in_waiting").dialog(
+                { 
+                    modal: true, autoOpen: false,
+                    title: "确认框",
+                    buttons: {
+                    "确定": function() { $(this).dialog('close'); },
+                    "取消": function() { $(this).dialog('close'); }
+                }
+            }); 
+        </script>
+
+        <script type="text/javascript">
             var is_white = false;
             var user_name = '(｡･∀･)ﾉﾞ';
             var enemy_name = '(｡･∀･)ﾉﾞx';
             var room_id = '房间号';
-            var player_status = 0;  //0：未游戏  1：游戏中 2：等待中
+
+            const GAME_VISIT = 0, GAME_PLAY = 1, GAME_WAIT = 2;
+            var player_status = GAME_VISIT;  //0：未游戏  1：游戏中 2：等待中
+            
             var socket = io({autoConnect: false});
             socket.removeAllListeners();
 
@@ -193,7 +230,7 @@
 
             function nav_click1() {
                 socket.emit('leave');
-                player_status = 0;
+                player_status = GAME_VISIT;
                 $.pjax({
                     url: '/generals',
                     container: '#container'
@@ -201,10 +238,10 @@
             }
                         
             function nav_click2() {
-                if(player_status == 1)
-                    alert('您已在游戏中！');
-                else if (player_status == 2)
-                    alert('您已在等待中！');
+                if(player_status == GAME_PLAY)
+                    $("#your_in_playing").dialog('open');
+                else if (player_status == GAME_WAIT)
+                    $("#your_in_waiting").dialog('open');
                 else {
                     $.pjax({
                         url: '/waiting',
@@ -214,7 +251,7 @@
             }
 
             function nav_click3() {
-                    $.pjax({
+                $.pjax({
                     url: '/chat_room',
                     container: '#container'
                 });
@@ -222,19 +259,21 @@
 
             function exit_confirm(func){
                 var flag = false;
-                if (player_status == 0)
+                if (player_status == GAME_VISIT)
                 {
                     if (func) func();
                 }
-                else if (player_status == 1) {
-                    var r = confirm('确定退出游戏吗？');
+                else if (player_status == GAME_PLAY) {
+                    var r = confirm('确定退出游戏吗？(认输)');
                     if (r == true)
                     {
                         flag = r;
+                        socket.emit('play_defeat');
+                        player_status = GAME_VISIT;
                         if (func) func();
                     }
                 }
-                else if (player_status == 2)
+                else if (player_status == GAME_WAIT)
                 {
                     var r = confirm('确定退出等待吗？');
                     if (r == true)
@@ -247,7 +286,7 @@
             }
 
             (function(){
-                player_status = 0;
+                player_status = GAME_VISIT;
                 $.pjax({
                     url: '/generals',
                     container: '#container'
@@ -264,7 +303,6 @@
                 $('#navmain').on('click', '#bg3', function(){
                     exit_confirm(nav_click3)
                 });
-
 
             })();
             

@@ -6,7 +6,7 @@ const path = require('path');
 
 
 const ChessDB = require('./Model/chess_db');
-const BattleField = require('./controller/battle_field');
+const ChessBoard = require('./controller/chess_board');
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
@@ -17,7 +17,7 @@ var player_info = {};
 
 var room_number = 1;
 var room_capacity = 2;
-var battle_fields = {};
+var chess_boards = {};
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -120,8 +120,8 @@ io.on('connection', function(socket){
 	        // 通知room里的玩家
 	        io.sockets.in(room_id).emit('game_start');
             // 生成棋盘
-            battle_fields[room_id] = new BattleField();
-            battle_fields[room_id].create();
+            chess_boards[room_id] = new ChessBoard();
+            chess_boards[room_id].create();
         }
         else
         {
@@ -156,7 +156,7 @@ io.on('connection', function(socket){
         if (player_info[user_id]) delete player_info[user_id];
 
         // 初始化棋盘
-        if (battle_fields[room_id]) battle_fields[room_id].reset();
+        if (chess_boards[room_id]) chess_boards[room_id].reset();
 
         socket.broadcast.to(room_id).emit('play_break');
         socket.leave(room_id);
@@ -166,10 +166,16 @@ io.on('connection', function(socket){
     socket.on('disconnect', leave_room);
 
     socket.on('play_one', function(data){
-        if (battle_fields[room_id] == undefined) return;
+        if (chess_boards[room_id] == undefined) return;
         if (player_info[user_id] == undefined || player_info[user_id].chess == 0) return; // 观众
 
-        var play_state = battle_fields[room_id].play(data.chess, data.x, data.y);
+        var play_state = chess_boards[room_id].play(data.chess, data.x, data.y);
+        // 更新排行榜
+        if (play_state == ChessBoard.config.play_win)
+        {
+            // ChessDB.update();
+            console.log('win');
+        }
 
         var res = {
             chess: data.chess,
@@ -179,6 +185,11 @@ io.on('connection', function(socket){
         };
 
         io.sockets.in(room_id).emit('play_one', res);
+    });
+
+    socket.on('play_defeat', function(){
+        if (player_info[user_id] == undefined) return;
+        io.sockets.in(room_id).emit('play_defeat', player_info[user_id].chess);
     });
 
     socket.on('room_info', function(){
@@ -204,8 +215,8 @@ io.on('connection', function(socket){
     });
 
     socket.on('reset', function(){
-        if (battle_fields[room_id] == undefined) return;
-        battle_fields[room_id].reset();
+        if (chess_boards[room_id] == undefined) return;
+        chess_boards[room_id].reset();
     });
 });
 

@@ -54,7 +54,7 @@
     } 
 
     #battle_chess, #battle_room_num {
-        font-size:18px;
+        font-size:1.2rem;
     }
 
     #battle_tips {
@@ -62,14 +62,22 @@
         margin-top: 0;
     }
 
-    #battle_button {
-        width: 160px;
-        height: 80px;
+    #battle_div_button {
+        font-size: 1rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        margin-bottom: 100px;
     }
 
-    #battle_button:hover {
-        width: 155px;
-        height: 75px;
+    #battle_defeat_button,#battle_quit_button {
+        width: 150px;
+        height: 70px;
+    }
+
+    #battle_defeat_button:hover,#battle_quit_button:hover {
+        width: 145px;
+        height: 65px;
     }
 
 </style>
@@ -89,7 +97,10 @@
         <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
         <div id="battle_div_chess"><p id="battle_chess"></p></div>
         <div id="battle_div_tips"><p id="battle_tips"></p></div>
-        <div class="div_button"><button class="button" id="battle_button">返回首页</button></div>
+        <div id="battle_div_button">
+            <button class="button" id="battle_defeat_button">认输</button>
+            <button class="button" id="battle_quit_button">退出</button>
+        </div>
     </div>
 </div>
 <script>
@@ -251,6 +262,14 @@
             $('#battle_room_num').text('房间号：'+data.room_number);
         });
 
+        socket.off('play_defeat');
+        socket.on('play_defeat', function(chess){
+            $('#battle_tips').text(chess == 2 ? '黑': '白' + '棋认输！');
+            $('#battle_div_button').off('click', '#battle_defeat_button');
+            cvs.onclick = null;
+            player_status = GAME_WAIT;
+        });
+
         socket.off('play_one');
         socket.on('play_one', function(data){
             var chess = data.chess; // 1白棋 2黑棋
@@ -271,6 +290,7 @@
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
                 cvs.onclick = null;
+                player_status = GAME_WAIT;
             }
         });
         
@@ -278,19 +298,24 @@
         socket.on('play_break', function(){
             // console.log('play_break');
             alert('对手已离开，您可在此房间等待下一对手 或者 回到首页')
-            $('#battle_tips').text('对手已离开！');
+            // $('#battle_tips').text('对手已离开！');
             cvs.onclick = null;
+            player_status = GAME_WAIT;
         });
-
-        $('.div_button').off('click');
-        $('.div_button').on('click', '#battle_button', function(){
-            if (exit_confirm(nav_click1));
+        
+        $('#battle_div_button').off('click');
+        $('#battle_div_button').on('click', '#battle_defeat_button', function(){
+            var r = confirm('确定认输吗？');
+            if (r) socket.emit('play_defeat');
+        });
+        $('#battle_div_button').on('click', '#battle_quit_button', function(){
+            exit_confirm(nav_click1);
         });
 
         init();
-        player_status = 1;
+        player_status = GAME_PLAY;
 
-        alert('游戏开始！');
+        // alert('游戏开始！');
 
     })();
 

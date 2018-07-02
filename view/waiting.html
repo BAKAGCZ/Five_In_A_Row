@@ -29,20 +29,20 @@
 <script>
 
     (function(){
-        console.log('waiting...');
+        // console.log('waiting...');
 
-        if (player_status == 2) // 已经在等待中
+        if (player_status == GAME_WAIT) // 已经在等待中
             return;
-        else if (player_status == 1) // 已经在游戏中
+        else if (player_status == GAME_PLAY) // 已经在游戏中
             socket.emit('leave');
-        else if (player_status == 0) // 未游戏
+        else if (player_status == GAME_VISIT) // 未游戏
         {
             socket.open();
 
             socket.off('game_start');
             socket.on('game_start', function(){
                 console.log('game_start');
-                player_status = 1; // 开始游戏
+                player_status = GAME_PLAY; // 开始游戏
                 $.pjax({
                     url: '/battle',
                     container: '#container'
@@ -60,7 +60,7 @@
         }
         
         socket.emit('join', user_name);
-        player_status = 2; // 进入等待
+        player_status = GAME_WAIT; // 进入等待
     })();
  
 
