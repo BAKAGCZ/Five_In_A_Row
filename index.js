@@ -192,7 +192,6 @@ io.on('connection', function(socket){
                 loser = room_info[room_id].black.uname;
             }
             ChessDB.update(winner, loser);
-            console.log('win');
         }
 
         var res = {
@@ -220,7 +219,6 @@ io.on('connection', function(socket){
             winner = room_info[room_id].black.uname;
             loser = room_info[room_id].white.uname;
         }
-        console.log(winner, loser);
         ChessDB.update(winner, loser);
         io.sockets.in(room_id).emit('play_defeat', player_info[user_id].chess);
     });
@@ -244,7 +242,9 @@ io.on('connection', function(socket){
     });
 
     socket.on('player_rank', function(data){
-        socket.emit('player_rank', ChessDB.getTopN(data.currentPage, data.countPerPage));
+        ChessDB.getTopN(data.currentPage, data.countPerPage).then(res => {
+            socket.emit('player_rank', res);
+        });
     });
 
     socket.on('reset', function(){

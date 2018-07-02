@@ -69,18 +69,13 @@ player_rank.sync(/*{force: true}*/).then(() => {
 class ChessDB
 {
 	getTopN(currentPage, countPerPage) {
-        var ret = {};
-		player_rank.findAll({ 
+		return player_rank.findAll({ 
             limit: countPerPage, 
             offset: currentPage * countPerPage,
             order: [['score', 'desc']] 
         },{
             plain: true
-        }).then(res => {
-            console.log(res);
-            ret = res;
         });
-        return ret;
 	}
 
 	update(winner, loser) {
