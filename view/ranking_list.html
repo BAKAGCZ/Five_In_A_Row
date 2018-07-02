@@ -17,6 +17,9 @@
     <p id="ranking_title">排行榜</p>
 </div>
 <div id="ranking_div_rank">
+    <ul id="rank_list">
+    </ul>
+</div>
     
 </div>
 
@@ -30,10 +33,13 @@
         }
 
         socket.emit('player_rank', {
-            
+            currentPage: 0,
+            countPerPage: 30
         });
-        socket.on('player_rank', function(chessDB){
-            
+
+        socket.off('player_rank');
+        socket.on('player_rank', function(data){
+            console.log(data);
         });
 
 
