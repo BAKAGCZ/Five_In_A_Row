@@ -72,7 +72,7 @@ class ChessDB
 		player_rank.findAll({ 
             limit: countPerPage, 
             offset: currentPage * countPerPage,
-            order: 'id asc' 
+            order: 'score desc' 
         },{
             plain: true
         }).then(res => {
