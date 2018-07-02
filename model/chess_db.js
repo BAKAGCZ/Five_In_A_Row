@@ -41,6 +41,7 @@ const db = new Sequelize('ChessDB', '', '', {
     dialect: 'sqlite',
     storage: './database/ChessDB.sqlite',
     freezeTableName: true,
+    logging: false,
     operatorsAliases
 });
 
@@ -71,7 +72,7 @@ class ChessDB
 		player_rank.findAll({ 
             limit: countPerPage, 
             offset: currentPage * countPerPage,
-            order: 'id asc' 
+            order: 'score desc' 
         },{
             plain: true
         }).then(res => {

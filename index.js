@@ -243,8 +243,8 @@ io.on('connection', function(socket){
         io.sockets.emit('chat_message', data);
     });
 
-    socket.on('player_rank', function(){
-        socket.emit('player_rank', ChessDB.getTopN(10));
+    socket.on('player_rank', function(data){
+        socket.emit('player_rank', ChessDB.getTopN(data.currentPage, data.countPerPage));
     });
 
     socket.on('reset', function(){
