@@ -37,8 +37,6 @@
             socket.emit('leave');
         else if (player_status == GAME_VISIT) // 未游戏
         {
-            socket.open();
-
             socket.off('game_start');
             socket.on('game_start', function(){
                 console.log('game_start');

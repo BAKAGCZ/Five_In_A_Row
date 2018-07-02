@@ -55,22 +55,20 @@
 
 
 </style>
-    <div id="chat_window">
-        <ul id="messages"></ul>
-        <form id="chat_form" action="">
-          <input id="m" autocomplete="off" type="text" /><button>Send</button>
-        </form>
-    </div>
+
+<div id="chat_window">
+    <ul id="messages"></ul>
+    <form id="chat_form" action="">
+        <input id="m" autocomplete="off" type="text" /><button>Send</button>
+    </form>
+</div>
 
 <script>
     (function(){
-        if (player_status == 1 || player_status == 2)
+        if (player_status == GAME_PLAY || player_status == GAME_WAIT)
         {
             socket.emit('leave');
-            player_status = 0;
-        }
-        else {
-            socket.open();
+            player_status = GAME_VISIT;
         }
 
         $('form').submit(function(){

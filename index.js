@@ -46,6 +46,11 @@ app.get('/chat_room', function(req, res){
     else res.sendFile(__dirname + '/view/chat_room.html');
 });
 
+app.get('/ranking_list', function(req, res){
+    if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/ranking_list.html');
+});
+
 
 io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());

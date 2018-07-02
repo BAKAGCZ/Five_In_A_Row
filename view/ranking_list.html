@@ -1,0 +1,41 @@
+<style type="text/css">
+
+#ranking_div_title {
+    display: flex;
+    justify-content: center;
+}
+
+#ranking_title {
+    font-size: 2rem;
+}
+
+
+</style>
+
+
+<div id="ranking_div_title">
+    <p id="ranking_title">排行榜</p>
+</div>
+<div id="ranking_div_rank">
+    
+</div>
+
+
+<script>
+    (function(){
+        if (player_status == GAME_PLAY || player_status == GAME_WAIT)
+        {
+            socket.emit('leave');
+            player_status = GAME_VISIT;
+        }
+
+        socket.emit('player_rank', {
+            
+        });
+        socket.on('player_rank', function(chessDB){
+            
+        });
+
+
+    })();
+</script>

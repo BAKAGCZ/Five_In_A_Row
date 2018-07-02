@@ -133,8 +133,6 @@
         }
 
         function init() {
-            socket.emit('player_info');
-            socket.emit('room_info');
             for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
                 checkerboard[i] = [];
                 for (var j = -5; j < VERTICAL_SIZE + 5; j++)
@@ -243,6 +241,7 @@
 
         }
 
+        
         socket.off('player_info');
         socket.on('player_info', function(data){
             is_white = data.chess == 1 ? true : false;
@@ -312,7 +311,11 @@
             exit_confirm(nav_click1);
         });
 
+
+
         init();
+        socket.emit('player_info');
+        socket.emit('room_info');
         player_status = GAME_PLAY;
 
         // alert('游戏开始！');
