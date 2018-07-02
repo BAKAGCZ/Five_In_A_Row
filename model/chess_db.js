@@ -41,6 +41,7 @@ const db = new Sequelize('ChessDB', '', '', {
     dialect: 'sqlite',
     storage: './database/ChessDB.sqlite',
     freezeTableName: true,
+    logging: false,
     operatorsAliases
 });
 
