@@ -264,7 +264,7 @@
 
         socket.off('play_defeat');
         socket.on('play_defeat', function(chess){
-            $('#battle_tips').text(chess == 2 ? '黑': '白' + '棋认输！');
+            $('#battle_tips').text((chess == 2 ? '黑': '白') + '棋认输！');
             $('#battle_div_button').off('click', '#battle_defeat_button');
             cvs.onclick = null;
             player_status = GAME_WAIT;

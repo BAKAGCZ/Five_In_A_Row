@@ -102,15 +102,15 @@ io.on('connection', function(socket){
         	var play_b = player_info[rooms[room_id][1]];
         	if (Math.random()>0.5)
         	{
-	            play_a.chess = 1;
-	            play_b.chess = 2;
+	            play_a.chess = ChessBoard.config.white;
+	            play_b.chess = ChessBoard.config.black;
 	            room_info[room_id].white = play_a;
 	            room_info[room_id].black = play_b;
 	        }
 	        else
 	        {
-	        	play_a.chess = 2;
-	            play_b.chess = 1;
+	        	play_a.chess = ChessBoard.config.black;
+	            play_b.chess = ChessBoard.config.white;
 	            room_info[room_id].white = play_b;
 	            room_info[room_id].black = play_a;
 	        }
@@ -166,14 +166,27 @@ io.on('connection', function(socket){
     socket.on('disconnect', leave_room);
 
     socket.on('play_one', function(data){
-        if (chess_boards[room_id] == undefined) return;
-        if (player_info[user_id] == undefined || player_info[user_id].chess == 0) return; // 观众
+        if (chess_boards[room_id] == undefined || room_info[room_id] == undefined) return;
+        if (player_info[user_id] == undefined || player_info[user_id].chess == ChessBoard.config.visitor) return; // 观众
 
         var play_state = chess_boards[room_id].play(data.chess, data.x, data.y);
+        
         // 更新排行榜
         if (play_state == ChessBoard.config.play_win)
         {
-            // ChessDB.update();
+            var winner = '';
+            var loser = '';
+            if (player_info[user_id].chess == ChessBoard.config.black)
+            {
+                winner = room_info[room_id].black.uname;
+                loser = room_info[room_id].white.uname;
+            }
+            else
+            {
+                winner = room_info[room_id].white.uname;
+                loser = room_info[room_id].black.uname;
+            }
+            ChessDB.update(winner, loser);
             console.log('win');
         }
 
@@ -189,6 +202,21 @@ io.on('connection', function(socket){
 
     socket.on('play_defeat', function(){
         if (player_info[user_id] == undefined) return;
+        // 更新排行榜
+        var winner = '';
+        var loser = '';
+        if (player_info[user_id].chess == ChessBoard.config.black)
+        {
+            winner = room_info[room_id].white.uname;
+            loser = room_info[room_id].black.uname;
+        }
+        else
+        {
+            winner = room_info[room_id].black.uname;
+            loser = room_info[room_id].white.uname;
+        }
+        console.log(winner, loser);
+        ChessDB.update(winner, loser);
         io.sockets.in(room_id).emit('play_defeat', player_info[user_id].chess);
     });
 

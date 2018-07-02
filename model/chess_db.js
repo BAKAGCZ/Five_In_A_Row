@@ -50,16 +50,16 @@ db.authenticate().then(() => {
     console.error('Unable to connect to the database:', err);
 });
 
-var player_rank = db.define('player_rank',{
+var player_rank = db.define('player_rank', {
 	name: {
 		type: Sequelize.STRING
 	},
 	score: {
-		type: Sequelize.BIGINT
+		type: Sequelize.BIGINT, defaultValue: 0
 	}
 });
 
-player_rank.sync().then(() => {
+player_rank.sync(/*{force: true}*/).then(() => {
     console.log('Sync to table player_rank successfully.');
 }).catch(() => {
     console.log('Unable sync to table player_rank.');
@@ -81,20 +81,20 @@ class ChessDB
 	}
 
 	update(winner, loser) {
-		player_rank.upsert({
-            name: winner,
-            score: 0
-        }).then(inserted => {
-            player_rank.increment('score');
-            player_rank.upsert({
-                name: loser,
-                score: 0
-            }).then(inserted => {
-                player_rank.decrement('score');
+        player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
+        .spread((rec, created) => {
+            rec.increment('score');
+            player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
+            .spread((rec, created) => {
+                rec.decrement('score');
+            }).catch(function(error) {
+                callback && callback(null, null, error);
             });
+        }).catch(function(error) {
+            callback && callback(null, null, error);
         });
 	}
 }
 
-module.exports = ChessDB;
+module.exports = new ChessDB();
 

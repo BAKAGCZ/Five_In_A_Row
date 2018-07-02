@@ -59,6 +59,7 @@
             });
         }
         
+        console.log(user_name);
         socket.emit('join', user_name);
         player_status = GAME_WAIT; // 进入等待
     })();
