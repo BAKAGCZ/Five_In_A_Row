@@ -200,19 +200,19 @@ function initModel(waifuPath){
                     showMessage(text, 3000, true);
                 });
             });
-            $.each(result.seasons, function (index, tips){
-                var now = new Date();
-                var after = tips.date.split('-')[0];
-                var before = tips.date.split('-')[1] || after;
+            // $.each(result.seasons, function (index, tips){
+            //     var now = new Date();
+            //     var after = tips.date.split('-')[0];
+            //     var before = tips.date.split('-')[1] || after;
                 
-                if((after.split('/')[0] <= now.getMonth()+1 && now.getMonth()+1 <= before.split('/')[0]) && 
-                   (after.split('/')[1] <= now.getDate() && now.getDate() <= before.split('/')[1])){
-                    var text = tips.text;
-                    if(Array.isArray(tips.text)) text = tips.text[Math.floor(Math.random() * tips.text.length + 1)-1];
-                    text = text.render({year: now.getFullYear()});
-                    showMessage(text, 6000, true);
-                }
-            });
+            //     if((after.split('/')[0] <= now.getMonth()+1 && now.getMonth()+1 <= before.split('/')[0]) && 
+            //        (after.split('/')[1] <= now.getDate() && now.getDate() <= before.split('/')[1])){
+            //         var text = tips.text;
+            //         if(Array.isArray(tips.text)) text = tips.text[Math.floor(Math.random() * tips.text.length + 1)-1];
+            //         text = text.render({year: now.getFullYear()});
+            //         showMessage(text, 6000, true);
+            //     }
+            // });
         }
     });
 }

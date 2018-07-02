@@ -27,19 +27,23 @@ app.get('/', function(req, res){
 });
 
 app.get('/generals', function(req, res){
-    res.sendFile(__dirname + '/view/generals.html');
+	if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/generals.html');
 });
 
 app.get('/waiting', function(req, res){
-    res.sendFile(__dirname + '/view/waiting.html');
+    if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/waiting.html');
 });
 
 app.get('/battle', function(req, res){
-    res.sendFile(__dirname + '/view/battle.html');
+    if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/battle.html');
 });
 
 app.get('/chat_room', function(req, res){
-    res.sendFile(__dirname + '/view/chat_room.html');
+    if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/chat_room.html');
 });
 
 

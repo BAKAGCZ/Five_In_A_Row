@@ -178,6 +178,7 @@
             var room_id = '房间号';
             var player_status = 0;  //0：未游戏  1：游戏中 2：等待中
             var socket = io({autoConnect: false});
+            socket.removeAllListeners();
 
             function randomString(len) {
                 var len = len || 32;
