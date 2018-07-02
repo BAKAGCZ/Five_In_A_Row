@@ -5,7 +5,7 @@ const io = require('socket.io')(http);
 const path = require('path');
 
 
-const ChessDB = require('./Model/chess_db');
+const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
 
 /* { room_id : [user_id, ...] } */
