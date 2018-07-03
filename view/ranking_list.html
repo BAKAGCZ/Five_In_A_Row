@@ -1,6 +1,6 @@
 <style type="text/css">
 
-#ranking_div_title {
+#ranking_div_title, #ranking_div_list {
     display: flex;
     justify-content: center;
 }
@@ -9,6 +9,30 @@
     font-size: 2rem;
 }
 
+#ranking_list {
+    font-size: 1.2rem;
+}
+
+#ranking_list{
+    text-align: center;
+    table-layout:fixed;
+}
+
+#ranking_list tr:nth-child(odd) { 
+    background: #eee;
+}
+
+#ranking_list tr td:nth-child(1) {
+    width: 10rem;
+}
+
+#ranking_list tr td:nth-child(2) {
+    width: 35rem;
+}
+
+#ranking_list tr td:nth-child(3) {
+    width: 15rem;
+}
 
 </style>
 
@@ -16,9 +40,14 @@
 <div id="ranking_div_title">
     <p id="ranking_title">排行榜</p>
 </div>
-<div id="ranking_div_rank">
-    <ul id="rank_list">
-    </ul>
+<div id="ranking_div_list">
+    <table id="ranking_list">
+        <tr>
+            <th>名次</th>
+            <th>用户名</th>
+            <th>分数</th>
+        </tr>
+    </table>
 </div>
     
 </div>
@@ -39,7 +68,11 @@
 
         socket.off('player_rank');
         socket.on('player_rank', function(data){
-            console.log(data);
+            var len = data.length;
+            for (var i=0; i<len; i++)
+            {
+                $('#ranking_list').append('<tr><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+data[i].score+'</td></tr>');
+            }
         });
 
 
