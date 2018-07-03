@@ -51,6 +51,10 @@ app.get('/ranking_list', function(req, res){
     else res.sendFile(__dirname + '/view/ranking_list.html');
 });
 
+app.get('/about', function(req, res){
+    if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/about.html');
+});
 
 io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());

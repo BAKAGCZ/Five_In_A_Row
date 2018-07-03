@@ -1,38 +1,50 @@
 <style type="text/css">
 
-#ranking_div_title, #ranking_div_list {
-    display: flex;
-    justify-content: center;
-}
+    #ranking_div_title, #ranking_div_list {
+        display: flex;
+        justify-content: center;
+    }
 
-#ranking_title {
-    font-size: 2rem;
-}
+    #ranking_title {
+        font-size: 2rem;
+    }
 
-#ranking_list {
-    font-size: 1.2rem;
-}
+    #ranking_list {
+        font-size: 1.2rem;
+    }
 
-#ranking_list{
-    text-align: center;
-    table-layout:fixed;
-}
+    #ranking_list{
+        text-align: center;
+        table-layout:fixed;
+    }
 
-#ranking_list tr:nth-child(odd) { 
-    background: #eee;
-}
 
-#ranking_list tr td:nth-child(1) {
-    width: 10rem;
-}
+    #ranking_list tr:nth-child(odd) { 
+        background-color: ivory;
+        height: 2rem;
+    }
 
-#ranking_list tr td:nth-child(2) {
-    width: 35rem;
-}
+    #ranking_list tr:nth-child(even) { 
+        background: #fff;
+        height: 2rem;
+    }
 
-#ranking_list tr td:nth-child(3) {
-    width: 15rem;
-}
+    #ranking_list td {
+        word-wrap:break-word;
+        word-break:break-all;
+    }
+
+    #ranking_list tr td:nth-child(1) {
+        width: 10rem;
+    }
+
+    #ranking_list tr td:nth-child(2) {
+        width: 45rem;
+    }
+
+    #ranking_list tr td:nth-child(3) {
+        width: 10rem;
+    }
 
 </style>
 
