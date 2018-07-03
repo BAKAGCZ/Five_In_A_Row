@@ -44,7 +44,10 @@
 
     (function(){
         if ($.cookie('user_name'))
+        {
             $('#name_input').val($.cookie('user_name'));
+            user_name = $.cookie('user_name');
+        }
         
         if (player_status == GAME_PLAY || player_status == GAME_WAIT) // 游戏中或者等待中
         {
@@ -55,9 +58,13 @@
         $('#name_input').off('blur');
         $('#name_input').on('blur', function(){
             if ($('#name_input').val() != '') 
+            {
                 user_name = $('#name_input').val();
-            $.cookie('user_name', null);
-            $.cookie('user_name', user_name, { expires: 365 });
+                $.cookie('user_name', null);
+                $.cookie('user_name', user_name, { expires: 365 });
+            }
+            else
+                $('#name_input').val($.cookie('user_name'));
         });
 
         $('.button').off('click');

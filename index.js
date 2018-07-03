@@ -14,7 +14,7 @@ var rooms = {};
 var room_info = {}; 
 /* { user_id : { uname, room, chess } } */
 var player_info = {};
-const TIME_LIMIT = 60000; // 每步时长60s 
+const TIME_LIMIT = 60; // 每步时长60s 
 var player_timer = {};
 
 var room_number = 1;
@@ -64,18 +64,19 @@ io.on('connection', function(socket){
     var room_id = ''; // 创建者的user_id
     var my_name = '';
     var enemy_name = '';
-    var is_leave = 0;
+    var is_leave = 0; // 是否离开房间
     var times = TIME_LIMIT; // 每步时长
 
     /* ----- 倒计时 ----- */
     function setCountDown() {
         times = TIME_LIMIT;
         player_timer[room_id] = setInterval(function(){
-            socket.emit('play_countdown', times--);
+            io.sockets.in(room_id).emit('play_countdown', times--);
             if (times < 0) {
-                socket.emit('player_timeout');
+                io.sockets.in(room_id).emit('play_timeout', my_name);
                 clearInterval(player_timer[room_id]);
-                ChessDB.update(winner=enemy_name, loser=user_name);
+                ChessDB.update(winner=enemy_name, loser=my_name);
+                room_info[room_id].is_end = 1;
             }
         }, 1000);
     }
@@ -90,18 +91,13 @@ io.on('connection', function(socket){
     }
     /* ----- 倒计时 ----- */
 
-    function getEnemyName() {
-
-    }
-
     socket.on('join',function(user_name){
     	// console.log('join');
         my_name = user_name;
+        is_leave = 0;
+        
         var flag = 0;
         var is_ok = 0;
-
-    	is_leave = 0;
-
 
         //有房间人数未满
         for (var i in rooms)
@@ -133,6 +129,7 @@ io.on('connection', function(socket){
         socket.join(room_id);
         
         room_info[room_id].room_id = room_id;
+        room_info[room_id].is_end = 0; // 对局是否已经结束
         player_info[user_id] = {};
         player_info[user_id].uname = my_name;
         player_info[user_id].room_id = room_id;
@@ -215,6 +212,7 @@ io.on('connection', function(socket){
     socket.on('disconnect', leave_room);
 
     socket.on('play_one', function(data){
+        if (room_info[room_id].is_end == 1) return;
         if (chess_boards[room_id] == undefined || room_info[room_id] == undefined) return;
         if (player_info[user_id] == undefined || player_info[user_id].chess == ChessBoard.config.visitor) return; // 观众
 
@@ -222,7 +220,10 @@ io.on('connection', function(socket){
         
         // 更新排行榜
         if (play_state == ChessBoard.config.play_win)
+        {
             ChessDB.update(winner=my_name, loser=enemy_name);
+            room_info[room_id].is_end = 1;
+        }
 
         var res = {
             chess: data.chess,
@@ -233,10 +234,13 @@ io.on('connection', function(socket){
 
         io.sockets.in(room_id).emit('play_one', res);
         
-        resetCountDown();
+        if (play_state != ChessBoard.config.play_fail)
+            resetCountDown();
     });
 
     socket.on('play_defeat', function(){
+        if (room_info[room_id].is_end == 1) return;
+        room_info[room_id].is_end = 1;
         if (player_info[user_id] == undefined) return;
         // 更新排行榜
         ChessDB.update(winner=enemy_name, loser=my_name);

@@ -80,6 +80,13 @@
         height: 65px;
     }
 
+    #battle_countdown {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        font-size: 5rem;
+    }
+
 </style>
 <div id="battle_main">
     <div id="battle_play_info">
@@ -101,6 +108,7 @@
             <button class="button" id="battle_defeat_button">认输</button>
             <button class="button" id="battle_quit_button">退出</button>
         </div>
+        <div id="battle_countdown">N</div>
     </div>
 </div>
 <script>
@@ -299,6 +307,20 @@
             // console.log('play_break');
             alert('对手已离开，您可在此房间等待下一对手 或者 回到首页')
             // $('#battle_tips').text('对手已离开！');
+            cvs.onclick = null;
+            player_status = GAME_WAIT;
+        });
+
+        socket.off('play_countdown');
+        socket.on('play_countdown', function(times){
+            // console.log(times);
+            $('#battle_countdown').text(times);
+        });
+
+        socket.off('play_timeout');
+        socket.on('play_timeout', function(user_name){
+            $('#battle_tips').text('玩家 ' + user_name + ' 超时判负！');
+            $('#battle_div_button').off('click', '#battle_defeat_button');
             cvs.onclick = null;
             player_status = GAME_WAIT;
         });
