@@ -6,10 +6,10 @@
 
     #chat_window {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         list-style-type: none;
         box-sizing: border-box;
+        font-size: 2rem;
         margin-left: 100px;
     }
 
@@ -18,7 +18,7 @@
         flex-direction: column;
         width: 90%;
         list-style-type: none;
-        margin-top: 50px;
+        margin-top: 5rem;
     }
 
     #messages li { 
@@ -40,36 +40,38 @@
     #chat_form {
         position: fixed;
         top: 0;
-        right: 15%;
+        border: 0; 
+        right: 10%;
         left: 10%;
-        padding: .3%;
     }
 
     #chat_form input {
         border: 0; 
-        width: 90%; 
-        padding: 10px; 
+        height: 3.5rem;
+        width: 79%; 
+        font-size: 2rem;
+        padding: 0.5rem; 
         background-color: cornsilk;
     }
 
     #chat_form button {
-        width: 9%;
+        border: 0; 
+        height:3.5rem;
+        width: 20%;
+        font-size: 2rem;
+        padding: 0.5rem;
         background: rgb(130, 224, 255);
         border: none; 
-        padding: 10px;  
-        margin: .3%; 
-        word-break : break-all; 
-        word-wrap: break-word;
+        margin-left: .3%; 
     }
-
 
 </style>
 
 <div id="chat_window">
     <ul id="messages"></ul>
-    <form id="chat_form" action="">
-        <input id="m" autocomplete="off" type="text" /><button>Send</button>
-    </form>
+        <form id="chat_form" action="">
+            <input id="m" autocomplete="off" type="text" /><button>Send</button>
+        </form>
 </div>
 
 <script>
