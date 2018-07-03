@@ -79,7 +79,7 @@ class ChessDB
 	}
 
 	update(winner, loser) {
-        player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
+        return player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
         .spread((rec, created) => {
             rec.increment('score');
             player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
