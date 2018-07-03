@@ -88,7 +88,7 @@
         </div>
         <div id="battle_play_info_blank"></div>
         <div id="div_my_name">
-            <p id="my_name">我的昵称：尼玛！</p>
+            <p id="my_name">我的昵称：！！</p>
         </div>        
     </div>
 
@@ -113,6 +113,7 @@
         var HORIZONTAL_SIZE = 18;
         var VERTICAL_SIZE = 15;
         var checkerboard = [];
+                //state: 是否有棋子   type:是否为白棋
         var chess_list = []; // 棋谱
 
         var cvs = document.getElementById('battle_cvs');
@@ -173,7 +174,7 @@
         function reDrawArc(x, y, chess) {
             ctx.beginPath();
             ctx.strokeStyle = '#000'; //边框颜色
-            ctx.fillStyle = COLOR; // 深蓝
+            ctx.fillStyle = COLOR; // 浅蓝
             ctx.fillRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
             ctx.strokeRect(x*GRID_SIZE, y*GRID_SIZE, GRID_SIZE, GRID_SIZE);
 
@@ -272,19 +273,19 @@
         socket.off('play_one');
         socket.on('play_one', function(data){
             var chess = data.chess; // 1白棋 2黑棋
-            var play_one = data.state; // -1下棋失败 6胜利 9继续下
-            console.log(play_one);
+            var play_one_state = data.state; // -1下棋失败 6一方胜利 9对局未结束
+            console.log(play_one_state);
 
             //收到服务器坐标 转换为画布坐标
             var x = data.y;
             var y = data.x;
             
-            if (play_one == 9)
+            if (play_one_state == 9)
             {   
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
             }
-            else if (play_one == 6)
+            else if (play_one_state == 6)
             {
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');

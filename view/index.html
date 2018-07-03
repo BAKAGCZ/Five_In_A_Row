@@ -61,6 +61,7 @@
 
 
             #navmain {  
+                position: fixed;
                 margin-top: 100px;
                 width: 0;
                 overflow: visible;
@@ -201,7 +202,8 @@
         </script>
 
         <script type="text/javascript">
-            var is_white = false;
+            
+            var is_white = false;      //持棋颜色
             var user_name = '(｡･∀･)ﾉﾞ';
             var enemy_name = '(｡･∀･)ﾉﾞx';
             var room_id = '房间号';
@@ -303,6 +305,7 @@
                 $('#navmain').on('click', '#bg1', function(){
                     exit_confirm(nav_click1)
                 });
+
                 $('#navmain').off('click', '#bg2');
                 $('#navmain').on('click', '#bg2', nav_click2);
                 
