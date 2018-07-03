@@ -14,6 +14,8 @@ var rooms = {};
 var room_info = {}; 
 /* { user_id : { uname, room, chess } } */
 var player_info = {};
+const TIME_LIMIT = 60000; // 每步时长60s 
+var player_timer = {};
 
 var room_number = 1;
 var room_capacity = 2;
@@ -56,10 +58,41 @@ io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
     var room_id = ''; // 创建者的user_id
+    var my_name = '';
+    var enemy_name = '';
     var is_leave = 0;
+    var times = TIME_LIMIT; // 每步时长
+
+    /* ----- 倒计时 ----- */
+    function setCountDown() {
+        times = TIME_LIMIT;
+        player_timer[room_id] = setInterval(function(){
+            socket.emit('play_countdown', times--);
+            if (times < 0) {
+                socket.emit('player_timeout');
+                clearInterval(player_timer[room_id]);
+                ChessDB.update(winner=enemy_name, loser=user_name);
+            }
+        }, 1000);
+    }
+
+    function cancelCountDown() {
+        clearInterval(player_timer[room_id]);
+    }
+
+    function resetCountDown() {
+        cancelCountDown();
+        setCountDown();
+    }
+    /* ----- 倒计时 ----- */
+
+    function getEnemyName() {
+
+    }
 
     socket.on('join',function(user_name){
     	// console.log('join');
+        my_name = user_name;
         var flag = 0;
         var is_ok = 0;
 
@@ -97,36 +130,39 @@ io.on('connection', function(socket){
         
         room_info[room_id].room_id = room_id;
         player_info[user_id] = {};
-        player_info[user_id].uname = user_name;
+        player_info[user_id].uname = my_name;
         player_info[user_id].room_id = room_id;
         player_info[user_id].chess = 0;
         
         if (is_ok)
         {
-        	var play_a = player_info[rooms[room_id][0]];
-        	var play_b = player_info[rooms[room_id][1]];
+        	var play_enemy = player_info[rooms[room_id][0]];
+        	var play_me = player_info[rooms[room_id][1]];
         	if (Math.random()>0.5)
         	{
-	            play_a.chess = ChessBoard.config.white;
-	            play_b.chess = ChessBoard.config.black;
-	            room_info[room_id].white = play_a;
-	            room_info[room_id].black = play_b;
+	            play_enemy.chess = ChessBoard.config.white;
+	            play_me.chess = ChessBoard.config.black;
+	            room_info[room_id].white = play_enemy;
+	            room_info[room_id].black = play_me;
 	        }
 	        else
 	        {
-	        	play_a.chess = ChessBoard.config.black;
-	            play_b.chess = ChessBoard.config.white;
-	            room_info[room_id].white = play_b;
-	            room_info[room_id].black = play_a;
+	        	play_enemy.chess = ChessBoard.config.black;
+	            play_me.chess = ChessBoard.config.white;
+	            room_info[room_id].white = play_me;
+	            room_info[room_id].black = play_enemy;
 	        }
+            enemy_name = play_enemy.uname; // 对手名字
             room_info[room_id].room_number = room_number++;
-            console.log(room_number + ' plays');
 
 	        // 通知room里的玩家
 	        io.sockets.in(room_id).emit('game_start');
             // 生成棋盘
             chess_boards[room_id] = new ChessBoard();
             chess_boards[room_id].create();
+
+            times = TIME_LIMIT;
+            setCountDown();
         }
         else
         {
@@ -160,6 +196,10 @@ io.on('connection', function(socket){
         // 删除玩家
         if (player_info[user_id]) delete player_info[user_id];
 
+        // 删除房间定时器
+        cancelCountDown();
+        if (player_timer[room_id]) delete player_timer[room_id];
+
         // 初始化棋盘
         if (chess_boards[room_id]) chess_boards[room_id].reset();
 
@@ -178,21 +218,7 @@ io.on('connection', function(socket){
         
         // 更新排行榜
         if (play_state == ChessBoard.config.play_win)
-        {
-            var winner = '';
-            var loser = '';
-            if (player_info[user_id].chess == ChessBoard.config.black)
-            {
-                winner = room_info[room_id].black.uname;
-                loser = room_info[room_id].white.uname;
-            }
-            else
-            {
-                winner = room_info[room_id].white.uname;
-                loser = room_info[room_id].black.uname;
-            }
-            ChessDB.update(winner, loser);
-        }
+            ChessDB.update(winner=my_name, loser=enemy_name);
 
         var res = {
             chess: data.chess,
@@ -202,25 +228,17 @@ io.on('connection', function(socket){
         };
 
         io.sockets.in(room_id).emit('play_one', res);
+        
+        resetCountDown();
     });
 
     socket.on('play_defeat', function(){
         if (player_info[user_id] == undefined) return;
         // 更新排行榜
-        var winner = '';
-        var loser = '';
-        if (player_info[user_id].chess == ChessBoard.config.black)
-        {
-            winner = room_info[room_id].white.uname;
-            loser = room_info[room_id].black.uname;
-        }
-        else
-        {
-            winner = room_info[room_id].black.uname;
-            loser = room_info[room_id].white.uname;
-        }
-        ChessDB.update(winner, loser);
+        ChessDB.update(winner=enemy_name, loser=my_name);
         io.sockets.in(room_id).emit('play_defeat', player_info[user_id].chess);
+
+        cancelCountDown();
     });
 
     socket.on('room_info', function(){
