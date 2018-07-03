@@ -60,7 +60,7 @@ var player_rank = db.define('player_rank', {
 	}
 });
 
-player_rank.sync(/*{force: true}*/).then(() => {
+player_rank.sync({force: true}).then(() => {
     console.log('Sync to table player_rank successfully.');
 }).catch(() => {
     console.log('Unable sync to table player_rank.');
