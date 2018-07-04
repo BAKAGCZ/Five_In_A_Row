@@ -178,10 +178,11 @@ io.on('connection', function(socket){
 
 
     function leave_room(){
-    	if (is_leave == 1) return;
-    	is_leave = 1;
+        if (is_leave == 1) return;
+        is_leave = 1;
     	console.log(user_id + " leave room (" + room_id + ')');
         if (rooms[room_id] == undefined) return;
+        var is_end = room_info[room_id].is_end; // 该房间游戏是否已经结束
 
         var index = rooms[room_id].indexOf(user_id);
         if (index != -1)
@@ -204,7 +205,18 @@ io.on('connection', function(socket){
         // 初始化棋盘
         if (chess_boards[room_id]) chess_boards[room_id].reset();
 
-        socket.broadcast.to(room_id).emit('play_break');
+        // 游戏未结束 直接退出算认输
+        console.log(is_end);
+        if (is_end == 0)
+        {
+            ChessDB.update(winner=enemy_name, loser=my_name);
+            socket.broadcast.to(room_id).emit('play_break', 0); 
+        }
+        else
+        {
+            // 正常退出
+            socket.broadcast.to(room_id).emit('play_break', 1); 
+        }
         socket.leave(room_id);
     }
 
@@ -234,8 +246,10 @@ io.on('connection', function(socket){
 
         io.sockets.in(room_id).emit('play_one', res);
         
-        if (play_state != ChessBoard.config.play_fail)
+        if (play_state == ChessBoard.config.play_keep)
             resetCountDown();
+        else if (play_state == ChessBoard.config.play_win)
+            cancelCountDown();
     });
 
     socket.on('play_defeat', function(){

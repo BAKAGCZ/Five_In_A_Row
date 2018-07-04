@@ -72,9 +72,11 @@
 <script>
 
     (function(){
+        var name_input = $('#name_input');
+        
         if ($.cookie('user_name'))
         {
-            $('#name_input').val($.cookie('user_name'));
+            name_input.val($.cookie('user_name'));
             user_name = $.cookie('user_name');
         }
         
@@ -84,16 +86,16 @@
             player_status = GAME_VISIT;
         }
 
-        $('#name_input').off('blur');
-        $('#name_input').on('blur', function(){
-            if ($('#name_input').val() != '') 
+        name_input.off('blur');
+        name_input.on('blur', function(){
+            if (name_input.val() != '') 
             {
-                user_name = $('#name_input').val();
+                user_name = name_input.val();
                 $.cookie('user_name', null);
                 $.cookie('user_name', user_name, { expires: 365 });
             }
             else
-                $('#name_input').val($.cookie('user_name'));
+                name_input.val($.cookie('user_name'));
         });
 
         $('.button').off('click');

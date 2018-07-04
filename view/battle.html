@@ -103,7 +103,7 @@
         <div id="battle_div_room_num"><p id="battle_room_num"></p></div>
         <div id="battle_div_cvs"><canvas id="battle_cvs"></canvas></div>
         <div id="battle_div_chess"><p id="battle_chess"></p></div>
-        <div id="battle_div_tips"><p id="battle_tips"></p></div>
+        <div id="battle_div_tips"><p id="battle_tips"></p><p id="battle_tips_dialog"></p></div>
         <div id="battle_div_button">
             <button class="button" id="battle_defeat_button">认输</button>
             <button class="button" id="battle_quit_button">退出</button>
@@ -113,9 +113,6 @@
 </div>
 <script>
     (function() {
-
-        $('#my_name').text('我的昵称：'+user_name);
-
         var COLOR = 'lightblue';
         var GRID_SIZE = 50;
         var HORIZONTAL_SIZE = 18;
@@ -130,18 +127,7 @@
         cvs.width = GRID_SIZE * HORIZONTAL_SIZE;
         cvs.height = GRID_SIZE * VERTICAL_SIZE;
 
-
-        //画布坐标 转换为服务器坐标后传输
-        function play_one(chess, x, y) {
-            var data = {
-                chess: chess, // 1白棋 2黑棋
-                x: y, // 当前下的x坐标
-                y: x  // 当前下的y坐标
-            };
-            socket.emit('play_one', data);
-        }
-
-        function init() {
+        function init_chess_board() {
             for(var i = -5; i < HORIZONTAL_SIZE + 5; i++) {
                 checkerboard[i] = [];
                 for (var j = -5; j < VERTICAL_SIZE + 5; j++)
@@ -247,7 +233,28 @@
                 return;
 
             play_one(is_white ? 1 : 2, x, y);
+        }
 
+
+        //画布坐标 转换为服务器坐标后传输
+        function play_one(chess, x, y) {
+            var data = {
+                chess: chess, // 1白棋 2黑棋
+                x: y, // 当前下的x坐标
+                y: x  // 当前下的y坐标
+            };
+            socket.emit('play_one', data);
+        }
+
+        function game_over(msg)
+        {
+            console.log(msg == undefined);
+            if (msg == undefined) $("#battle_tips_dialog").text($("#battle_tips").text()).dialog('open');
+            else $("#battle_tips_dialog").text(msg).dialog('open');
+
+            $('#battle_div_button').off('click', '#battle_defeat_button');
+            cvs.onclick = null;
+            player_status = GAME_WAIT;
         }
 
         
@@ -274,8 +281,7 @@
         socket.on('play_defeat', function(chess){
             $('#battle_tips').text((chess == 2 ? '黑': '白') + '棋认输！');
             $('#battle_div_button').off('click', '#battle_defeat_button');
-            cvs.onclick = null;
-            player_status = GAME_WAIT;
+            game_over();
         });
 
         socket.off('play_one');
@@ -297,32 +303,35 @@
             {
                 drawArc(x, y, chess);
                 $('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
-                cvs.onclick = null;
-                player_status = GAME_WAIT;
+                game_over();
             }
         });
         
         socket.off('play_break');
-        socket.on('play_break', function(){
+        socket.on('play_break', function(flag){
             // console.log('play_break');
-            alert('对手已离开，您可在此房间等待下一对手 或者 回到首页')
-            // $('#battle_tips').text('对手已离开！');
-            cvs.onclick = null;
-            player_status = GAME_WAIT;
+            // flag 0 => 对手强制离开 1 => 游戏结束正常离开
+            if (flag == 0)
+            {
+                $('#battle_tips').text('对手已认输并离开！');
+                game_over('对手已认输并离开！，您可在此房间等待下一对手 或者 回到首页');
+            }
+            else
+            {
+                game_over('对手已离开！，您可在此房间等待下一对手 或者 回到首页');
+            }
+        });
+
+        socket.off('play_timeout');
+        socket.on('play_timeout', function(user_name){
+            $('#battle_tips').text('玩家 ' + user_name + ' 超时判负！');
+            game_over();
         });
 
         socket.off('play_countdown');
         socket.on('play_countdown', function(times){
             // console.log(times);
             $('#battle_countdown').text(times);
-        });
-
-        socket.off('play_timeout');
-        socket.on('play_timeout', function(user_name){
-            $('#battle_tips').text('玩家 ' + user_name + ' 超时判负！');
-            $('#battle_div_button').off('click', '#battle_defeat_button');
-            cvs.onclick = null;
-            player_status = GAME_WAIT;
         });
         
         $('#battle_div_button').off('click');
@@ -336,10 +345,22 @@
 
 
 
-        init();
+        init_chess_board();
         socket.emit('player_info');
         socket.emit('room_info');
         player_status = GAME_PLAY;
+
+        $('#my_name').text('我的昵称：'+user_name);
+        // modal
+        $("#battle_tips_dialog").dialog(
+            { 
+                modal: true, autoOpen: false,
+                title: "确认框",
+                buttons: {
+                "确定": function() { $(this).dialog('close'); },
+                "取消": function() { $(this).dialog('close'); }
+            }
+        });
 
         // alert('游戏开始！');
 
