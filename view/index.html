@@ -212,7 +212,6 @@
             var player_status = GAME_VISIT;  //0：未游戏  1：游戏中 2：等待中
             
             var socket = io();
-            socket.emit('leave');
             socket.removeAllListeners();
 
             function randomString(len) {

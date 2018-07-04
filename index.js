@@ -101,6 +101,7 @@ io.on('connection', function(socket){
 
 
     function leave_room(){
+        console.log('leave_room: my_name:'+my_name+' enemy_name:'+enemy_name);
         if (is_leave == 1) return;
         is_leave = 1;
         console.log(user_id + " leave room (" + room_id + ')');
@@ -127,7 +128,7 @@ io.on('connection', function(socket){
             socket.broadcast.to(room_id).emit('play_break', 0);
             // 该房间游戏已经结束
             room_info[room_id].is_end = 1; 
-            save_result(my_name,enemy_name); 
+            save_result(enemy_name,my_name); 
         }
         else
         {
