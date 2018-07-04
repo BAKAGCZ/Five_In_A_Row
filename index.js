@@ -65,7 +65,7 @@ io.on('connection', function(socket){
     var room_id = ''; // 创建者的user_id
     var my_name = '';
     var enemy_name = '';
-    var is_leave = 0; // 是否离开房间
+    var is_leave = 1; // 是否离开房间
     var times = TIME_LIMIT; // 每步时长
 
     /* ----- 倒计时 ----- */
