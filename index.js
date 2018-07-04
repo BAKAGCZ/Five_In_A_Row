@@ -151,6 +151,7 @@ io.on('connection', function(socket){
             socket.broadcast.to(room_id).emit('play_break', 1);
         }
         game_over_state();
+        cancelCountDown();
 
         // 更新房间信息
         if (rooms[room_id].length == 0)
