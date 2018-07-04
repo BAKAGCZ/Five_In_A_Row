@@ -105,7 +105,7 @@ io.on('connection', function(socket){
         if (is_leave == 1) return;
         is_leave = 1;
         console.log(user_id + " leave room (" + room_id + ')');
-        if (rooms[room_id] == undefined) return;
+        if (rooms[room_id] == undefined || room_info[room_id] -- undefined) return;
 
         // 删除用户id
         var index = rooms[room_id].indexOf(user_id);
@@ -149,7 +149,7 @@ io.on('connection', function(socket){
     /* ----- 倒计时 ----- */
     function setCountDown() {
         times = TIME_LIMIT;
-        player_timer[room_id] = setInterval(function(){
+        if (player_timer[room_id] != undefined) player_timer[room_id] = setInterval(function(){
             io.sockets.in(room_id).emit('play_countdown', times--);
             if (times < 0) {
                 io.sockets.in(room_id).emit('play_timeout', my_name);
