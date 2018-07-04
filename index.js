@@ -105,7 +105,7 @@ io.on('connection', function(socket){
         if (is_leave == 1) return;
         is_leave = 1;
         console.log(user_id + " leave room (" + room_id + ')');
-        if (rooms[room_id] == undefined || room_info[room_id] -- undefined) return;
+        if (rooms[room_id] == undefined || room_info[room_id] == undefined) return;
 
         // 删除用户id
         var index = rooms[room_id].indexOf(user_id);
