@@ -143,14 +143,15 @@ io.on('connection', function(socket){
         if (is_playing == 1 && room_info[room_id].is_end == 0)
         {
             socket.broadcast.to(room_id).emit('play_break', 0);
+            game_over_state();
             save_result(enemy_name,my_name); 
         }
         else
         {
             // 正常退出
             socket.broadcast.to(room_id).emit('play_break', 1);
+            game_over_state();
         }
-        game_over_state();
         cancelCountDown();
 
         // 更新房间信息
