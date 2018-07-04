@@ -286,6 +286,7 @@
 
         socket.off('play_one');
         socket.on('play_one', function(data){
+            console.log('play_one');
             var chess = data.chess; // 1白棋 2黑棋
             var play_one_state = data.state; // -1下棋失败 6一方胜利 9对局未结束
             console.log(play_one_state);
