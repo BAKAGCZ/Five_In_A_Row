@@ -7,6 +7,7 @@ const path = require('path');
 
 const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
+// const ChatDB = require('./model/chat_db');
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
@@ -182,7 +183,6 @@ io.on('connection', function(socket){
         is_leave = 1;
     	console.log(user_id + " leave room (" + room_id + ')');
         if (rooms[room_id] == undefined) return;
-        var is_end = room_info[room_id].is_end; // 该房间游戏是否已经结束
 
         var index = rooms[room_id].indexOf(user_id);
         if (index != -1)
@@ -193,6 +193,10 @@ io.on('connection', function(socket){
         {
             delete rooms[room_id];
             delete room_info[room_id];
+        }
+        else
+        {
+            room_info[room_id].is_end = 1; // 该房间游戏已经结束
         }
 
         // 删除玩家
@@ -206,8 +210,7 @@ io.on('connection', function(socket){
         if (chess_boards[room_id]) chess_boards[room_id].reset();
 
         // 游戏未结束 直接退出算认输
-        console.log(is_end);
-        if (is_end == 0)
+        if (room_info[room_id] != undefined && room_info[room_id].is_end == 0)
         {
             ChessDB.update(winner=enemy_name, loser=my_name);
             socket.broadcast.to(room_id).emit('play_break', 0); 

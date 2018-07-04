@@ -82,12 +82,14 @@ class ChessDB
         return player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
         .spread((rec, created) => {
             rec.increment('score');
+            
             player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
             .spread((rec, created) => {
                 rec.decrement('score');
             }).catch(function(error) {
                 callback && callback(null, null, error);
             });
+            
         }).catch(function(error) {
             callback && callback(null, null, error);
         });
