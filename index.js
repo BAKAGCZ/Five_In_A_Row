@@ -165,7 +165,7 @@ io.on('connection', function(socket){
     /* ----- 倒计时 ----- */
     function setCountDown() {
         times = TIME_LIMIT;
-        if (player_timer[room_id] == undefined) player_timer[room_id] = setInterval(function(){
+        player_timer[room_id] = setInterval(function(){
             io.sockets.in(room_id).emit('play_countdown', times--);
             if (times < 0) {
                 io.sockets.in(room_id).emit('play_timeout', my_name);
@@ -255,6 +255,7 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
+            setCountDown();
         }
         else
         {
@@ -278,7 +279,6 @@ io.on('connection', function(socket){
             enemy_name = room_info[room_id].white.uname;
 
         game_start_state();
-        setCountDown();
     });
 
     socket.on('play_one', function(data){
