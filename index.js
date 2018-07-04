@@ -65,7 +65,8 @@ io.on('connection', function(socket){
     var room_id = ''; // 创建者的user_id
     var my_name = '';
     var enemy_name = '';
-    var is_leave = 1; // 是否离开房间
+    var is_waiting = 0;
+    var is_playing = 0; // 是否离开房间
     var times = TIME_LIMIT; // 每步时长
 
     function init_roominfo()
@@ -85,13 +86,12 @@ io.on('connection', function(socket){
         player_info[user_id].uname = my_name;
         player_info[user_id].room_id = room_id;
         player_info[user_id].chess = 0;
-        player_info[user_id].winOrdie = [];
     }
 
     // 保留对局结果
     function save_result(winner, loser)
     {
-        if (room_info[room_id].is_end == 1 && room_info[room_id].is_save == 0)
+        if (room_info[room_id].is_save == 0)
         {
             console.log('save_result: winner=>' + winner + ' enemy_name=>'+enemy_name);
             ChessDB.update(winner, loser);
@@ -99,11 +99,28 @@ io.on('connection', function(socket){
         }
     }
 
+    function game_start_state() 
+    {
+        is_playing = 1;
+        is_waiting = 0;
+    }
+
+    function game_waiting_state()
+    {
+        is_playing = 0;
+        is_waiting = 1;
+    }
+
+    function game_over_state()
+    {
+        // 该房间游戏已经结束
+        room_info[room_id].is_end = 1; 
+        game_waiting_state();
+    }
+
 
     function leave_room(){
         console.log('leave_room: my_name:'+my_name+' enemy_name:'+enemy_name);
-        if (is_leave == 1) return;
-        is_leave = 1;
         console.log(user_id + " leave room (" + room_id + ')');
         if (rooms[room_id] == undefined || room_info[room_id] == undefined) return;
 
@@ -123,11 +140,9 @@ io.on('connection', function(socket){
         if (chess_boards[room_id]) chess_boards[room_id].reset();
         
         // 游戏未结束 直接退出算认输
-        if (room_info[room_id].is_end == 0)
+        if (is_playing == 1 && room_info[room_id].is_end == 0)
         {
             socket.broadcast.to(room_id).emit('play_break', 0);
-            // 该房间游戏已经结束
-            room_info[room_id].is_end = 1; 
             save_result(enemy_name,my_name); 
         }
         else
@@ -135,6 +150,7 @@ io.on('connection', function(socket){
             // 正常退出
             socket.broadcast.to(room_id).emit('play_break', 1);
         }
+        game_over_state();
 
         // 更新房间信息
         if (rooms[room_id].length == 0)
@@ -149,13 +165,13 @@ io.on('connection', function(socket){
     /* ----- 倒计时 ----- */
     function setCountDown() {
         times = TIME_LIMIT;
-        if (player_timer[room_id] != undefined) player_timer[room_id] = setInterval(function(){
+        if (player_timer[room_id] == undefined) player_timer[room_id] = setInterval(function(){
             io.sockets.in(room_id).emit('play_countdown', times--);
             if (times < 0) {
                 io.sockets.in(room_id).emit('play_timeout', my_name);
                 clearInterval(player_timer[room_id]);
-                room_info[room_id].is_end = 1;
                 save_result(enemy_name,my_name);
+                game_over_state();
             }
         }, 1000);
     }
@@ -172,7 +188,6 @@ io.on('connection', function(socket){
 
     socket.on('join',function(user_name){
     	// console.log('join');
-        is_leave = 0;
         my_name = user_name;
         
         let flag = 0;
@@ -205,7 +220,7 @@ io.on('connection', function(socket){
 
         //进入房间
         socket.join(room_id);
-        init_roominfo();
+        if (room_info[room_id] == undefined) init_roominfo();
         init_playerinfo();
         
         if (is_ok)
@@ -227,6 +242,7 @@ io.on('connection', function(socket){
 	            room_info[room_id].black = play_enemy;
 	        }
             room_info[room_id].room_number = room_number++;
+            console.log('room('+room_id+')  white=>'+room_info[room_id].white.uname + ' black=>'+room_info[room_id].black.uname);
 
 	        // 通知room里的玩家
 	        io.sockets.in(room_id).emit('game_start');
@@ -239,11 +255,10 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
-            times = TIME_LIMIT;
-            setCountDown();
         }
         else
         {
+            game_waiting_state();
             // console.log(rooms[room_id]);
             socket.emit('game_waiting', {
                 player_number: rooms[room_id].length,
@@ -261,19 +276,20 @@ io.on('connection', function(socket){
             enemy_name = room_info[room_id].black.uname;
         else
             enemy_name = room_info[room_id].white.uname;
+
+        game_start_state();
+        setCountDown();
     });
 
     socket.on('play_one', function(data){
-        if (room_info[room_id].is_end == 1) return;
-        if (chess_boards[room_id] == undefined || room_info[room_id] == undefined) return;
-        if (player_info[user_id] == undefined || player_info[user_id].chess == ChessBoard.config.visitor) return; // 观众
+        if (room_info[room_id]==undefined 
+            || room_info[room_id].is_end == 1 
+            || chess_boards[room_id] == undefined 
+            || room_info[room_id] == undefined
+            || player_info[user_id] == undefined 
+            || player_info[user_id].chess == ChessBoard.config.visitor) return; // 观众
 
         var play_state = chess_boards[room_id].play(data.chess, data.x, data.y);
-        if (play_state == ChessBoard.config.play_win)
-        {
-            room_info[room_id].is_end = 1;
-            save_result(my_name,enemy_name);
-        }
 
         io.sockets.in(room_id).emit('play_one', {
             chess: data.chess,
@@ -285,15 +301,20 @@ io.on('connection', function(socket){
         if (play_state == ChessBoard.config.play_keep)
             resetCountDown();
         else if (play_state == ChessBoard.config.play_win)
+        {
+            save_result(my_name,enemy_name);
+            game_over_state();
             cancelCountDown();
+        }
     });
 
     socket.on('play_defeat', function(){
-        if (room_info[room_id].is_end == 1) return;
-        if (player_info[user_id] == undefined) return;
+        if (room_info[room_id]==undefined 
+            || room_info[room_id].is_end == 1
+            || player_info[user_id] == undefined) return;
 
-        room_info[room_id].is_end = 1;
         save_result(enemy_name,my_name);
+        game_over_state();
         io.sockets.in(room_id).emit('play_defeat', player_info[user_id].chess);
 
         cancelCountDown();
