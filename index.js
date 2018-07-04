@@ -93,7 +93,7 @@ io.on('connection', function(socket){
     {
         if (room_info[room_id].is_save == 0)
         {
-            console.log('save_result: winner=>' + winner + ' enemy_name=>'+enemy_name);
+            console.log('save_result: winner=>' + winner + ' loser=>'+loser);
             ChessDB.update(winner, loser);
             room_info[room_id].is_save = 1;
         }
@@ -101,12 +101,14 @@ io.on('connection', function(socket){
 
     function game_start_state() 
     {
+        room_info[room_id].is_save = 0;
         is_playing = 1;
         is_waiting = 0;
     }
 
     function game_waiting_state()
     {
+        room_info[room_id].is_save = 0;
         is_playing = 0;
         is_waiting = 1;
     }
@@ -143,15 +145,14 @@ io.on('connection', function(socket){
         if (is_playing == 1 && room_info[room_id].is_end == 0)
         {
             socket.broadcast.to(room_id).emit('play_break', 0);
-            game_over_state();
             save_result(enemy_name,my_name); 
         }
         else
         {
             // 正常退出
             socket.broadcast.to(room_id).emit('play_break', 1);
-            game_over_state();
         }
+        game_over_state();
         cancelCountDown();
 
         // 更新房间信息
@@ -172,7 +173,7 @@ io.on('connection', function(socket){
             if (times < 0) {
                 io.sockets.in(room_id).emit('play_timeout', my_name);
                 clearInterval(player_timer[room_id]);
-                save_result(enemy_name,my_name);
+                save_result(my_name, enemy_name);
                 game_over_state();
             }
         }, 1000);
@@ -257,7 +258,15 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
-            setCountDown();
+            player_timer[room_id] = setInterval(function(){
+                io.sockets.in(room_id).emit('play_countdown', times--);
+                if (times < 0) {
+                    io.sockets.in(room_id).emit('play_timeout', room_info[room_id].black.uname);
+                    clearInterval(player_timer[room_id]);
+                    save_result(room_info[room_id].white.uname, room_info[room_id].black.uname);
+                    game_over_state();
+                }
+            }, 1000);
         }
         else
         {
