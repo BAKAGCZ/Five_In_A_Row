@@ -7,7 +7,7 @@ const path = require('path');
 
 const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
-// const ChatDB = require('./model/chat_db');
+const ChatDB = require('./model/chat_db');
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
@@ -328,8 +328,13 @@ io.on('connection', function(socket){
         socket.emit('room_list', room_info);
     });
 
-    socket.on('chat_message', function(data){
-        io.sockets.emit('chat_message', data);
+    socket.on('chat_message', function(msg){
+        io.sockets.emit('chat_message', msg);
+        ChatDB.add({
+            user_name: my_name,
+            msg: msg,
+            date: Data()
+        });
     });
 
     socket.on('player_rank', function(data){
