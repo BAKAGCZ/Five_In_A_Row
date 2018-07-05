@@ -10,6 +10,12 @@ const CBInfo = {
     black: 2
 }
 
+const UserState = {
+    GAME_PLAY: 1,
+    GAME_WAIT: 2,
+    GAME_VISIT: 3    
+};
+
 class ChessBoard {
     constructor() {
         this.row = 15;
@@ -94,5 +100,6 @@ class ChessBoard {
 };
 
 ChessBoard.config = CBInfo;
+ChessBoard.UserState = UserState;
 
 module.exports = ChessBoard;

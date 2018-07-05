@@ -312,21 +312,6 @@
                 game_over();
             }
         });
-        
-        // socket.off('play_break');
-        // socket.on('play_break', function(flag){
-        //     console.log('play_break');
-        //     // flag 0 => 对手强制离开 1 => 游戏结束正常离开
-        //     if (flag == 0)
-        //     {
-        //         $('#battle_tips').text('对手已认输并离开！');
-        //         game_over('对手已认输并离开！，您可在此房间等待下一对手 或者 回到首页');
-        //     }
-        //     else
-        //     {
-        //         game_over('对手已离开！，您可在此房间等待下一对手 或者 回到首页');
-        //     }
-        // });
 
         socket.off('play_timeout');
         socket.on('play_timeout', function(chess){
@@ -375,7 +360,7 @@
             }
         });
 
-        // alert('游戏开始！');
+        alert('游戏开始！');
 
     })();
 

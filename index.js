@@ -59,19 +59,13 @@ app.get('/about', function(req, res){
     else res.sendFile(__dirname + '/view/about.html');
 });
 
-const USER_STATE = {
-    GAME_PLAY: 1,
-    GAME_WAIT: 2,
-    GAME_VISIT: 3
-};
-
 io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
     var room_id = ''; // 创建者的user_id
     var my_name = '', enemy_name = '';
     var my_chess = 0, enemy_chess = 0;
-    var my_state = USER_STATE.GAME_VISIT;
+    var my_state = ChessBoard.UserState.GAME_VISIT;
     var times = TIME_LIMIT; // 每步时长
 
     function init_roominfo()
@@ -108,7 +102,7 @@ io.on('connection', function(socket){
     {
         // console.log('join');
         my_name = user_name;
-        my_state = USER_STATE.GAME_WAIT;
+        my_state = ChessBoard.UserState.GAME_WAIT;
         
         let flag = 0;
         let is_ok = 0;
@@ -177,7 +171,7 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
-            my_state = USER_STATE.GAME_PLAY;
+            my_state = ChessBoard.UserState.GAME_PLAY;
             my_chess = play_me.chess;
             enemy_chess = play_enemy.chess;
 
@@ -185,7 +179,7 @@ io.on('connection', function(socket){
         }
         else
         {
-            my_state = USER_STATE.GAME_WAIT;
+            my_state = ChessBoard.UserState.GAME_WAIT;
             // console.log(rooms[room_id]);
             socket.emit('game_waiting', {
                 player_number: rooms[room_id].length,
@@ -213,7 +207,7 @@ io.on('connection', function(socket){
         if (chess_boards[room_id]) chess_boards[room_id].reset();
         
         // 游戏未结束 直接退出算认输
-        if (my_state == USER_STATE.GAME_PLAY)
+        if (my_state == ChessBoard.UserState.GAME_PLAY)
         {
             save_result(enemy_name, my_name);
             socket.broadcast.to(room_id).emit('play_defeat', my_chess);
@@ -233,7 +227,7 @@ io.on('connection', function(socket){
         }
 
         socket.leave(room_id);
-        my_state = USER_STATE.GAME_VISIT;
+        my_state = ChessBoard.UserState.GAME_VISIT;
     }
 
     /* ----- 倒计时 ----- */
@@ -279,7 +273,7 @@ io.on('connection', function(socket){
     socket.on('game_over', function(){
         // 该房间游戏已经结束
         console.log(my_name + ' game over.')
-        my_state = USER_STATE.GAME_WAIT;
+        my_state = ChessBoard.UserState.GAME_WAIT;
     });
 
     socket.on('play_one', function(data){
