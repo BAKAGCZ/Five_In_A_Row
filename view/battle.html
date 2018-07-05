@@ -113,6 +113,8 @@
 </div>
 <script>
     (function() {
+        var room_result = ''; // 对局结果
+
         var COLOR = 'lightblue';
         var GRID_SIZE = 50;
         var HORIZONTAL_SIZE = 18;
@@ -280,7 +282,8 @@
         socket.off('play_defeat');
         socket.on('play_defeat', function(chess){
             console.log('play_defeat');
-            $('#battle_tips').text((chess == 2 ? '黑': '白') + '棋认输！');
+            room_result = chess == 2 ? '白棋胜': '黑棋胜';
+            $('#battle_tips').text(room_result + ', ' +  (chess == 2 ? '黑': '白') + '棋认输！');
             $('#battle_div_button').off('click', '#battle_defeat_button');
             game_over();
         });
@@ -304,30 +307,32 @@
             else if (play_one_state == 6)
             {
                 drawArc(x, y, chess);
-                $('#battle_tips').text(chess == 2 ? '黑棋胜': '白棋胜');
+                room_result = chess == 2 ? '黑棋胜': '白棋胜';
+                $('#battle_tips').text(room_result);
                 game_over();
             }
         });
         
-        socket.off('play_break');
-        socket.on('play_break', function(flag){
-            console.log('play_break');
-            // flag 0 => 对手强制离开 1 => 游戏结束正常离开
-            if (flag == 0)
-            {
-                $('#battle_tips').text('对手已认输并离开！');
-                game_over('对手已认输并离开！，您可在此房间等待下一对手 或者 回到首页');
-            }
-            else
-            {
-                game_over('对手已离开！，您可在此房间等待下一对手 或者 回到首页');
-            }
-        });
+        // socket.off('play_break');
+        // socket.on('play_break', function(flag){
+        //     console.log('play_break');
+        //     // flag 0 => 对手强制离开 1 => 游戏结束正常离开
+        //     if (flag == 0)
+        //     {
+        //         $('#battle_tips').text('对手已认输并离开！');
+        //         game_over('对手已认输并离开！，您可在此房间等待下一对手 或者 回到首页');
+        //     }
+        //     else
+        //     {
+        //         game_over('对手已离开！，您可在此房间等待下一对手 或者 回到首页');
+        //     }
+        // });
 
         socket.off('play_timeout');
-        socket.on('play_timeout', function(user_name){
+        socket.on('play_timeout', function(chess){
             console.log('play_timeout');
-            $('#battle_tips').text('玩家 ' + user_name + ' 超时判负！');
+            room_result = chess == 2 ? '白棋胜': '黑棋胜';
+            $('#battle_tips').text(room_result + ', ' + (chess == 2 ? '黑棋': '白棋') + ' 超时判负！');
             game_over();
         });
 
@@ -335,6 +340,12 @@
         socket.on('play_countdown', function(times){
             // console.log(times);
             $('#battle_countdown').text(times);
+        });
+
+        socket.off('leave_room');
+        socket.on('leave_room', function(user_name){
+            $('#battle_tips').text(room_result+', 玩家 ' + user_name + ' 离开房间！');
+            game_over();
         });
         
         $('#battle_div_button').off('click');

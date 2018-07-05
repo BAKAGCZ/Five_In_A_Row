@@ -59,14 +59,19 @@ app.get('/about', function(req, res){
     else res.sendFile(__dirname + '/view/about.html');
 });
 
+const USER_STATE = {
+    GAME_PLAY: 1,
+    GAME_WAIT: 2,
+    GAME_VISIT: 3
+};
+
 io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
     var room_id = ''; // 创建者的user_id
-    var my_name = '';
-    var enemy_name = '';
-    var is_waiting = 0;
-    var is_playing = 0; // 是否离开房间
+    var my_name = '', enemy_name = '';
+    var my_chess = 0, enemy_chess = 0;
+    var my_state = USER_STATE.GAME_VISIT;
     var times = TIME_LIMIT; // 每步时长
 
     function init_roominfo()
@@ -75,7 +80,6 @@ io.on('connection', function(socket){
         room_info[room_id].white = {};
         room_info[room_id].black = {};
         room_info[room_id].room_id = room_id;
-        room_info[room_id].is_end = 0; // 对局是否已经结束 0=>未结束
         room_info[room_id].is_save = 0; // 对局结果未保存
         room_info[room_id].room_number = 0;
     }
@@ -99,98 +103,12 @@ io.on('connection', function(socket){
         }
     }
 
-    function game_start_state() 
+
+    function join_room(user_name)
     {
-        room_info[room_id].is_end = 0;
-        room_info[room_id].is_save = 0;
-        is_playing = 1;
-        is_waiting = 0;
-    }
-
-    function game_waiting_state()
-    {
-        room_info[room_id].is_end = 0;
-        room_info[room_id].is_save = 0;
-        is_playing = 0;
-        is_waiting = 1;
-    }
-
-    function game_over_state()
-    {
-    }
-
-
-    function leave_room(){
-        if (rooms[room_id] == undefined || room_info[room_id] == undefined) return;
-        console.log('leave_room('+room_id+'): my_name:'+my_name+' enemy_name:'+enemy_name+'  have '+rooms[room_id].length+' players.');
-        // 删除用户id
-        var index = rooms[room_id].indexOf(user_id);
-        if (index != -1)
-            rooms[room_id].splice(index, 1);
-
-        // 删除玩家信息
-        if (player_info[user_id]) delete player_info[user_id];
-
-        // 删除定时器
-        cancelCountDown();
-        if (player_timer[room_id]) delete player_timer[room_id];
-
-        // 初始化棋盘
-        if (chess_boards[room_id]) chess_boards[room_id].reset();
-        
-        // 游戏未结束 直接退出算认输
-        if (is_playing == 1 && room_info[room_id].is_end == 0)
-        {
-            socket.broadcast.to(room_id).emit('play_break', 0);
-            save_result(enemy_name,my_name); 
-        }
-        else
-        {
-            // 正常退出
-            socket.broadcast.to(room_id).emit('play_break', 1);
-        }
-        io.sockets.in(room_id).emit('game_over');
-        cancelCountDown();
-
-        // 更新房间信息
-        if (rooms[room_id].length == 0)
-        {
-            delete rooms[room_id];
-            delete room_info[room_id];
-        }
-
-        socket.leave(room_id);
-    }
-
-    /* ----- 倒计时 ----- */
-    function setCountDown(playing, waiting) {
-        if (playing == undefined) playing = my_name;
-        if (waiting == undefined) waiting = enemy_name;
-        times = TIME_LIMIT;
-        player_timer[room_id] = setInterval(function(){
-            io.sockets.in(room_id).emit('play_countdown', times--);
-            if (times < 0) {
-                io.sockets.in(room_id).emit('play_timeout', playing);
-                io.sockets.in(room_id).emit('game_over');
-                clearInterval(player_timer[room_id]);
-                save_result(waiting, playing);
-            }
-        }, 1000);
-    }
-
-    function cancelCountDown() {
-        clearInterval(player_timer[room_id]);
-    }
-
-    function resetCountDown() {
-        cancelCountDown();
-        setCountDown();
-    }
-    /* ----- 倒计时 ----- */
-
-    socket.on('join',function(user_name){
-    	// console.log('join');
+        // console.log('join');
         my_name = user_name;
+        my_state = USER_STATE.GAME_WAIT;
         
         let flag = 0;
         let is_ok = 0;
@@ -222,32 +140,34 @@ io.on('connection', function(socket){
 
         //进入房间
         socket.join(room_id);
+        io.sockets.in(room_id).emit('join_room',user_name);
         if (room_info[room_id] == undefined) init_roominfo();
-        init_playerinfo();
+        if (player_info[user_id] == undefined) init_playerinfo();
         
         if (is_ok)
         {
-        	let play_enemy = player_info[rooms[room_id][0]];
-        	let play_me = player_info[rooms[room_id][1]];
-        	if (Math.random()>0.5)
-        	{
-	            play_enemy.chess = ChessBoard.config.white;
-	            play_me.chess = ChessBoard.config.black;
-	            room_info[room_id].white = play_enemy;
-	            room_info[room_id].black = play_me;
-	        }
-	        else
-	        {
-	        	play_enemy.chess = ChessBoard.config.black;
-	            play_me.chess = ChessBoard.config.white;
-	            room_info[room_id].white = play_me;
-	            room_info[room_id].black = play_enemy;
-	        }
+            let play_enemy = player_info[rooms[room_id][0]];
+            let play_me = player_info[rooms[room_id][1]];
+            if (Math.random()>0.5)
+            {
+                play_enemy.chess = ChessBoard.config.white;
+                play_me.chess = ChessBoard.config.black;
+                room_info[room_id].white = play_enemy;
+                room_info[room_id].black = play_me;
+            }
+            else
+            {
+                play_enemy.chess = ChessBoard.config.black;
+                play_me.chess = ChessBoard.config.white;
+                room_info[room_id].white = play_me;
+                room_info[room_id].black = play_enemy;
+            }
             room_info[room_id].room_number = room_number++;
+            room_info[room_id].is_save = 0;
             console.log('join_room('+room_id+')  white=>'+room_info[room_id].white.uname + ' black=>'+room_info[room_id].black.uname);
 
-	        // 通知room里的玩家
-	        io.sockets.in(room_id).emit('game_start');
+            // 通知room里的玩家
+            io.sockets.in(room_id).emit('game_start');
             // 生成棋盘
             if (chess_boards[room_id] == undefined)
             {
@@ -257,20 +177,95 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
-            setCountDown(room_info[room_id].black.uname, room_info[room_id].white.uname);
+            my_state = USER_STATE.GAME_PLAY;
+            my_chess = play_me.chess;
+            enemy_chess = play_enemy.chess;
+
+            setCountDown(ChessBoard.config.black, ChessBoard.config.white);
         }
         else
         {
-            game_waiting_state();
+            my_state = USER_STATE.GAME_WAIT;
             // console.log(rooms[room_id]);
             socket.emit('game_waiting', {
                 player_number: rooms[room_id].length,
                 room_id: room_id
             });
         }
-    });
+    }
 
+    function leave_room()
+    {
+        if (rooms[room_id] == undefined || room_info[room_id] == undefined) return;
+        // 删除用户id
+        var index = rooms[room_id].indexOf(user_id);
+        if (index != -1)
+            rooms[room_id].splice(index, 1);
 
+        // 删除玩家信息
+        if (player_info[user_id]) delete player_info[user_id];
+
+        // 删除定时器
+        cancelCountDown();
+        if (player_timer[room_id]) delete player_timer[room_id];
+
+        // 初始化棋盘
+        if (chess_boards[room_id]) chess_boards[room_id].reset();
+        
+        // 游戏未结束 直接退出算认输
+        if (my_state == USER_STATE.GAME_PLAY)
+        {
+            save_result(enemy_name, my_name);
+            socket.broadcast.to(room_id).emit('play_defeat', my_chess);
+        }
+
+        socket.broadcast.to(room_id).emit('leave_room', my_name);
+        cancelCountDown();
+
+        console.log(my_name + ' leave_room.')
+        console.log('leave_room('+room_id+')  have '+rooms[room_id].length+' players.');
+
+        // 更新房间信息
+        if (rooms[room_id].length == 0)
+        {
+            delete rooms[room_id];
+            delete room_info[room_id];
+        }
+
+        socket.leave(room_id);
+        my_state = USER_STATE.GAME_VISIT;
+    }
+
+    /* ----- 倒计时 ----- */
+    function setCountDown(playing, waiting) {
+        if (playing == undefined) playing = my_chess;
+        if (waiting == undefined) waiting = enemy_chess;
+        times = TIME_LIMIT;
+        player_timer[room_id] = setInterval(function(){
+            io.sockets.in(room_id).emit('play_countdown', times--);
+            if (times < 0) {
+                io.sockets.in(room_id).emit('play_timeout', playing);
+                clearInterval(player_timer[room_id]);
+                if (playing == my_chess)
+                    save_result(enemy_name, my_name);
+                else
+                    save_result(my_name, enemy_name);
+                io.sockets.in(room_id).emit('game_over');
+            }
+        }, 1000);
+    }
+
+    function cancelCountDown() {
+        clearInterval(player_timer[room_id]);
+    }
+
+    function resetCountDown() {
+        cancelCountDown();
+        setCountDown();
+    }
+    /* ----- 倒计时 ----- */
+
+    socket.on('join', join_room);
     socket.on('leave', leave_room);
     socket.on('disconnect', leave_room);
 
@@ -279,20 +274,17 @@ io.on('connection', function(socket){
             enemy_name = room_info[room_id].black.uname;
         else
             enemy_name = room_info[room_id].white.uname;
-
-        game_start_state();
     });
 
     socket.on('game_over', function(){
         // 该房间游戏已经结束
-        room_info[room_id].is_end = 1; 
-        game_waiting_state();
+        console.log(my_name + ' game over.')
+        my_state = USER_STATE.GAME_WAIT;
     });
 
     socket.on('play_one', function(data){
         // console.log(my_name + ' -> play_one');
         if (room_info[room_id]==undefined 
-            || room_info[room_id].is_end == 1 
             || chess_boards[room_id] == undefined 
             || room_info[room_id] == undefined
             || player_info[user_id] == undefined 
@@ -323,7 +315,7 @@ io.on('connection', function(socket){
             || player_info[user_id] == undefined) return;
 
         save_result(enemy_name,my_name);
-        io.sockets.in(room_id).emit('play_defeat', player_info[user_id].chess);
+        io.sockets.in(room_id).emit('play_defeat', my_chess);
         io.sockets.in(room_id).emit('game_over');
         cancelCountDown();
     });
