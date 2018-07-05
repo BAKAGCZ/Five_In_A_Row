@@ -56,6 +56,9 @@
                 console.log(room_id, player_number);
                 $('#waiting_people').text(player_number);
             });
+
+            socket.off('game_over');
+            socket.on('game_over',function(){ socket.emit('game_over'); });
         }
         
         console.log(user_name);

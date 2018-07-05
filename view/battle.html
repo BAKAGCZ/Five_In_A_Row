@@ -279,6 +279,7 @@
 
         socket.off('play_defeat');
         socket.on('play_defeat', function(chess){
+            console.log('play_defeat');
             $('#battle_tips').text((chess == 2 ? '黑': '白') + '棋认输！');
             $('#battle_div_button').off('click', '#battle_defeat_button');
             game_over();
@@ -310,7 +311,7 @@
         
         socket.off('play_break');
         socket.on('play_break', function(flag){
-            // console.log('play_break');
+            console.log('play_break');
             // flag 0 => 对手强制离开 1 => 游戏结束正常离开
             if (flag == 0)
             {
@@ -325,6 +326,7 @@
 
         socket.off('play_timeout');
         socket.on('play_timeout', function(user_name){
+            console.log('play_timeout');
             $('#battle_tips').text('玩家 ' + user_name + ' 超时判负！');
             game_over();
         });
@@ -343,7 +345,6 @@
         $('#battle_div_button').on('click', '#battle_quit_button', function(){
             exit_confirm(nav_click1);
         });
-
 
 
         init_chess_board();

@@ -26,6 +26,7 @@ class ChessBoard {
 
 
     reset() {
+        this.chess = CBInfo.black;
         for (var i=0; i<this.row; i++)
             for (var j=0; j<this.column; j++)
                 this.chess_board[i][j]=0;
