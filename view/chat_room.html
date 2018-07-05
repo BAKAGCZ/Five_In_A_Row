@@ -96,7 +96,7 @@
 
         socket.off('chat_message');
         socket.on('chat_message', function(data){
-            $('#messages').append($('<li>').text(data.sender + ': ' + data.msg));
+            $('#messages').prepend($('<li>').text(data.sender + ': ' + data.msg));
 
             console.log('#'+ data.sender + ': ' + data.msg);
         });
