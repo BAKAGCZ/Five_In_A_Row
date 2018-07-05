@@ -160,7 +160,7 @@ io.on('connection', function(socket){
             room_info[room_id].is_save = 0;
             console.log('join_room('+room_id+')  white=>'+room_info[room_id].white.uname + ' black=>'+room_info[room_id].black.uname);
 
-            // 通知room里的玩家
+            // 通知room里的玩家 同时自己gamestart事件监听改变自己状态
             io.sockets.in(room_id).emit('game_start');
             // 生成棋盘
             if (chess_boards[room_id] == undefined)
@@ -171,7 +171,6 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
-            my_state = ChessBoard.UserState.GAME_PLAY;
             my_chess = play_me.chess;
             enemy_chess = play_enemy.chess;
 
@@ -269,6 +268,8 @@ io.on('connection', function(socket){
             enemy_name = room_info[room_id].black.uname;
         else
             enemy_name = room_info[room_id].white.uname;
+
+        my_state = ChessBoard.UserState.GAME_PLAY;
     });
 
     socket.on('game_over', function(){
@@ -316,12 +317,10 @@ io.on('connection', function(socket){
     });
 
     socket.on('room_info', function(){
-    	if (room_info[room_id] == undefined) return;
     	socket.emit('room_info', room_info[room_id]);
     });
 
     socket.on('player_info', function(){
-    	if (player_info[user_id] == undefined) return;
         socket.emit('player_info', player_info[user_id]);
     });
 

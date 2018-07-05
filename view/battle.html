@@ -250,7 +250,7 @@
 
         function game_over(msg)
         {
-            console.log(msg == undefined);
+            // console.log(msg == undefined);
             if (msg == undefined) $("#battle_tips_dialog").text($("#battle_tips").text()).dialog('open');
             else $("#battle_tips_dialog").text(msg).dialog('open');
 
@@ -262,6 +262,8 @@
         
         socket.off('player_info');
         socket.on('player_info', function(data){
+            console.log('player_info ');
+            console.log(data);
             is_white = data.chess == 1 ? true : false;
             var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
@@ -271,6 +273,8 @@
 
         socket.off('room_info');
         socket.on('room_info', function(data){
+            console.log('room_info');
+            console.log(data);
             if (is_white)  //我白
                 enemy_name = data.black.uname;
             else
