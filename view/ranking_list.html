@@ -81,7 +81,7 @@
         socket.off('player_rank');
         socket.on('player_rank', function(data){
             var rank_list = $('#ranking_list');
-            ranking_list.empty();
+            rank_list.empty();
             var len = data.length;
             for (var i=0; i<len; i++)
             {
