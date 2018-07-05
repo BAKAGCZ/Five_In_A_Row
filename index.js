@@ -214,6 +214,7 @@ io.on('connection', function(socket){
         }
 
         socket.broadcast.to(room_id).emit('leave_room', my_name);
+        io.sockets.in(room_id).emit('game_over');
         cancelCountDown();
 
         console.log(my_name + ' leave_room.')
