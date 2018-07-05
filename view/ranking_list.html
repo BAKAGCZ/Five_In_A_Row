@@ -57,7 +57,7 @@
         <tr>
             <th>名次</th>
             <th>用户名</th>
-            <th>分数</th>
+            <th>生命</th>
         </tr>
     </table>
 </div>
@@ -83,7 +83,7 @@
             var len = data.length;
             for (var i=0; i<len; i++)
             {
-                $('#ranking_list').append('<tr><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+data[i].score+'</td></tr>');
+                $('#ranking_list').append('<tr><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+data[i].score+'s</td></tr>');
             }
         });
 

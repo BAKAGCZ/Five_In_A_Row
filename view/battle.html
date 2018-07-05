@@ -324,7 +324,7 @@
         socket.off('play_countdown');
         socket.on('play_countdown', function(times){
             // console.log(times);
-            $('#battle_countdown').text(times);
+            $('#battle_countdown').text(times+'s');
         });
 
         socket.off('leave_room');
