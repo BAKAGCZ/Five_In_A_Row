@@ -80,12 +80,12 @@
 
         socket.off('player_rank');
         socket.on('player_rank', function(data){
+            $('.rank_data').remove();
             var rank_list = $('#ranking_list');
-            rank_list.empty();
             var len = data.length;
             for (var i=0; i<len; i++)
             {
-                rank_list.append('<tr><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+data[i].score+'s</td></tr>');
+                rank_list.append('<tr class="rank_data"><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+data[i].score+'s</td></tr>');
             }
         });
 
