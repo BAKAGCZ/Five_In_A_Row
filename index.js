@@ -3,11 +3,15 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
+const querystring = require('querystring');
 
 
 const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
-// const ChatDB = require('./model/chat_db');
+const ChatDB = require('./model/chat_db');
+
+// 全局时间
+const ChessDate = new Date();
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
@@ -339,19 +343,17 @@ io.on('connection', function(socket){
     });
 
     socket.on('chat_message', function(data){
-        io.sockets.emit('chat_message', data);
-        // ChatDB.add({
-        //     user_name: data.sender,
-        //     msg: data.msg,
-        //     date: Date()
-        // });
+        // console.log(data.sender+ ' '+data.msg);
+        ChatDB.add(data).then(res => {
+            io.sockets.emit('chat_message', data);
+        }).catch(err => { throw(err); });
     });
 
-    // socket.on('get_chat_history', function(data){
-    //     ChatDB.get(data.currentPage, data.countPerPage).then(res => {
-    //         socket.emit('get_chat_history', res);
-    //     }).catch(err => { throw err; });
-    // });
+    socket.on('get_chat_history', function(data){
+        ChatDB.get(data.currentPage, data.countPerPage).then(res => {
+            socket.emit('get_chat_history', res);
+        }).catch(err => { throw err; });
+    });
 
     socket.on('player_rank', function(data){
         ChessDB.getTopN(data.currentPage, data.countPerPage).then(res => {

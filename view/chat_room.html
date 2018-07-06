@@ -13,7 +13,7 @@
         margin-left: 100px;
     }
 
-    #messages {
+    #chat_messages {
         display: flex;
         flex-direction: column;
         width: 90%;
@@ -21,7 +21,7 @@
         margin-top: 5rem;
     }
 
-    #messages li { 
+    #chat_messages li { 
         padding: 5px 20px;
         width:85%;
         height: auto;
@@ -29,11 +29,11 @@
         word-break:break-all;
     }
 
-    #messages li:nth-child(even) { 
+    #chat_messages li:nth-child(even) { 
         background-color: ivory;
     }
 
-    #messages li:nth-child(odd) { 
+    #chat_messages li:nth-child(odd) { 
         background: #fff;
     }
 
@@ -65,13 +65,23 @@
         margin-left: .3%; 
     }
 
+    .chat_user {
+        color: red;
+    }
+
+    .chat_date {
+        font-size: 1rem;
+        font-style: italic;
+        color: silver;
+    }
+
 </style>
 
 <div id="chat_window">
-    <ul id="messages"></ul>
-        <form id="chat_form" action="">
-            <input id="m" autocomplete="off" type="text" /><button>Send</button>
-        </form>
+    <ul id="chat_messages"></ul>
+    <form id="chat_form" action="">
+        <input id="m" autocomplete="off" type="text" /><button>Send</button>
+    </form>
 </div>
 
 <script>
@@ -82,11 +92,13 @@
             player_status = GAME_VISIT;
         }
 
-        $('form').submit(function(){
-            socket.emit('chat_message', {
+        $('form').off('submit');
+        $('form').on('submit', function(){
+            socket.emit('chat_message', JSON.stringify({
                 sender: user_name,    
-                msg: $('#m').val()
-            });
+                msg: $('#m').val(),
+                date: new Date().toLocaleString()
+            }));
 
             //console.log('！'+ $('#m').val());
             $('#m').val('');
@@ -94,11 +106,32 @@
             return false;
         });
 
-        socket.off('chat_message');
-        socket.on('chat_message', function(data){
-            $('#messages').prepend($('<li>').text(data.sender + ': ' + data.msg));
+        // 初始化聊天记录
+        if ($('#chat_messages').is(':empty'))
+        { 
+            socket.emit('get_chat_history', {
+                currentPage: 0,
+                countPerPage: 30
+            });
+        }
 
-            console.log('#'+ data.sender + ': ' + data.msg);
+        socket.off('get_chat_history');
+        socket.on('get_chat_history', function(msg_list){
+            console.log(msg_list);
+            let chat_messages_dom = $('#chat_messages');
+            for (let i=0;i<msg_list.length;i++)
+            {
+                let data = JSON.parse(msg_list[i]);
+                chat_messages_dom.prepend($('<li>').html('<span class="chat_user">' + data.sender + '</span>: ' + data.msg + '<span class="chat_date">    ----- in ' + data.date + '</span>'));
+            }
+        });
+
+        socket.off('chat_message');
+        socket.on('chat_message', function(data_str){
+            let data = JSON.parse(data_str);
+            let chat_messages_dom = $('#chat_messages');
+            chat_messages_dom.prepend($('<li>').html('<span class="chat_user">' + data.sender + '</span>: ' + data.msg + '<span class="chat_date">    ----- in ' + data.date + '</span>'));
+            // console.log('#'+ data.sender + ': ' + data.msg);
         });
     })();
 </script>
