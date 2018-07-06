@@ -7,7 +7,7 @@ const max_message = 200;
 class ChatDB
 {
 	constructor() {
-        client.flushdb();
+        // client.flushdb();
     }
 	add(data) { 
         return new Promise(function(resolve, reject)
