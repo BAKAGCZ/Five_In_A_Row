@@ -62,22 +62,48 @@
             }
 
 
-            #navmain {  
-                position: fixed;
-                margin-top: 100px;
-                width: 0;
-                overflow: visible;
+            #navmain { 
+                display: flex;
+                justify-content: center;
             }
 
+            #nav1 {
+                top: 25%;
+            }
+
+            #nav2 {
+                top: 35%;
+            }
+
+            #nav3 {
+                top: 45%;
+            }
+
+            #nav4 {
+                top: 55%;
+            }
+
+            #nav5 {
+                top: 65%;
+            }
+
+
             .nav{
-                float: right;
+                position: fixed;
+
+                -webkit-transform: translate(-50%, -50%);
+                -moz-transform: translate(-50%, -50%);
+                -ms-transform: translate(-50%, -50%);
+                -o-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
             }
 
             .a{
                 position: relative;
-                left: 30px;
+                left: 20px;
                 padding: 10px 30px 10px 60px;
-                margin: 1rem;
+
+
                 background: #8DC2BC;
                 x-box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.5);
                 box-shadow: 8px 0 8px -8px rgba(0, 0, 0, 0.5);
@@ -122,29 +148,29 @@
     <body>
         <div id="main">
             <div id="navmain">
-                <div class="nav">
+                <div class="nav" id="nav1">
                     <div class="a">
-                        <a href="javascript:;"><span class="span" id="bg1">首页</span></a>
+                        <a href="javascript:;"><span class="span">首页</span></a>
                     </div>  
                 </div>
-                <div class="nav">
+                <div class="nav" id="nav2">
                     <div class="a">
-                        <a href="javascript:;"><span class="span" id="bg2">进入游戏</span></a>
+                        <a href="javascript:;"><span class="span">进入游戏</span></a>
                     </div>  
                 </div>
-                <div class="nav">
+                <div class="nav" id="nav3">
                     <div class="a">
-                        <a href="javascript:;"><span class="span" id="bg3">在线交流</span></a>
+                        <a href="javascript:;"><span class="span">在线交流</span></a>
                     </div>  
                 </div>
-                <div class="nav">
+                <div class="nav" id="nav4">
                     <div class="a">
-                        <a href="javascript:;"><span class="span" id="bg4">排行榜</span></a>
+                        <a href="javascript:;"><span class="span">排行榜</span></a>
                     </div>  
                 </div>
-                <div class="nav">
+                <div class="nav" id="nav5">
                     <div class="a">
-                        <a href="javascript:;"><span class="span" id="bg5">关于</span></a>
+                        <a href="javascript:;"><span class="span">关于</span></a>
                     </div>  
                 </div>
             </div>
@@ -302,26 +328,26 @@
                     container: '#container'
                 });
 
-                $('#navmain').off('click', '#bg1');
-                $('#navmain').on('click', '#bg1', function(){
+                $('#navmain').off('click', '#nav1');
+                $('#navmain').on('click', '#nav1', function(){
                     exit_confirm(nav_click1)
                 });
 
-                $('#navmain').off('click', '#bg2');
-                $('#navmain').on('click', '#bg2', nav_click2);
+                $('#navmain').off('click', '#nav2');
+                $('#navmain').on('click', '#nav2', nav_click2);
                 
-                $('#navmain').off('click', '#bg3');
-                $('#navmain').on('click', '#bg3', function(){
+                $('#navmain').off('click', '#nav3');
+                $('#navmain').on('click', '#nav3', function(){
                     exit_confirm(nav_click3)
                 });
 
-                $('#navmain').off('click', '#bg4');
-                $('#navmain').on('click', '#bg4', function(){
+                $('#navmain').off('click', '#nav4');
+                $('#navmain').on('click', '#nav4', function(){
                     exit_confirm(nav_click4)
                 });
 
-                $('#navmain').off('click', '#bg5');
-                $('#navmain').on('click', '#bg5', function(){
+                $('#navmain').off('click', '#nav5');
+                $('#navmain').on('click', '#nav5', function(){
                     exit_confirm(nav_click5)
                 });
 

@@ -5,15 +5,17 @@
         justify-content: center;
     }
 
+
+    #ranking_div_list {
+        margin-bottom: 15rem;
+    }
+
     #ranking_title {
         font-size: 2rem;
     }
 
-    #ranking_list {
-        font-size: 1.2rem;
-    }
-
     #ranking_list{
+        font-size: 1.2rem;
         text-align: center;
         table-layout:fixed;
     }
@@ -85,7 +87,10 @@
             var len = data.length;
             for (var i=0; i<len; i++)
             {
-                rank_list.append('<tr class="rank_data"><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+data[i].score+'s</td></tr>');
+                var score = data[i].score;
+                if (score>=0)
+                    score = "+" + score;
+                rank_list.append('<tr class="rank_data"><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+score+'s</td></tr>');
             }
         });
 
