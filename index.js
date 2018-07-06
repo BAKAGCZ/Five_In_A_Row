@@ -5,13 +5,10 @@ const io = require('socket.io')(http);
 const path = require('path');
 const querystring = require('querystring');
 
-
 const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
 const ChatDB = require('./model/chat_db');
 
-// 全局时间
-const ChessDate = new Date();
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
