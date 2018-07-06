@@ -80,18 +80,18 @@ class ChessDB
 
 	update(winner, loser) {
         return player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
-            .spread((rec, created) => {
-                rec.increment('score');
-                
-                player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
-                .spread((rec, created) => {
-                    rec.decrement('score');
-                }).catch(function(error) {
-                    throw(error);
-                });
+        .spread((rec, created) => {
+            rec.increment('score');
             
+            player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
+            .spread((rec, created) => {
+                rec.decrement('score');
             }).catch(function(error) {
                 throw(error);
+            });
+        
+        }).catch(function(error) {
+            throw(error);
         });
 	}
 }

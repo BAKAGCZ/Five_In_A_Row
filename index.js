@@ -63,10 +63,12 @@ io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
     var room_id = ''; // 创建者的user_id
-    var my_name = '', enemy_name = '';
-    var my_chess = 0, enemy_chess = 0;
     var my_state = ChessBoard.UserState.GAME_VISIT;
     var times = TIME_LIMIT; // 每步时长
+
+    // 需要双方同步的信息
+    var my_name = '', enemy_name = '';
+    var my_chess = 0, enemy_chess = 0;
 
     function init_roominfo()
     {
@@ -171,9 +173,6 @@ io.on('connection', function(socket){
             else
                 chess_boards[room_id].reset();
 
-            my_chess = play_me.chess;
-            enemy_chess = play_enemy.chess;
-
             setCountDown(ChessBoard.config.black, ChessBoard.config.white);
         }
         else
@@ -265,9 +264,18 @@ io.on('connection', function(socket){
 
     socket.on('game_start', function(){
         if (my_name == room_info[room_id].white.uname)
+        {
             enemy_name = room_info[room_id].black.uname;
+            enemy_chess = room_info[room_id].black.chess;
+            my_chess = room_info[room_id].white.chess;
+        }
         else
+        {
             enemy_name = room_info[room_id].white.uname;
+            enemy_chess = room_info[room_id].white.chess;
+            my_chess = room_info[room_id].black.chess;
+        }
+        // console.log(my_chess + ' ' +enemy_chess);
 
         my_state = ChessBoard.UserState.GAME_PLAY;
     });
@@ -278,6 +286,7 @@ io.on('connection', function(socket){
         my_state = ChessBoard.UserState.GAME_WAIT;
     });
 
+    // 下一步棋
     socket.on('play_one', function(data){
         // console.log(my_name + ' -> play_one');
         if (room_info[room_id]==undefined 
@@ -305,6 +314,7 @@ io.on('connection', function(socket){
         }
     });
 
+    // 一方认输
     socket.on('play_defeat', function(){
         if (room_info[room_id]==undefined 
             || room_info[room_id].is_end == 1
@@ -328,19 +338,25 @@ io.on('connection', function(socket){
         socket.emit('room_list', room_info);
     });
 
-    socket.on('chat_message', function(msg){
-        io.sockets.emit('chat_message', msg);
-        ChatDB.add({
-            user_name: my_name,
-            msg: msg,
-            date: Data()
-        });
+    socket.on('chat_message', function(data){
+        io.sockets.emit('chat_message', data);
+        // ChatDB.add({
+        //     user_name: data.sender,
+        //     msg: data.msg,
+        //     date: Date()
+        // });
     });
+
+    // socket.on('get_chat_history', function(data){
+    //     ChatDB.get(data.currentPage, data.countPerPage).then(res => {
+    //         socket.emit('get_chat_history', res);
+    //     }).catch(err => { throw err; });
+    // });
 
     socket.on('player_rank', function(data){
         ChessDB.getTopN(data.currentPage, data.countPerPage).then(res => {
             socket.emit('player_rank', res);
-        });
+        }).catch(err => { throw err; });
     });
 
     socket.on('reset', function(){

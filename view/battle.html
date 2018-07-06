@@ -264,7 +264,7 @@
         socket.on('player_info', function(data){
             console.log('player_info ');
             console.log(data);
-            is_white = data.chess == 1 ? true : false;
+            is_white = data.chess == PLAYER_WHITE ? true : false;
             var chessType = is_white == true? '白棋': '黑棋';
             $('#battle_chess').text('您的身份是：'+ chessType);
             $('#battle_tips').text('现在轮到黑棋落子');
@@ -285,9 +285,9 @@
 
         socket.off('play_defeat');
         socket.on('play_defeat', function(chess){
-            console.log('play_defeat');
-            room_result = chess == 2 ? '白棋胜': '黑棋胜';
-            $('#battle_tips').text(room_result + ', ' +  (chess == 2 ? '黑': '白') + '棋认输！');
+            console.log('play_defeat ' + chess);
+            room_result = chess == PLAYER_BLACK ? '白棋胜': '黑棋胜';
+            $('#battle_tips').text(room_result + ', ' +  (chess == PLAYER_BLACK ? '黑': '白') + '棋认输！');
             $('#battle_div_button').off('click', '#battle_defeat_button');
             game_over();
         });
@@ -306,12 +306,12 @@
             if (play_one_state == 9)
             {   
                 drawArc(x, y, chess);
-                $('#battle_tips').text(chess == 2 ? '现在轮到白棋落子': '现在轮到黑棋落子');
+                $('#battle_tips').text(chess == PLAYER_BLACK ? '现在轮到白棋落子': '现在轮到黑棋落子');
             }
             else if (play_one_state == 6)
             {
                 drawArc(x, y, chess);
-                room_result = chess == 2 ? '黑棋胜': '白棋胜';
+                room_result = chess == PLAYER_BLACK ? '黑棋胜': '白棋胜';
                 $('#battle_tips').text(room_result);
                 game_over();
             }
@@ -320,8 +320,8 @@
         socket.off('play_timeout');
         socket.on('play_timeout', function(chess){
             console.log('play_timeout');
-            room_result = chess == 2 ? '白棋胜': '黑棋胜';
-            $('#battle_tips').text(room_result + ', ' + (chess == 2 ? '黑棋': '白棋') + ' 超时判负！');
+            room_result = chess == PLAYER_BLACK ? '白棋胜': '黑棋胜';
+            $('#battle_tips').text(room_result + ', ' + (chess == PLAYER_BLACK ? '黑棋': '白棋') + ' 超时判负！');
             game_over();
         });
 
