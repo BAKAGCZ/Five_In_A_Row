@@ -7,7 +7,7 @@ const path = require('path');
 
 const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
-const ChatDB = require('./model/chat_db');
+// const ChatDB = require('./model/chat_db');
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
