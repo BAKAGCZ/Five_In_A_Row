@@ -89,7 +89,7 @@ class ChessDB
 {
 	getTopN(currentPage, countPerPage) {
 		return player_rank.findAll({ 
-            limit: countPerPage, 
+            limit: countPerPage<0?0:countPerPage, 
             offset: currentPage * countPerPage,
             order: [['score', 'desc']] 
         },{

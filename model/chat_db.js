@@ -32,6 +32,7 @@ class ChatDB
     }
 
 	get(start, n) { 
+        start = start<0?0:start;
         return new Promise(function(resolve, reject){
             client.llen(chat_key, function(err, msglistlen) {
                 if (err) reject(err);

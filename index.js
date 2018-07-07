@@ -358,7 +358,7 @@ io.on('connection', function(socket){
     socket.on('player_rank', function(data){
         ChessDB.getTopN(data.currentPage, data.countPerPage).then(res => {
             socket.emit('player_rank', res);
-        }).catch(err => { throw err; });
+        // }).catch(err => { throw err; });
     });
 
     socket.on('reset', function(){
