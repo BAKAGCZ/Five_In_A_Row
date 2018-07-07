@@ -43,7 +43,7 @@ const operatorsAliases = {
 var filecontent = fs.readFileSync(path.join(__dirname, '../database/mysql.txt'), 'utf-8').split(';');
 
 const databasename = 'ChessDB';
-var username = filecontent[0], password = filecontent[1];
+var username = filecontent[0].trim(), password = filecontent[1].trim();
 console.log(username, password);
 
 const db = new Sequelize(databasename, username, password, {
