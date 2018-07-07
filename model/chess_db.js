@@ -54,6 +54,7 @@ const db = new Sequelize('ChessDB', username, password, {
     pool: {
         max: 5,
         min: 0,
+        acquire: 3000,
         idle: 10000 // 10s release thread
     },
     operatorsAliases
