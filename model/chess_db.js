@@ -46,7 +46,7 @@ const databasename = 'ChessDB';
 var username = filecontent[0], password = filecontent[1];
 console.log(username, password);
 
-const db = new Sequelize(ChessDB, username, password, {
+const db = new Sequelize(databasename, username, password, {
     // dialect: 'sqlite',
     // storage: './database/ChessDB.sqlite',
     host: 'localhost',
