@@ -42,6 +42,7 @@ const operatorsAliases = {
 
 var filecontent = fs.readFileSync(path.join(__dirname, '../database/mysql.txt'), 'utf-8').split(';');
 
+// 数据库名字
 const databasename = 'ChessDB';
 var username = filecontent[0].trim(), password = filecontent[1].trim();
 console.log(username, password);
