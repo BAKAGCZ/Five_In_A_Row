@@ -1,25 +1,24 @@
-const redis = require('redis');
-const client = redis.createClient();
-
 const chat_key = 'chat_message';
 const max_message = 200;
 
 class ChatDB
 {
-	constructor() {
+	constructor(client) {
+        ChatDB.client = client;
         // client.flushdb();
     }
+
 	add(data) { 
         return new Promise(function(resolve, reject)
         {
-            client.lpush(chat_key, data, function(err, res) 
+            ChatDB.client.lpush(chat_key, data, function(err, res) 
             {
                 // 保存对象对应的key
                 if (err) reject(err);
-                else client.llen(chat_key, function(err, res)
+                else ChatDB.client.llen(chat_key, function(err, res)
                 { 
                     if (err) reject(err);
-                    else if (res > max_message) client.rpop(chat_key, function(err, res)
+                    else if (res > max_message) ChatDB.client.rpop(chat_key, function(err, res)
                     { 
                         // 如果长度过长删除最后一个
                         if (err) reject(err);
@@ -34,9 +33,9 @@ class ChatDB
 	get(start, n) { 
         start = start<0?0:start;
         return new Promise(function(resolve, reject){
-            client.llen(chat_key, function(err, msglistlen) {
+            ChatDB.client.llen(chat_key, function(err, msglistlen) {
                 if (err) reject(err);
-                else client.lrange(chat_key, start>msglistlen?0:start, (start+n)>msglistlen?-1:(start+n), function(err, res){
+                else ChatDB.client.lrange(chat_key, start>msglistlen?0:start, (start+n)>msglistlen?-1:(start+n), function(err, res){
                     if (err) reject(err);
                     else resolve(res);
                 });
@@ -45,5 +44,6 @@ class ChatDB
 
 	}
 }
+ChatDB.client = {};
 
-module.exports = new ChatDB();
+module.exports = ChatDB;

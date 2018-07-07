@@ -122,7 +122,7 @@
             for (let i=0;i<msg_list.length;i++)
             {
                 let data = JSON.parse(msg_list[i]);
-                chat_messages_dom.append($('<li>').append($('<span>').addClass('chat_user').text(data.sender), $('<span>').text(data.msg), $('<span>').addClass('chat_date').text('----- in' + data.date)));
+                chat_messages_dom.append($('<li>').append($('<span>').addClass('chat_user').text(data.sender+':'), $('<span>').text(data.msg), $('<span>').addClass('chat_date').text('----- in' + data.date)));
             }
         });
 
@@ -130,7 +130,7 @@
         socket.on('chat_message', function(data_str){
             let data = JSON.parse(data_str);
             let chat_messages_dom = $('#chat_messages');
-            chat_messages_dom.prepend($('<li>').append($('<span>').addClass('chat_user').text(data.sender), $('<span>').text(data.msg), $('<span>').addClass('chat_date').text('----- in' + data.date)));
+            chat_messages_dom.prepend($('<li>').append($('<span>').addClass('chat_user').text(data.sender+':'), $('<span>').text(data.msg), $('<span>').addClass('chat_date').text('----- in' + data.date)));
             // console.log('#'+ data.sender + ': ' + data.msg);
         });
     })();

@@ -4,10 +4,13 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
 const querystring = require('querystring');
+const redis = require('redis');
+const redisclient = redis.createClient();
 
 const ChessDB = require('./model/chess_db');
 const ChessBoard = require('./controller/chess_board');
-const ChatDB = require('./model/chat_db');
+const _ChatDB = require('./model/chat_db');
+const ChatDB = new _ChatDB(redisclient);
 
 
 /* { room_id : [user_id, ...] } */
@@ -358,7 +361,7 @@ io.on('connection', function(socket){
     socket.on('player_rank', function(data){
         ChessDB.getTopN(data.currentPage, data.countPerPage).then(res => {
             socket.emit('player_rank', res);
-        // }).catch(err => { throw err; });
+        }).catch(err => { throw err; });
     });
 
     socket.on('reset', function(){
