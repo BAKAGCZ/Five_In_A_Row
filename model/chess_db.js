@@ -47,6 +47,7 @@ console.log(username, password);
 const db = new Sequelize('ChessDB', username, password, {
     // dialect: 'sqlite',
     // storage: './database/ChessDB.sqlite',
+    host: 'localhost',
     dialect: 'mysql',
     freezeTableName: true,
     logging: false,
