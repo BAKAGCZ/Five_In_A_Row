@@ -352,7 +352,16 @@
                 });
 
             })();
+
+            window.onunload = function(){
+                socket.close();
+            };
             
+            window.onbeforeunload = function(){
+                let r = alert('确定要离开当前页面吗?');
+                if (r) return false;
+                event.returnValue = false;
+            }
 
         </script>
     </body>

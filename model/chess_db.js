@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const operatorsAliases = {
@@ -37,11 +40,20 @@ const operatorsAliases = {
     $col: Op.col
 };
 
-const db = new Sequelize('ChessDB', '', '', {
-    dialect: 'sqlite',
-    storage: './database/ChessDB.sqlite',
+var filecontent = fs.readFileSync(path.join(__dirname, '../database/mysql.txt'), 'utf-8').split(';');
+var username = filecontent[0], password = filecontent[1];
+
+const db = new Sequelize('ChessDB', username, password, {
+    // dialect: 'sqlite',
+    // storage: './database/ChessDB.sqlite',
+    dialect: 'mysql',
     freezeTableName: true,
     logging: false,
+    pool: {
+        max: 5,
+        min: 0,
+        idle: 10000 // 10s release thread
+    },
     operatorsAliases
 });
 
@@ -78,7 +90,7 @@ class ChessDB
         });
 	}
 
-	update(winner, loser) {
+	updateRank(winner, loser) {
         return player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
         .spread((rec, created) => {
             rec.increment('score');

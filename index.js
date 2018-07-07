@@ -95,7 +95,7 @@ io.on('connection', function(socket){
         if (room_info[room_id].is_save == 0)
         {
             console.log('save_result: winner=>' + winner + ' loser=>'+loser);
-            ChessDB.update(winner, loser);
+            ChessDB.updateRank(winner, loser);
             room_info[room_id].is_save = 1;
         }
     }
@@ -161,10 +161,9 @@ io.on('connection', function(socket){
             }
             room_info[room_id].room_number = room_number++;
             room_info[room_id].is_save = 0;
+            
             console.log('join_room('+room_id+')  white=>'+room_info[room_id].white.uname + ' black=>'+room_info[room_id].black.uname);
 
-            // 通知room里的玩家 同时自己gamestart事件监听改变自己状态
-            io.sockets.in(room_id).emit('game_start');
             // 生成棋盘
             if (chess_boards[room_id] == undefined)
             {
@@ -173,7 +172,9 @@ io.on('connection', function(socket){
             }
             else
                 chess_boards[room_id].reset();
-
+            
+            // 通知room里的玩家 同时自己gamestart事件监听改变自己状态
+            io.sockets.in(room_id).emit('game_start');
             setCountDown(ChessBoard.config.black, ChessBoard.config.white);
         }
         else
@@ -212,10 +213,7 @@ io.on('connection', function(socket){
             socket.broadcast.to(room_id).emit('play_defeat', my_chess);
         }
 
-        socket.broadcast.to(room_id).emit('leave_room', my_name);
-        io.sockets.in(room_id).emit('game_over');
-        cancelCountDown();
-
+        
         console.log(my_name + ' leave_room.')
         console.log('leave_room('+room_id+')  have '+rooms[room_id].length+' players.');
 
@@ -225,8 +223,13 @@ io.on('connection', function(socket){
             delete rooms[room_id];
             delete room_info[room_id];
         }
+        
+        cancelCountDown();
 
+        socket.broadcast.to(room_id).emit('leave_room', my_name);
+        io.sockets.in(room_id).emit('game_over');        
         socket.leave(room_id);
+
         my_state = ChessBoard.UserState.GAME_VISIT;
     }
 
@@ -310,8 +313,8 @@ io.on('connection', function(socket){
         else if (play_state == ChessBoard.config.play_win)
         {
             save_result(my_name,enemy_name);
-            io.sockets.in(room_id).emit('game_over');
             cancelCountDown();
+            io.sockets.in(room_id).emit('game_over');
         }
     });
 
@@ -322,9 +325,9 @@ io.on('connection', function(socket){
             || player_info[user_id] == undefined) return;
 
         save_result(enemy_name,my_name);
+        cancelCountDown();
         io.sockets.in(room_id).emit('play_defeat', my_chess);
         io.sockets.in(room_id).emit('game_over');
-        cancelCountDown();
     });
 
     socket.on('room_info', function(){
