@@ -363,11 +363,6 @@ io.on('connection', function(socket){
             socket.emit('player_rank', res);
         }).catch(err => { throw err; });
     });
-
-    socket.on('reset', function(){
-        if (chess_boards[room_id] == undefined) return;
-        chess_boards[room_id].reset();
-    });
 });
 
 

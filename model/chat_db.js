@@ -30,12 +30,12 @@ class ChatDB
         });
     }
 
-	get(start, n) { 
-        start = start<0?0:start;
+	get(offset, n) { 
+        offset = offset<0?0:offset;
         return new Promise(function(resolve, reject){
             ChatDB.client.llen(chat_key, function(err, msglistlen) {
                 if (err) reject(err);
-                else ChatDB.client.lrange(chat_key, start>msglistlen?0:start, (start+n)>msglistlen?-1:(start+n), function(err, res){
+                else ChatDB.client.lrange(chat_key, offset>msglistlen?0:offset, (offset+n)>msglistlen?-1:(offset+n), function(err, res){
                     if (err) reject(err);
                     else resolve(res);
                 });
