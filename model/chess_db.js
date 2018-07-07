@@ -41,13 +41,16 @@ const operatorsAliases = {
 };
 
 var filecontent = fs.readFileSync(path.join(__dirname, '../database/mysql.txt'), 'utf-8').split(';');
+
+const databasename = 'ChessDB';
 var username = filecontent[0], password = filecontent[1];
 console.log(username, password);
 
-const db = new Sequelize('ChessDB', username, password, {
+const db = new Sequelize(ChessDB, username, password, {
     // dialect: 'sqlite',
     // storage: './database/ChessDB.sqlite',
     host: 'localhost',
+    port: 3306,
     dialect: 'mysql',
     freezeTableName: true,
     logging: false,
