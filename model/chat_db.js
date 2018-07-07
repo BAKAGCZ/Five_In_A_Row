@@ -41,9 +41,9 @@ class ChatDB
                 });
             });             
         });
-
 	}
 }
+
 ChatDB.client = {};
 
 module.exports = ChatDB;
