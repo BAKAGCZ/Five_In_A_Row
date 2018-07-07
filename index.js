@@ -363,6 +363,12 @@ io.on('connection', function(socket){
             socket.emit('player_rank', res);
         }).catch(err => { throw err; });
     });
+
+    socket.on('player_number', function(){
+        ChessDB.getAllCount().then(res => {
+            socket.emit('player_number', res);
+        }).catch(err => { throw err; });
+    });
 });
 
 

@@ -31,7 +31,7 @@ class ChatDB
     }
 
 	get(offset, n) { 
-        offset = offset<0?0:offset;
+        offset = offset < 0 ? 0 : offset;
         return new Promise(function(resolve, reject){
             ChatDB.client.llen(chat_key, function(err, msglistlen) {
                 if (err) reject(err);

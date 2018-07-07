@@ -87,6 +87,10 @@ player_rank.sync(/*{force: true}*/).then(() => {
 
 class ChessDB
 {
+    getAllCount() {
+        return player_rank.findAll().count();
+    }
+
 	getTopN(currentPage, countPerPage) {
 		return player_rank.findAll({ 
             limit: countPerPage, 
