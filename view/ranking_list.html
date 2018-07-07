@@ -1,6 +1,6 @@
 <style type="text/css">
 
-    #ranking_div_title, #ranking_div_list {
+    #ranking_div_title, #ranking_div_list, #ranking_page {
         display: flex;
         justify-content: center;
     }
@@ -48,12 +48,24 @@
         width: 10rem;
     }
 
+    #ranking_page button{
+        margin: 1rem;
+        font-size: 1rem;
+        width: 5rem;
+        height: 2.4rem;
+    }
+
+    #ranking_page button:hover{
+        height: 2rem;
+    }
+
 </style>
 
 
 <div id="ranking_div_title">
     <p id="ranking_title">排行榜</p>
 </div>
+
 <div id="ranking_div_list">
     <table id="ranking_list">
         <tr>
@@ -63,12 +75,18 @@
         </tr>
     </table>
 </div>
-    
+<div id="ranking_page">
+    <button id="head_page" class="button">首页</button>
+    <button id="pre_page" class="button">上一页</button>
+    <button id="next_page" class="button">下一页</button>
 </div>
 
 
 <script>
     (function(){
+        var cur_page = 0;
+        var count_per_page = 40;
+
         if (player_status == GAME_PLAY || player_status == GAME_WAIT)
         {
             socket.emit('leave');
@@ -77,24 +95,57 @@
 
         socket.emit('player_rank', {
             currentPage: 0,
-            countPerPage: 50
+            countPerPage: count_per_page
         });
 
         socket.off('player_rank');
         socket.on('player_rank', function(data){
-            console.log(data);
-            $('.rank_data').remove();
-            var rank_list = $('#ranking_list');
+
+                //console.log(cur_page);
+                //console.log("len:"+data.length);
             var len = data.length;
-            for (var i=0; i<len; i++)
-            {
-                var score = data[i].score;
-                if (score>=0)
-                    score = "+" + score;
-                rank_list.append('<tr class="rank_data"><td>'+(i+1)+'</td><td>'+data[i].name+'</td><td>'+score+'s</td></tr>');
+            if (cur_page<0) {   //已到首页
+                cur_page = 0;
+            }
+            else if (len <= 0) {    //已到尾页
+                alert('没有更多数据！');
+                cur_page--;
+            }
+            else{
+                var rank_list = $('#ranking_list');
+                $('.rank_data').remove();
+                for (var i=0; i<len; i++)
+                {
+                    var score = data[i].score;
+                    if (score>=0)
+                        score = "+" + score;
+                    rank_list.append('<tr class="rank_data"><td>'+(cur_page*count_per_page+i+1)+'</td><td>'+data[i].name+'</td><td>'+score+'s</td></tr>');
+                }
             }
         });
 
+        $('#ranking_page').on('click', '#head_page', function(){
+            socket.emit('player_rank', {
+                currentPage: 0,
+                countPerPage: count_per_page
+            });
+        })
+
+        $('#ranking_page').on('click', '#pre_page', function(){
+            socket.emit('player_rank', {
+                currentPage: cur_page-1,
+                countPerPage: count_per_page
+            });
+            cur_page--;
+        })
+
+        $('#ranking_page').on('click', '#next_page', function(){
+            socket.emit('player_rank', {
+                currentPage: cur_page+1,
+                countPerPage: count_per_page
+            });
+            cur_page++;
+        })
 
     })();
 </script>
