@@ -356,12 +356,23 @@
             window.onunload = function(){
                 socket.close();
             };
-            
-            window.onbeforeunload = function(){
-                let r = alert('确定要离开当前页面吗?');
-                if (r) return false;
-                event.returnValue = false;
+
+            var MSG_UNLOAD="如果你此时刷新页面，页面信息可能会丢失，确认刷新吗?";
+            var UnloadConfirm = {};
+            //启用监听浏览器刷新、关闭的方法
+            UnloadConfirm.set = function(confirm_msg){
+                window.onbeforeunload = function(event){
+                    event = event || window.event;
+                    event.returnValue = confirm_msg;
+                }
             }
+            //关闭监听浏览器刷新、关闭的方法
+            UnloadConfirm.clear = function(){
+                window.onbeforeunload = function(){};
+            }
+
+            UnloadConfirm.clear();
+            UnloadConfirm.set(MSG_UNLOAD);
 
         </script>
     </body>
