@@ -6,18 +6,18 @@ const path = require('path');
 const querystring = require('querystring');
 const redis = require('redis');
 const redisclient = redis.createClient();
+const mysqlclient = require('./model/mysql_db');
 
-const ChessBoard = require('./controller/chess_board');
-
-const ChessDB = require('./model/chess_db');
 const _ChatDB = require('./model/chat_db'),
       _RoomDB = require('./model/room_db'),
       _PlayerDB = require('./model/player_db');
 
 const ChatDB = new _ChatDB(redisclient),
-      RoomDB = new _RoomDB(redisclient),
-      PlayerDB = new _PlayerDB(redisclient);
+      RoomDB = new _RoomDB(redisclient, mysqlclient),
+      PlayerDB = new _PlayerDB(redisclient, mysqlclient);
 
+// 棋盘状态维护
+const ChessBoard = require('./controller/chess_board');
 
 /* { room_id : [user_id, ...] } */
 var rooms = {};
@@ -104,7 +104,7 @@ io.on('connection', function(socket){
         if (room_info[room_id].is_save == 0)
         {
             console.log('save_result: winner=>' + winner + ' loser=>'+loser);
-            ChessDB.updateRank(winner, loser);
+            PlayerDB.updateRank(winner, loser);
             room_info[room_id].is_save = 1;
         }
     }
@@ -365,13 +365,13 @@ io.on('connection', function(socket){
     });
 
     socket.on('player_rank', function(data){
-        ChessDB.getTopN(data.currentPage, data.countPerPage).then(res => {
+        PlayerDB.getTopN(data.currentPage, data.countPerPage).then(res => {
             socket.emit('player_rank', res);
         }).catch(err => { throw err; });
     });
 
     socket.on('player_number', function(){
-        ChessDB.getAllCount().then(res => {
+        PlayerDB.getCount().then(res => {
             socket.emit('player_number', res);
         }).catch(err => { throw err; });
     });
