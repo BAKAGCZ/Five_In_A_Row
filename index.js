@@ -3,33 +3,23 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
-const querystring = require('querystring');
-const redis = require('redis');
-const redisclient = redis.createClient();
-const mysqlclient = require('./model/mysql_db');
 
-const _ChatDB = require('./model/chat_db'),
-      _RoomDB = require('./model/room_db'),
-      _PlayerDB = require('./model/player_db');
+const ChatDB = require('./controller').chat,
+      Room = require('./controller').room,
+      Player = require('./controller').player,
+      ChessBoard = require('./controller').chessboard;
 
-const ChatDB = new _ChatDB(redisclient),
-      RoomDB = new _RoomDB(redisclient, mysqlclient),
-      PlayerDB = new _PlayerDB(redisclient, mysqlclient);
-
-// 棋盘状态维护
-const ChessBoard = require('./controller/chess_board');
-
-/* { room_id : [user_id, ...] } */
-var rooms = {};
-/* { room_id : { room, room_number, white, black } } */
-var room_info = {}; 
-/* { user_id : { uname, room, chess } } */
-var player_info = {};
+// /* { room_id : [user_id, ...] } */
+// var rooms = {};
+// /* { room_id : { room, room_number, white, black } } */
+// var room_info = {}; 
+//  { user_id : { uname, room, chess } } 
+// var player_info = {};
 const TIME_LIMIT = 60; // 每步时长60s 
-var player_timer = {};
+var timer = {};
 
-var room_number = 1;
-var room_capacity = 2;
+// var room_number = 1;
+// var room_capacity = 2;
 var chess_boards = {};
 
 
@@ -69,6 +59,7 @@ app.get('/about', function(req, res){
     else res.sendFile(__dirname + '/view/about.html');
 });
 
+
 io.on('connection', function(socket){
     console.log('socket.id: ' + socket.id + ' connected. ' + Date());
     var user_id = socket.id;
@@ -80,41 +71,42 @@ io.on('connection', function(socket){
     var my_name = '', enemy_name = '';
     var my_chess = 0, enemy_chess = 0;
 
-    function init_roominfo()
-    {
-        room_info[room_id] = {};
-        room_info[room_id].white = {};
-        room_info[room_id].black = {};
-        room_info[room_id].room_id = room_id;
-        room_info[room_id].is_save = 0; // 对局结果未保存
-        room_info[room_id].room_number = 0;
-    }
+    // function init_roominfo()
+    // {
+    //     room_info[room_id] = {};
+    //     room_info[room_id].white = {};
+    //     room_info[room_id].black = {};
+    //     room_info[room_id].room_id = room_id;
+    //     room_info[room_id].is_save = 0; // 对局结果未保存
+    //     room_info[room_id].room_number = 0;
+    // }
 
-    function init_playerinfo()
-    {
-        player_info[user_id] = {};
-        player_info[user_id].uname = my_name;
-        player_info[user_id].room_id = room_id;
-        player_info[user_id].chess = 0;
-    }
+    // function init_playerinfo()
+    // {
+    //     player_info[user_id] = {};
+    //     player_info[user_id].uname = my_name;
+    //     player_info[user_id].room_id = room_id;
+    //     player_info[user_id].chess = 0;
+    //     player_info[user_id].status = GAME_WAIT;
+    // }
 
     // 保留对局结果
-    function save_result(winner, loser)
-    {
-        if (room_info[room_id].is_save == 0)
-        {
-            console.log('save_result: winner=>' + winner + ' loser=>'+loser);
-            PlayerDB.updateRank(winner, loser);
-            room_info[room_id].is_save = 1;
-        }
-    }
+    // function save_result(winner, loser)
+    // {
+    //     if (room_info[room_id].is_save == 0)
+    //     {
+    //         console.log('save_result: winner=>' + winner + ' loser=>'+loser);
+    //         Player.updateRank(winner, loser);
+    //         room_info[room_id].is_save = 1;
+    //     }
+    // }
 
 
     function join_room(user_name)
     {
         // console.log('join');
         my_name = user_name;
-        my_state = ChessBoard.UserState.GAME_WAIT;
+        my_state = Player.Status.GAME_WAIT;
         
         let flag = 0;
         let is_ok = 0;
@@ -210,7 +202,7 @@ io.on('connection', function(socket){
 
         // 删除定时器
         cancelCountDown();
-        if (player_timer[room_id]) delete player_timer[room_id];
+        if (timer[room_id]) delete timer[room_id];
 
         // 初始化棋盘
         if (chess_boards[room_id]) chess_boards[room_id].reset();
@@ -247,11 +239,11 @@ io.on('connection', function(socket){
         if (playing == undefined) playing = my_chess;
         if (waiting == undefined) waiting = enemy_chess;
         times = TIME_LIMIT;
-        player_timer[room_id] = setInterval(function(){
+        timer[room_id] = setInterval(function(){
             io.sockets.in(room_id).emit('play_countdown', times--);
             if (times < 0) {
                 io.sockets.in(room_id).emit('play_timeout', playing);
-                clearInterval(player_timer[room_id]);
+                clearInterval(timer[room_id]);
                 if (playing == my_chess)
                     save_result(enemy_name, my_name);
                 else
@@ -262,7 +254,7 @@ io.on('connection', function(socket){
     }
 
     function cancelCountDown() {
-        clearInterval(player_timer[room_id]);
+        clearInterval(timer[room_id]);
     }
 
     function resetCountDown() {
@@ -353,27 +345,39 @@ io.on('connection', function(socket){
 
     socket.on('chat_message', function(data){
         // console.log(data.sender+ ' '+data.msg);
-        ChatDB.add(data).then(res => {
-            io.sockets.emit('chat_message', data);
-        }).catch(err => { throw(err); });
+        ChatDB.add(data)
+        .then(res => { io.sockets.emit('chat_message', data); })
+        .catch(err => { throw(err); });
     });
 
     socket.on('get_chat_history', function(data){
-        ChatDB.get(data.currentPage, data.countPerPage).then(res => {
-            socket.emit('get_chat_history', res);
-        }).catch(err => { throw err; });
+        ChatDB.get(data.currentPage, data.countPerPage)
+        .then(res => { socket.emit('get_chat_history', res); })
+        .catch(err => { throw err; });
     });
 
     socket.on('player_rank', function(data){
-        PlayerDB.getTopN(data.currentPage, data.countPerPage).then(res => {
-            socket.emit('player_rank', res);
-        }).catch(err => { throw err; });
+        Player.getTopN(data.currentPage, data.countPerPage)
+        .then(res => { socket.emit('player_rank', res); })
+        .catch(err => { throw err; });
     });
 
     socket.on('player_number', function(){
-        PlayerDB.getCount().then(res => {
-            socket.emit('player_number', res);
-        }).catch(err => { throw err; });
+        Player.getCount()
+        .then(res => { socket.emit('player_number', res); })
+        .catch(err => { throw err; });
+    });
+
+    socket.on('login', function(token){
+        Player.login(token)
+        .then(res => { socket.emit('login', res); })
+        .catch(err => { throw err; });
+    });
+
+    socket.on('register', function(username){
+        Player.register(username)
+        .then(res => { socket.emit('register', res); })
+        .catch(err => { throw err; });
     });
 });
 

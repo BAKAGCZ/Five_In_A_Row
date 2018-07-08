@@ -1,7 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-
 const Sequelize = require('sequelize');
+
+const redis = require('redis');
+const redisclient = redis.createClient();
+
 const Op = Sequelize.Op;
 const operatorsAliases = {
     $eq: Op.eq,
@@ -43,11 +46,11 @@ const operatorsAliases = {
 var filecontent = fs.readFileSync(path.join(__dirname, '../database/mysql.txt'), 'utf-8').split(';');
 
 // 数据库名字
-const databasename = 'ChessDB';
+const databasename = 'chessdb';
 var username = filecontent[0].trim(), password = filecontent[1].trim();
 console.log(username, password);
 
-const client = new Sequelize(databasename, username, password, {
+const mysqlclient = new Sequelize(databasename, username, password, {
     // dialect: 'sqlite',
     // storage: './database/ChessDB.sqlite',
     host: 'localhost',
@@ -57,6 +60,7 @@ const client = new Sequelize(databasename, username, password, {
         charset: 'utf8mb4'
     },
     freezeTableName: true,
+    timestamps: true,
     logging: false,
     pool: {
         max: 5,
@@ -67,11 +71,12 @@ const client = new Sequelize(databasename, username, password, {
     operatorsAliases
 });
 
-client.authenticate().then(() => {
+mysqlclient.authenticate().then(() => {
     console.log('Connection has been established successfully.');
 }).catch(err => {
     console.error('Unable to connect to the database:', err);
 });
 
-module.exports = client;
+module.exports.mysql = mysqlclient;
+module.exports.redis = redisclient;
 
