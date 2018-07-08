@@ -53,6 +53,9 @@ const db = new Sequelize(databasename, username, password, {
     host: 'localhost',
     port: 3306,
     dialect: 'mysql',
+    dialectOptions: {
+        charset: 'utf8mb4'
+    },
     freezeTableName: true,
     logging: false,
     pool: {
@@ -70,9 +73,30 @@ db.authenticate().then(() => {
     console.error('Unable to connect to the database:', err);
 });
 
-var player_rank = db.define('player_rank', {
+const player_account = db.define('player_account', {
+    id: {
+        type: Sequelize.INTEGER, 
+        primaryKey: true,
+        autoIncrement: true       
+    },
+    name: {
+        type: Sequelize.STRING,
+        unique: true
+    },
+    passcode: {
+        type: Sequelize.STRING
+    }
+});
+
+const player_rank = db.define('player_rank', {
+    id: {
+        type: Sequelize.INTEGER, 
+        primaryKey: true,
+        autoIncrement: true
+    },
 	name: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+        unique: true
 	},
 	score: {
 		type: Sequelize.BIGINT, defaultValue: 0

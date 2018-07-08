@@ -7,7 +7,7 @@
 
 
     #ranking_div_list {
-        margin-bottom: 15rem;
+        margin-bottom: 5rem;
     }
 
     #ranking_title {
@@ -124,13 +124,16 @@
             }
         });
 
+        $('#ranking_page').off('click');
         $('#ranking_page').on('click', '#head_page', function(){
             socket.emit('player_rank', {
                 currentPage: 0,
                 countPerPage: count_per_page
             });
+            cur_page = 0;
         })
 
+        $('#ranking_page').on('click');
         $('#ranking_page').on('click', '#pre_page', function(){
             socket.emit('player_rank', {
                 currentPage: cur_page-1,
