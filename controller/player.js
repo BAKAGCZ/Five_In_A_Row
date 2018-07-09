@@ -4,6 +4,9 @@ var player_account = require('../model').player_account;
 var player_rank = require('../model').player_rank;
 var ChessBoard = require('../controller').chessboard;
 
+// const player_automatch_key = 'automatch';
+const player_sessionid_key = 'sessionid:';
+const player_sessionid_key_expire_time = 60 * 60 * 24;
 const player_passcode_length = 4;
 
 const Status = {
@@ -23,13 +26,14 @@ class Player
         this.md5 = crypto.createHash('md5');
     }
 
-    create(username) {
+    create(username, socket) {
         player[username] = {
             uname: username,
             enemyname: '', // 如果有对手
             roomid: 0,
             chess: ChessBoard.config.none,
             status: Status.GAME_VISIT,
+            socket: socket
         };
     }
 
@@ -69,6 +73,7 @@ class Player
     getRoomId(username)    { return player[username].roomid; }
 
 
+
     cryptStr(strings) {
         strings += Date();
         return this.md5.update(strings).digest('hex');
@@ -91,9 +96,10 @@ class Player
                 else
                 {
                     let sessionid = cryptStr(username);
-                    redisclient.set('sessionid:'+sessionid, username, function(err){
+                    redisclient.set(player_sessionid_key + sessionid, username, function(err){
                         if (err) reject(err);
                     });
+                    redisclient.expire(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
                     resolve({username:username, sessionid:sessionid});
                 }
             })
@@ -105,7 +111,7 @@ class Player
 
     logout(sessionid) {
         return new Promise(function(resolve, reject){
-            redisclient.del('sessionid:'+sessionid, function(err){
+            redisclient.del(player_sessionid_key + sessionid, function(err){
                 if (err) reject(err); 
                 else resolve();
             });
@@ -115,7 +121,7 @@ class Player
     // 验证登录状态 成功=> 返回username  失败=> 返回Status.LOGIN_FAILED(-1)
     valid(sessionid) {
         return new Promise(function(resolve, reject){
-            redisclient.get('sessionid:'+sessionid, function(err, res){
+            redisclient.get(player_sessionid_key + sessionid, function(err, res){
                 if (err) reject(err);
                 else if (!res) resolve(Status.LOGIN_FAILED);
                 else resolve(res);
@@ -133,10 +139,10 @@ class Player
                 else 
                 {
                     let sessionid = cryptStr(username);
-                    redisclient.set('sessionid:'+sessionid, username, function(err){
+                    redisclient.set(player_sessionid_key + sessionid, username, function(err){
                         if (err) reject(err);
-                        else resolve({username: username, sessionid:sessionid});
                     });
+                    resolve({username: username, sessionid:sessionid});
                 }
             })
             .catch(err => {
@@ -145,7 +151,22 @@ class Player
         });
     }
 
-    getCount() {
+    getScore(username) {
+        return new Promise(function(resolve, reject){
+            player_rank.findOne({
+                name: username
+            })
+            .then(res => {
+                if (!res) resolve(-9999999);
+                else resolve(res.score);
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    getPlayerCount() {
         return player_rank.findAll().count();
     }
 

@@ -4,6 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
 
+const redisclient = require('./model').redis;
 const ChatDB = require('./controller').chat,
       Room = require('./controller').room,
       Player = require('./controller').player,
@@ -49,6 +50,11 @@ app.get('/about', function(req, res){
     if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
     else res.sendFile(__dirname + '/view/about.html');
 });
+
+
+var autoMatch = setInterval(function(){
+    //
+}, 1000);
 
 
 io.on('connection', function(socket){
@@ -122,7 +128,15 @@ io.on('connection', function(socket){
     }
     /* ----- 倒计时 ----- */
 
-    socket.on('auto_match',function(){});
+    socket.on('join_automatch',function(){
+        if (!Player.has(my_name)) return;
+
+        //
+    });
+
+    socket.on('leave_automatch',function(){
+        if (!Player.has(my_name)) return;
+    });
 
     socket.on('join_room', function(roomid){
         if (!Player.has(my_name)) return;
@@ -265,7 +279,7 @@ io.on('connection', function(socket){
             if (res != Player.Status.LOGIN_FAILED)
             {
                 my_name = res.username;
-                Player.create(my_name);
+                Player.create(my_name, socket);
             }
             socket.emit('login', res); 
         })
@@ -276,7 +290,7 @@ io.on('connection', function(socket){
         Player.register(username)
         .then(res => { 
             if (res != Player.Status.REGISTRE_FAILED)
-                Player.create(res.username);
+                Player.create(res.username, socket);
             socket.emit('register', res); 
         })
         .catch(err => { throw err; });
