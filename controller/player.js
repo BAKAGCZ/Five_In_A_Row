@@ -2,14 +2,15 @@ var crypto = require('crypto');
 var redisclient = require('../model').redis;
 var player_account = require('../model').player_account;
 var player_rank = require('../model').player_rank;
-var ChessBoard = require('./controller').chessboard;
+var ChessBoard = require('../controller').chessboard;
 
 const player_passcode_length = 4;
-const player_login_failed = -1;
 
 const Status = {
+    REGISTER_FAILED: -2,
+    LOGIN_FAILED: -1,
     GAME_PLAY: 1,
-    GAME_WAIT: 2,
+    GAME_READY: 2,
     GAME_VISIT: 3    
 };
 
@@ -25,20 +26,22 @@ class Player
     create(username) {
         player[username] = {
             uname: username,
+            enemyname: '', // 如果有对手
             roomid: 0,
             chess: ChessBoard.config.none,
-            status: Status.GAME_VISIT
+            status: Status.GAME_VISIT,
         };
     }
 
-    isPlaying(username) { return player[username].status == Status.GAME_PLAY; }
 
+    // 加入房间
     join(username, roomid) { player[username].roomid = roomid; }
+    // 准备
+    ready(username) { player[username].status = Status.GAME_READY; } 
 
-    ready(username) { player[username].status = Status.GAME_WAIT; }
-
-    start(username, chess) {
+    start(username, enemyname, chess) {
         player[username].chess = chess;
+        player[username].enemyname = enemyname;
         player[username].status = Status.GAME_PLAY;
     }
 
@@ -54,50 +57,92 @@ class Player
 
     destory(username) { delete player[username]; }
 
+    // 玩家状态监测
+    isVisit(username)   { return player[username].status == Status.GAME_VISIT; }
+    isReady(username)   { return player[username].status == Status.GAME_READY; }
+    isPlaying(username) { return player[username].status == Status.GAME_PLAY; }
+    
+    has(username)          { return player[username] != undefined; } // 检查是否有这位玩家的信息
+    isInRoom(username)     { return player[username].roomid != 0; }
+    getEnemyName(username) { return player[username].enemyname; }  
+    getChess(username)     { return player[username].chess; }
+    getRoomId(username)    { return player[username].roomid; }
+
 
     cryptStr(strings) {
-        strings += strings + '0isdWdX';
+        strings += Date();
         return this.md5.update(strings).digest('hex');
     }
 
+    // 登录 成功=> {username, sessionid}  失败=> LOGIN_FAILED(-1)
     login(token) {
         return new Promise(function(resolve, reject){
             if (token == undefined) reject('undefined token');
-            if (token.length < player_passcode_length) resolve(player_login_failed);
+            if (token.length < player_passcode_length) resolve(Status.LOGIN_FAILED);
             let username = token.substr(0, token.length - player_passcode_length);
             let passcode = token.substr(token.length - player_passcode_length);
             player_account.findOne({
                 name: username,
                 passcode: passcode
-            }).then(res => {
+            })
+            .then(res => {
                 if (!res) 
-                    resolve(player_login_failed);
+                    resolve(Status.LOGIN_FAILED);
                 else
                 {
-                    let sessionid = cryptStr(token);
+                    let sessionid = cryptStr(username);
                     redisclient.set('sessionid:'+sessionid, username, function(err){
                         if (err) reject(err);
                     });
-                    resolve(cryptStr(sessionid));
+                    resolve({username:username, sessionid:sessionid});
                 }
-            }).catch(err => {
+            })
+            .catch(err => {
                 reject(err);
             });
         });
     }
 
+    logout(sessionid) {
+        return new Promise(function(resolve, reject){
+            redisclient.del('sessionid:'+sessionid, function(err){
+                if (err) reject(err); 
+                else resolve();
+            });
+        });
+    }
+
+    // 验证登录状态 成功=> 返回username  失败=> 返回Status.LOGIN_FAILED(-1)
     valid(sessionid) {
         return new Promise(function(resolve, reject){
             redisclient.get('sessionid:'+sessionid, function(err, res){
                 if (err) reject(err);
-                else if (!res) resolve(player_login_failed);
+                else if (!res) resolve(Status.LOGIN_FAILED);
                 else resolve(res);
             })
         });
     }
 
-    register(username) {
-        //
+    // 注册 成功=> {username, sessionid}  失败=> REGISTER_FAILED(-2)
+    register(username, uuid) {
+        let passcode = cryptStr(uuid.substr(0, player_passcode_length));
+        return new Promise(function(resolve, reject){
+            player_account.findOrCreate({ where: {name: username} }, { defaults: {passcode: passcode} })
+            .spread((res, created) => {
+                if (!created) resolve(Status.REGISTER_FAILED);
+                else 
+                {
+                    let sessionid = cryptStr(username);
+                    redisclient.set('sessionid:'+sessionid, username, function(err){
+                        if (err) reject(err);
+                        else resolve({username: username, sessionid:sessionid});
+                    });
+                }
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
     }
 
     getCount() {

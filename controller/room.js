@@ -1,5 +1,5 @@
-var Player = require('./controller').player,
-    ChessBoard = require('./controller').chessboard;
+var Player = require('../controller').player,
+    ChessBoard = require('../controller').chessboard;
 
 const room_capacity = 2;
 
@@ -17,14 +17,19 @@ class Room
             player: [], // 前两名进入的用户为玩家 玩家uid
             visitor: [], // 观众uid
             is_save: 0, // 对局结果未保存
-            room_number: 0
+            room_number: 0,
+            roomid: roomid
         };
 	}
 
     getRoom(roomid) { return room[roomid]; }
+    getPlayerNumber(roomid) { return room[roomid].player.length; }
+    getVisitorNumber(roomid) { return room[roomid].visitor.length; }
 
     join(roomid, username) {
-        room[roomid].player.push(username);
+        if (room[roomid].player.length < 2) room[roomid].player.push(username);
+        else room[roomid].visitor.push(username);
+        Player.join(username, roomid);
     }
 
 	leave(roomid, username) {
@@ -38,8 +43,10 @@ class Room
         }
 
         // 更新房间信息
-        if (room[room_id].player.length == 0 && room[roomid].visitor.length == 0)
-            delete room[room_id];
+        if (room[roomid].player.length == 0 && room[roomid].visitor.length == 0)
+            delete room[roomid];
+
+        Player.leave(username);
 	}
 
     start(roomid) {
@@ -48,30 +55,52 @@ class Room
         
         if (Math.random()>0.5)
         {
-            player.start(player1, ChessBoard.config.white);
-            player.start(player2, ChessBoard.config.black);
+            Player.start(player1, player2, ChessBoard.config.white);
+            Player.start(player2, player1, ChessBoard.config.black);
             room[roomid].white = player1;
             room[roomid].black = player2;
         }
         else
         {
-            player.start(player2, ChessBoard.config.white);
-            player.start(player1, ChessBoard.config.black);
+            Player.start(player2, player1, ChessBoard.config.white);
+            Player.start(player1, player2, ChessBoard.config.black);
             room[roomid].white = player2;
             room[roomid].black = player1;
         }
         
-        room_info[room_id].room_number = room_number++;
-        room_info[room_id].is_save = 0;
+        room[roomid].room_number = room_number++;
+        room[roomid].is_save = 0;
     }
 
 	end(roomid, winner, loser) {
         if (room[roomid].is_save == 0)
         {
             console.log('save_result: winner=>' + winner + ' loser=>'+loser);
-            Player.updateRank(winner, loser);
-            room[roomid].is_save = 1;
+            Player.updateRank(winner, loser)
+            .then(res => {
+            	room[roomid].is_save = 1;
+            })
+            .catch(err => { 
+            	throw err; 
+            });
         }
+	}
+
+	isAllReady(roomid) {
+		return room[roomid].player.length == 2 
+			&& Player.isReady(room[roomid].player[0]) 
+			&& Player.isReady(room[roomid].player[1]);
+	}
+
+	isPlayer(roomid, username) {
+		let flag = false;
+		for (let i=0;i<room[roomid].player.length;i++)
+			if (room[roomid].player[i]==username)
+			{
+				flag = true;
+				break;
+			}
+		return flag;
 	}
 }
 
