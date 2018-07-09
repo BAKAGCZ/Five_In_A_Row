@@ -9,17 +9,8 @@ const ChatDB = require('./controller').chat,
       Player = require('./controller').player,
       ChessBoard = require('./controller').chessboard;
 
-// /* { room_id : [user_id, ...] } */
-// var rooms = {};
-// /* { room_id : { room, room_number, white, black } } */
-// var room_info = {}; 
-//  { user_id : { uname, room, chess } } 
-// var player_info = {};
 const TIME_LIMIT = 60; // 每步时长60s 
 var timer = {};
-
-// var room_number = 1;
-// var room_capacity = 2;
 var chess_boards = {};
 
 
@@ -71,36 +62,6 @@ io.on('connection', function(socket){
     var my_name = '', enemy_name = '';
     var my_chess = 0, enemy_chess = 0;
 
-    // function init_roominfo()
-    // {
-    //     room_info[room_id] = {};
-    //     room_info[room_id].white = {};
-    //     room_info[room_id].black = {};
-    //     room_info[room_id].room_id = room_id;
-    //     room_info[room_id].is_save = 0; // 对局结果未保存
-    //     room_info[room_id].room_number = 0;
-    // }
-
-    // function init_playerinfo()
-    // {
-    //     player_info[user_id] = {};
-    //     player_info[user_id].uname = my_name;
-    //     player_info[user_id].room_id = room_id;
-    //     player_info[user_id].chess = 0;
-    //     player_info[user_id].status = GAME_WAIT;
-    // }
-
-    // 保留对局结果
-    // function save_result(winner, loser)
-    // {
-    //     if (room_info[room_id].is_save == 0)
-    //     {
-    //         console.log('save_result: winner=>' + winner + ' loser=>'+loser);
-    //         Player.updateRank(winner, loser);
-    //         room_info[room_id].is_save = 1;
-    //     }
-    // }
-
 
     function join_room(user_name)
     {
@@ -144,24 +105,24 @@ io.on('connection', function(socket){
         
         if (is_ok)
         {
-            let play_enemy = player_info[rooms[room_id][0]];
-            let play_me = player_info[rooms[room_id][1]];
-            if (Math.random()>0.5)
-            {
-                play_enemy.chess = ChessBoard.config.white;
-                play_me.chess = ChessBoard.config.black;
-                room_info[room_id].white = play_enemy;
-                room_info[room_id].black = play_me;
-            }
-            else
-            {
-                play_enemy.chess = ChessBoard.config.black;
-                play_me.chess = ChessBoard.config.white;
-                room_info[room_id].white = play_me;
-                room_info[room_id].black = play_enemy;
-            }
-            room_info[room_id].room_number = room_number++;
-            room_info[room_id].is_save = 0;
+            // let play_enemy = player_info[rooms[room_id][0]];
+            // let play_me = player_info[rooms[room_id][1]];
+            // if (Math.random()>0.5)
+            // {
+            //     play_enemy.chess = ChessBoard.config.white;
+            //     play_me.chess = ChessBoard.config.black;
+            //     room_info[room_id].white = play_enemy;
+            //     room_info[room_id].black = play_me;
+            // }
+            // else
+            // {
+            //     play_enemy.chess = ChessBoard.config.black;
+            //     play_me.chess = ChessBoard.config.white;
+            //     room_info[room_id].white = play_me;
+            //     room_info[room_id].black = play_enemy;
+            // }
+            // room_info[room_id].room_number = room_number++;
+            // room_info[room_id].is_save = 0;
             
             console.log('join_room('+room_id+')  white=>'+room_info[room_id].white.uname + ' black=>'+room_info[room_id].black.uname);
 

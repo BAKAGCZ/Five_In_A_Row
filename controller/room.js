@@ -1,45 +1,76 @@
-const room_number = 1;
+var Player = require('./controller').player,
+    ChessBoard = require('./controller').chessboard;
+
 const room_capacity = 2;
 
-/* { roomid : [user_id, ...] } */
-var rooms = {};
-/* { roomid : { room, room_number, white, black } } */
-var room_info = {}; 
+var room_number = 1;
+var room = {}; 
 
 class Room
 {
 	constructor() { }
 
 	create(roomid) {
-        room_info[roomid] = {};
-        room_info[roomid].white = {};
-        room_info[roomid].black = {};
-        room_info[roomid].roomid = roomid;
-        room_info[roomid].is_save = 0; // 对局结果未保存
-        room_info[roomid].room_number = 0;
+        room[roomid] = {
+            white: {},
+            black: {},
+            player: [], // 前两名进入的用户为玩家 玩家uid
+            visitor: [], // 观众uid
+            is_save: 0, // 对局结果未保存
+            room_number: 0
+        };
 	}
 
-	leave(roomid, userid) {
-        if (rooms[roomid] == undefined || room_info[roomid] == undefined) return;
+    getRoom(roomid) { return room[roomid]; }
+
+    join(roomid, username) {
+        room[roomid].player.push(username);
+    }
+
+	leave(roomid, username) {
+        if (room[roomid] == undefined) return;
         // 删除用户id
-        var index = rooms[roomid].indexOf(user_id);
-        if (index != -1)
-            rooms[roomid].splice(index, 1);
+        let index = room[roomid].player.indexOf(username);
+        if (index != -1) room[roomid].player.splice(index, 1);
+        else {
+            let index = room[roomid].visitor.indexOf(username);
+            if (index != -1) room[roomid].visitor.splice(index, 1);
+        }
 
         // 更新房间信息
-        if (rooms[room_id].length == 0)
-        {
-            delete rooms[room_id];
-            delete room_info[room_id];
-        }
+        if (room[room_id].player.length == 0 && room[roomid].visitor.length == 0)
+            delete room[room_id];
 	}
 
-	saveResult(roomid, winner, loser) {
-        if (room_info[roomid].is_save == 0)
+    start(roomid) {
+        let player1 = room[roomid].player[0],
+            player2 = room[roomid].player[1];
+        
+        if (Math.random()>0.5)
+        {
+            player.start(player1, ChessBoard.config.white);
+            player.start(player2, ChessBoard.config.black);
+            room[roomid].white = player1;
+            room[roomid].black = player2;
+        }
+        else
+        {
+            player.start(player2, ChessBoard.config.white);
+            player.start(player1, ChessBoard.config.black);
+            room[roomid].white = player2;
+            room[roomid].black = player1;
+        }
+        
+        room_info[room_id].room_number = room_number++;
+        room_info[room_id].is_save = 0;
+    }
+
+	end(roomid, winner, loser) {
+        if (room[roomid].is_save == 0)
         {
             console.log('save_result: winner=>' + winner + ' loser=>'+loser);
-            PlayerDB.updateRank(winner, loser);
-            room_info[roomid].is_save = 1;
+            Player.updateRank(winner, loser);
+            room[roomid].is_save = 1;
         }
 	}
 }

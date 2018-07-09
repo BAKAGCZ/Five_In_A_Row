@@ -5,7 +5,7 @@ const CBInfo = {
     play_win: 6,
     play_keep: 9,
     // 角色
-    visitor: 0,
+    none: 0,
     white: 1,
     black: 2
 }
