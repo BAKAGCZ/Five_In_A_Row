@@ -1,7 +1,9 @@
 var crypto = require('crypto');
+
 var redisclient = require('../model').redis;
 var player_account = require('../model').player_account;
 var player_rank = require('../model').player_rank;
+var player_chessboard = require('../model').player_chessboard;
 var ChessBoard = require('../controller').chessboard;
 
 // const player_automatch_key = 'automatch';
@@ -19,6 +21,7 @@ const Status = {
 
 /* { username : { uname, room, chess } } */
 var player = {};
+var player_socket = {};
 
 class Player
 {
@@ -30,11 +33,12 @@ class Player
         player[username] = {
             uname: username,
             enemyname: '', // 如果有对手
-            roomid: 0,
+            roomid: null,
             chess: ChessBoard.config.none,
-            status: Status.GAME_VISIT,
-            socket: socket
+            status: Status.GAME_VISIT
         };
+
+        player_socket[username] = socket;
     }
 
 
@@ -55,7 +59,7 @@ class Player
     }
 
     leave(username) {
-        player[username].roomid = 0;
+        player[username].roomid = null;
         player[username].status = Status.GAME_VISIT;
     }
 
@@ -67,7 +71,8 @@ class Player
     isPlaying(username) { return player[username].status == Status.GAME_PLAY; }
     
     has(username)          { return player[username] != undefined; } // 检查是否有这位玩家的信息
-    isInRoom(username)     { return player[username].roomid != 0; }
+    get(username)    { return player[username]; }
+    isInRoom(username)     { return player[username].roomid != null; }
     getEnemyName(username) { return player[username].enemyname; }  
     getChess(username)     { return player[username].chess; }
     getRoomId(username)    { return player[username].roomid; }
@@ -81,7 +86,7 @@ class Player
 
     // 登录 成功=> {username, sessionid}  失败=> LOGIN_FAILED(-1)
     login(token) {
-        return new Promise(function(resolve, reject){
+        return new Promise((resolve, reject) => {
             if (token == undefined) reject('undefined token');
             if (token.length < player_passcode_length) resolve(Status.LOGIN_FAILED);
             let username = token.substr(0, token.length - player_passcode_length);
@@ -96,7 +101,8 @@ class Player
                 else
                 {
                     let sessionid = cryptStr(username);
-                    redisclient.set(player_sessionid_key + sessionid, username, function(err){
+                    redisclient.set(player_sessionid_key + sessionid, username, 
+                        err => {
                         if (err) reject(err);
                     });
                     redisclient.expire(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
@@ -110,8 +116,8 @@ class Player
     }
 
     logout(sessionid) {
-        return new Promise(function(resolve, reject){
-            redisclient.del(player_sessionid_key + sessionid, function(err){
+        return new Promise((resolve, reject) => {
+            redisclient.del(player_sessionid_key + sessionid, err => {
                 if (err) reject(err); 
                 else resolve();
             });
@@ -120,8 +126,8 @@ class Player
 
     // 验证登录状态 成功=> 返回username  失败=> 返回Status.LOGIN_FAILED(-1)
     valid(sessionid) {
-        return new Promise(function(resolve, reject){
-            redisclient.get(player_sessionid_key + sessionid, function(err, res){
+        return new Promise((resolve, reject) => {
+            redisclient.get(player_sessionid_key + sessionid, (err, res) => {
                 if (err) reject(err);
                 else if (!res) resolve(Status.LOGIN_FAILED);
                 else resolve(res);
@@ -132,14 +138,14 @@ class Player
     // 注册 成功=> {username, sessionid}  失败=> REGISTER_FAILED(-2)
     register(username, uuid) {
         let passcode = cryptStr(uuid.substr(0, player_passcode_length));
-        return new Promise(function(resolve, reject){
+        return new Promise((resolve, reject) => {
             player_account.findOrCreate({ where: {name: username} }, { defaults: {passcode: passcode} })
             .spread((res, created) => {
                 if (!created) resolve(Status.REGISTER_FAILED);
                 else 
                 {
                     let sessionid = cryptStr(username);
-                    redisclient.set(player_sessionid_key + sessionid, username, function(err){
+                    redisclient.set(player_sessionid_key + sessionid, username, err => {
                         if (err) reject(err);
                     });
                     resolve({username: username, sessionid:sessionid});
@@ -152,7 +158,7 @@ class Player
     }
 
     getScore(username) {
-        return new Promise(function(resolve, reject){
+        return new Promise((resolve, reject) => {
             player_rank.findOne({
                 name: username
             })
@@ -181,20 +187,23 @@ class Player
 	}
 
 	updateRank(winner, loser) {
-        return player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
-        .spread((rec, created) => {
-            rec.increment('score');
-            
-            player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
+        let roomid = getRoomId(winner);
+        return Promise.all([
+            player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
             .spread((rec, created) => {
-                rec.decrement('score');
-            }).catch(function(error) {
-                throw(error);
-            });
-        
-        }).catch(function(error) {
-            throw(error);
-        });
+                rec.increment('score'); rec.increment('win');
+                player_rank.findOrCreate({where: { name: loser }, defaults: { name: loser, score: 0}})
+                .spread((rec, created) => {
+                    rec.decrement('score'); rec.increment('lose')
+                }).catch(error => { throw(error); });
+            }).catch(error => { throw(error); })
+            ,
+            player_chessboard.create({
+                winner: winner, 
+                loser: loser, 
+                chessboard: ChessBoard.getChessManual(this.getRoomId(winner).toString())
+            })
+        ]);
 	}
 }
 

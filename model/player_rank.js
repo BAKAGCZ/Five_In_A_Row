@@ -13,6 +13,16 @@ module.exports = function(sequelize, DataTypes) {
 		score: {
 			type: DataTypes.BIGINT, 
 			defaultValue: 0
-		}
+		},
+	    win: {
+	    	type: DataTypes.INTEGER,
+	    	defaultValue: 0
+	    },
+	    lose: {
+	    	type: DataTypes.INTEGER,
+	    	defaultValue: 0
+	    }
+	},{
+		freezeTableName: true
 	});
 }

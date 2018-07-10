@@ -5,6 +5,7 @@ const room_capacity = 2;
 
 var room_number = 1;
 var room = {}; 
+var roomid_list = [];
 
 class Room
 {
@@ -20,11 +21,17 @@ class Room
             room_number: 0,
             roomid: roomid
         };
+
+        roomid_list.push(roomid);
 	}
 
-    getRoom(roomid) { return room[roomid]; }
-    getPlayerNumber(roomid) { return room[roomid].player.length; }
+	has(roomid) { return room[roomid] != undefined; }
+    get(roomid) { return room[roomid]; }
+    getPlayerNumber(roomid)  { return room[roomid].player.length; }
     getVisitorNumber(roomid) { return room[roomid].visitor.length; }
+    getRoomList(offest, n) {
+    	return roomid_list.slice(offest, offest + n).map(roomid => { return this.get(roomid); });
+    }
 
     join(roomid, username) {
         if (room[roomid].player.length < 2) room[roomid].player.push(username);
@@ -44,7 +51,11 @@ class Room
 
         // 更新房间信息
         if (room[roomid].player.length == 0 && room[roomid].visitor.length == 0)
+        {
             delete room[roomid];
+            let index = roomid_list.indexOf(roomid);
+            if (index != -1) roomid_list.splice(index, 1);
+        }
 
         Player.leave(username);
 	}

@@ -1,18 +1,15 @@
 const express = require('express');
 const app = express();
+const path = require('path');
+
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const path = require('path');
 
 const redisclient = require('./model').redis;
 const ChatDB = require('./controller').chat,
       Room = require('./controller').room,
       Player = require('./controller').player,
       ChessBoard = require('./controller').chessboard;
-
-const TIME_LIMIT = 60; // 每步时长60s 
-var timer = {};
-var chess_boards = {};
 
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -52,6 +49,9 @@ app.get('/about', function(req, res){
 });
 
 
+const TIME_LIMIT = 60; // 每步时长60s 
+var timer = {};
+
 var autoMatch = setInterval(function(){
     //
 }, 1000);
@@ -66,37 +66,6 @@ io.on('connection', function(socket){
     // 需要双方同步的信息
     var my_name = '', enemy_name = '';
     var my_chess = 0, enemy_chess = 0;
-
-
-    function leave_room()
-    {
-        if (!Player.has(my_name)) return; // 用户没有登录
-
-        // 玩家在游戏未结束时 直接退出算认输
-        if (Player.isPlaying(my_name))
-        {
-            Room.end(room_id, enemy_name, my_name);
-            socket.broadcast.to(room_id).emit('play_defeat', my_chess);
-
-            // 删除定时器
-            cancelCountDown();
-            if (timer[room_id]) delete timer[room_id];
-
-            // 初始化棋盘
-            if (chess_boards[room_id]) chess_boards[room_id].reset();
-            
-            io.sockets.in(room_id).emit('game_over');
-        }
-
-        console.log(my_name + ' leave_room.')
-        console.log('leave_room('+room_id+')  have '+Room.getPlayerNumber(room_id)+' players and ' 
-            + Room.getVisitorNumber(room_id) + ' visitors.');
-
-        Room.leave(room_id, my_name);
-
-        socket.broadcast.to(room_id).emit('leave_room', my_name);        
-        socket.leave(room_id);
-    }
 
     /* ----- 倒计时 ----- */
     function setCountDown(playing, waiting) {
@@ -128,6 +97,7 @@ io.on('connection', function(socket){
     }
     /* ----- 倒计时 ----- */
 
+    /* ----- 自动匹配 ----- */
     socket.on('join_automatch',function(){
         if (!Player.has(my_name)) return;
 
@@ -137,7 +107,9 @@ io.on('connection', function(socket){
     socket.on('leave_automatch',function(){
         if (!Player.has(my_name)) return;
     });
+    /* ----- 自动匹配 ----- */
 
+    /* ----- 房间 ----- */
     socket.on('join_room', function(roomid){
         if (!Player.has(my_name)) return;
 
@@ -156,17 +128,44 @@ io.on('connection', function(socket){
         {
             Room.start(room_id);
             // 生成棋盘
-            if (chess_boards[room_id] == undefined)
-            {
-                chess_boards[room_id] = new ChessBoard();
-                chess_boards[room_id].create();
-            }
+            if (!ChessBoard.has(room_id))
+                ChessBoard.create(room_id);
             else
-                chess_boards[room_id].reset();
+                ChessBoard.reset(room_id);
             
             io.sockets.in(room_id).emit('game_start');
         }
     });
+
+    function leave_room()
+    {
+        if (!Player.has(my_name)) return; // 用户没有登录
+
+        // 玩家在游戏未结束时 直接退出算认输
+        if (Player.isPlaying(my_name))
+        {
+            Room.end(room_id, enemy_name, my_name);
+            socket.broadcast.to(room_id).emit('play_defeat', my_chess);
+
+            // 删除定时器
+            cancelCountDown();
+            if (timer[room_id]) delete timer[room_id];
+
+            // 初始化棋盘
+            if (ChessBoard.has(room_id)) ChessBoard.reset(room_id);
+            
+            io.sockets.in(room_id).emit('game_over');
+        }
+
+        console.log(my_name + ' leave_room.')
+        console.log('leave_room('+room_id+')  have '+Room.getPlayerNumber(room_id)+' players and ' 
+            + Room.getVisitorNumber(room_id) + ' visitors.');
+
+        Room.leave(room_id, my_name);
+
+        socket.broadcast.to(room_id).emit('leave_room', my_name);        
+        socket.leave(room_id);
+    }
 
     socket.on('leave_room', leave_room);
     socket.on('disconnect', function(){
@@ -176,7 +175,9 @@ io.on('connection', function(socket){
             leave_room();
         Player.destory(my_name);
     });
+    /* ----- 房间 ----- */
 
+    // 该房间游戏开始 同步状态
     socket.on('game_start', function(){
         if (!Player.has(my_name)) return;
 
@@ -188,7 +189,7 @@ io.on('connection', function(socket){
         }
     });
     
-    // 该房间游戏已经结束
+    // 该房间游戏结束 同步状态
     socket.on('game_over', function(){
         if (!Player.has(my_name)) return;
 
@@ -202,7 +203,7 @@ io.on('connection', function(socket){
         if (!Player.has(my_name)
             || !Player.isPlaying(my_name)) return;
 
-        let play_state = chess_boards[room_id].play(data.chess, data.x, data.y);
+        let play_state = ChessBoard.play(room_id, data.chess, data.x, data.y);
 
         io.sockets.in(room_id).emit('play_one', {
             chess: data.chess,
@@ -231,21 +232,25 @@ io.on('connection', function(socket){
         io.sockets.in(room_id).emit('game_over');
     });
 
-    socket.on('room_info', function(){
-        if (!Player.has(my_name)) return;
-    	socket.emit('room_info', room_info[room_id]);
+    socket.on('room_info', function(room_id){
+        if (!Room.has(room_id)) return;
+    	socket.emit('room_info', Room.get(room_id));
     });
 
     socket.on('player_info', function(){
         if (!Player.has(my_name)) return;
-        socket.emit('player_info', player_info[user_id]);
+        socket.emit('player_info', Player.get(user_id));
     });
 
-    socket.on('room_list', function(){
+    socket.on('room_list', function(data){
         if (!Player.has(my_name)) return;
-        socket.emit('room_list', room_info);
+        socket.emit('room_list', Room.getRoomList(data.currentPage, data.countPerPage));
     });
 
+    // 房间内通讯
+    socket.on('room_chat_message', function(data){ io.sockets.in(room_id).emit('room_chat_message', data); });
+
+    // 公频通讯
     socket.on('chat_message', function(data){
         // console.log(data.sender+ ' '+data.msg);
         ChatDB.add(data)
@@ -265,9 +270,10 @@ io.on('connection', function(socket){
         .catch(err => { throw err; });
     });
 
+    // 玩家总数
     socket.on('player_number', function(){
         if (!Player.has(my_name)) return;
-        Player.getCount()
+        Player.getPlayerCount()
         .then(res => { socket.emit('player_number', res); })
         .catch(err => { throw err; });
     });
@@ -292,6 +298,26 @@ io.on('connection', function(socket){
             if (res != Player.Status.REGISTRE_FAILED)
                 Player.create(res.username, socket);
             socket.emit('register', res); 
+        })
+        .catch(err => { throw err; });
+    });
+
+    socket.on('logout', function(sessionid){
+        Player.logout(sessionid)
+        .then(res => { socket.emit('logout'); })
+        .catch(err => { throw err; });
+    });
+
+    socket.on('valid', function(sessionid){
+        Player.valid(sessionid)
+        .then(res => {
+            // res => {username, sessionid}
+            if (res != Player.Status.LOGIN_FAILED)
+            {
+                my_name = res;
+                Player.create(my_name, socket);
+            }
+            socket.emit('login', res); 
         })
         .catch(err => { throw err; });
     });
