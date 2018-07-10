@@ -11,7 +11,7 @@ class Room
 {
 	constructor() { }
 
-	create(roomid) {
+	create(roomid, roomname) {
         room[roomid] = {
             white: {},
             black: {},
@@ -19,7 +19,8 @@ class Room
             visitor: [], // 观众uid
             is_save: 0, // 对局结果未保存
             room_number: 0,
-            roomid: roomid
+            room_name: roomname,
+            room_id: roomid
         };
 
         roomid_list.push(roomid);

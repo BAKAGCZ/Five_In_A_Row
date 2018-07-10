@@ -110,6 +110,17 @@ io.on('connection', function(socket){
     /* ----- 自动匹配 ----- */
 
     /* ----- 房间 ----- */
+    socket.on('create_room', function(roomname){
+        if (!Player.has(my_name)) return;
+
+        room_id = user_id; // 创建者ID为房间ID
+        Room.create(room_id, roomname);
+        Room.join(room_id, my_name);
+
+        socket.join(room_id);
+    });
+
+
     socket.on('join_room', function(roomid){
         if (!Player.has(my_name)) return;
 
