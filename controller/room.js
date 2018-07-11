@@ -17,10 +17,14 @@ class Room
             black: {},
             player: [], // 前两名进入的用户为玩家 玩家uid
             visitor: [], // 观众uid
-            is_save: 0, // 对局结果未保存
             room_number: 0,
             room_name: roomname,
-            room_id: roomid
+            room_id: roomid,
+            _is_save: 0, // 对局结果未保存
+            // 对局双方需要达成的一致状态计数 
+            // p1=>1 p2=>2 
+            // 即 如果该值为3 表示两位都确认了
+            _player_confirm: 0
         };
 
         roomid_list.push(roomid);
@@ -34,6 +38,19 @@ class Room
     	return roomid_list
     		.slice(offest < 0 ? 0 : offest, offest + n > roomid_list.length ? roomid_list.length : offest + n)
     		.map(roomid => { return this.get(roomid); });
+    }
+    iConfirm(roomid, username) {
+        if (this.getPlayerNumber(roomid) < 2) return false;
+        
+        if (username == room[roomid].player[0]) room[roomid]._player_confirm += 1;
+        else if (username == room[roomid].player[1]) room[roomid]._player_confirm += 2;
+
+        if (room[roomid]._player_confirm == 3) 
+        {
+            room[roomid]._player_confirm = 0; // 清零 以备下次使用
+            return true;
+        }
+        return false;
     }
 
     join(roomid, username) {
@@ -83,16 +100,16 @@ class Room
         }
         
         room[roomid].room_number = room_number++;
-        room[roomid].is_save = 0;
+        room[roomid]._is_save = 0;
     }
 
 	end(roomid, winner, loser) {
-        if (room[roomid].is_save == 0)
+        if (room[roomid]._is_save == 0)
         {
             console.log('save_result: winner=>' + winner + ' loser=>'+loser);
             Player.updateRank(winner, loser)
             .then(res => {
-            	room[roomid].is_save = 1;
+            	room[roomid]._is_save = 1;
             })
             .catch(err => { 
             	throw err; 

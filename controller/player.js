@@ -108,12 +108,12 @@ class Player
                 else
                 {
                     let sessionid = cryptStr(username);
-                    redisclient.set(player_sessionid_key + sessionid, username, 
-                        err => {
-                        if (err) reject(err);
-                    });
-                    redisclient.expire(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
-                    resolve({username:username, sessionid:sessionid});
+                    redisclient._set(player_sessionid_key + sessionid, username)
+                    .then(res => {
+                        redisclient.expire(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
+                        resolve({username:username, sessionid:sessionid});
+                    })
+                    .catch(err => { reject(err); });
                 }
             })
             .catch(err => {
@@ -123,23 +123,12 @@ class Player
     }
 
     logout(sessionid) {
-        return new Promise((resolve, reject) => {
-            redisclient.del(player_sessionid_key + sessionid, err => {
-                if (err) reject(err); 
-                else resolve();
-            });
-        });
+        return redisclient.del(player_sessionid_key + sessionid);
     }
 
     // 验证登录状态 成功=> 返回username  失败=> 返回Status.LOGIN_FAILED(-1)
     valid(sessionid) {
-        return new Promise((resolve, reject) => {
-            redisclient.get(player_sessionid_key + sessionid, (err, res) => {
-                if (err) reject(err);
-                else if (!res) resolve(Status.LOGIN_FAILED);
-                else resolve(res);
-            })
-        });
+        return redisclient._get(player_sessionid_key + sessionid);
     }
 
     // 注册 成功=> {username, sessionid}  失败=> REGISTER_FAILED(-2)
@@ -152,10 +141,9 @@ class Player
                 else 
                 {
                     let sessionid = cryptStr(username);
-                    redisclient.set(player_sessionid_key + sessionid, username, err => {
-                        if (err) reject(err);
-                    });
-                    resolve({username: username, sessionid:sessionid});
+                    redisclient._set(player_sessionid_key + sessionid, username)
+                    .then(res => { resolve({username: username, sessionid:sessionid}); })
+                    .catch(err => { reject(err); });
                 }
             })
             .catch(err => {
