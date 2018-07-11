@@ -31,7 +31,9 @@ class Room
     getPlayerNumber(roomid)  { return room[roomid].player.length; }
     getVisitorNumber(roomid) { return room[roomid].visitor.length; }
     getRoomList(offest, n) {
-    	return roomid_list.slice(offest, offest + n).map(roomid => { return this.get(roomid); });
+    	return roomid_list
+    		.slice(offest < 0 ? 0 : offest, offest + n > roomid_list.length ? roomid_list.length : offest + n)
+    		.map(roomid => { return this.get(roomid); });
     }
 
     join(roomid, username) {

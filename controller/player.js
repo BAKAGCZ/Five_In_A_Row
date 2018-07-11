@@ -30,15 +30,21 @@ class Player
     }
 
     create(username, socket) {
-        player[username] = {
-            uname: username,
-            enemyname: '', // 如果有对手
-            roomid: null,
-            chess: ChessBoard.config.none,
-            status: Status.GAME_VISIT
-        };
-
         player_socket[username] = socket;
+
+        player_rank.findOne({ name: username })
+        .then(res => {
+            player[username] = {
+                uname: username,
+                enemyname: '', // 如果有对手
+                roomid: null,
+                chess: ChessBoard.config.none,
+                score: res.score,
+                win: res.win, lose: res.lose,
+                status: Status.GAME_VISIT
+            };
+        })
+        .catch(err => { throw err; });
     }
 
 
@@ -71,11 +77,12 @@ class Player
     isPlaying(username) { return player[username].status == Status.GAME_PLAY; }
     
     has(username)          { return player[username] != undefined; } // 检查是否有这位玩家的信息
-    get(username)    { return player[username]; }
+    get(username)          { return player[username]; }
     isInRoom(username)     { return player[username].roomid != null; }
     getEnemyName(username) { return player[username].enemyname; }  
     getChess(username)     { return player[username].chess; }
     getRoomId(username)    { return player[username].roomid; }
+    getSocket(username)    { return player_socket[username]; }
 
 
 
@@ -157,21 +164,6 @@ class Player
         });
     }
 
-    getScore(username) {
-        return new Promise((resolve, reject) => {
-            player_rank.findOne({
-                name: username
-            })
-            .then(res => {
-                if (!res) resolve(-9999999);
-                else resolve(res.score);
-            })
-            .catch(err => {
-                reject(err);
-            });
-        });
-    }
-
     getPlayerCount() {
         return player_rank.findAll().count();
     }
@@ -188,6 +180,8 @@ class Player
 
 	updateRank(winner, loser) {
         let roomid = getRoomId(winner);
+        player[winner].score++; player[winner].win++;
+        player[loser].score--;  player[loser].lose++;
         return Promise.all([
             player_rank.findOrCreate({where: { name: winner }, defaults: { name: winner, score: 0}})
             .spread((rec, created) => {
@@ -201,7 +195,7 @@ class Player
             player_chessboard.create({
                 winner: winner, 
                 loser: loser, 
-                chessboard: ChessBoard.getChessManual(this.getRoomId(winner).toString())
+                chessboard: ChessBoard.getChessManual(this.getRoomId(winner)).toString()
             })
         ]);
 	}

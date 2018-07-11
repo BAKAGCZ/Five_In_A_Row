@@ -51,9 +51,32 @@ app.get('/about', function(req, res){
 
 const TIME_LIMIT = 60; // 每步时长60s 
 var timer = {};
+const autoMatchKey = 'autoMatch';
 
 var autoMatch = setInterval(function(){
-    //
+    redisclient.scard(autoMatchKey, (err, res) => {
+        if (err) throw err;
+        else
+        {
+            if (res>=2)
+            {
+                let player1 = redisclient.spop(autoMatchKey),
+                    player2 = redisclient.spop(autoMatchKey);
+
+                let p1socket = Player.getSocket(player1),
+                    p2socket = Player.getSocket(player2);
+
+                let room_id = p1socket.id;
+
+                Room.create(room_id, player1+'&'+player2);
+                Room.join(room_id, player1);
+                Room.join(room_id, player2);
+                p1socket.join(room_id);
+                p2socket.join(room_id);
+                io.sockets.in(room_id).emit('join_room', room_id);
+            }
+        }
+    });
 }, 1000);
 
 
@@ -101,11 +124,19 @@ io.on('connection', function(socket){
     socket.on('join_automatch',function(){
         if (!Player.has(my_name)) return;
 
-        //
+        redisclient.sadd(autoMatchKey, my_name, (err, res) => {
+            if (err) throw err;
+            else socket.emit('join_automatch', my_name);
+        });
     });
 
     socket.on('leave_automatch',function(){
         if (!Player.has(my_name)) return;
+
+        redisclient.srem(autoMatchKey, my_name, (err, res) => {
+            if (err) throw err;
+            else socket.emit('leave_automatch', my_name);
+        });
     });
     /* ----- 自动匹配 ----- */
 
@@ -128,7 +159,7 @@ io.on('connection', function(socket){
         Room.join(room_id, my_name);
         
         socket.join(room_id);
-        io.sockets.in(room_id).emit('join_room',my_name);
+        io.sockets.in(room_id).emit('join_room',room_id);
     });
 
     socket.on('player_ready', function(){
@@ -174,7 +205,7 @@ io.on('connection', function(socket){
 
         Room.leave(room_id, my_name);
 
-        socket.broadcast.to(room_id).emit('leave_room', my_name);        
+        socket.broadcast.to(room_id).emit('leave_room', room_id);        
         socket.leave(room_id);
     }
 
@@ -243,6 +274,13 @@ io.on('connection', function(socket){
         io.sockets.in(room_id).emit('game_over');
     });
 
+    // 获取自己所在的房间信息
+    socket.on('get_my_room', function(){
+        if (!Player.isInRoom(my_name)) return;
+        socket.emit('get_my_room', Room.get(Player.getRoomId(my_name)));
+    });
+
+    // 获取指定id的房间信息
     socket.on('room_info', function(room_id){
         if (!Room.has(room_id)) return;
     	socket.emit('room_info', Room.get(room_id));
@@ -250,7 +288,7 @@ io.on('connection', function(socket){
 
     socket.on('player_info', function(){
         if (!Player.has(my_name)) return;
-        socket.emit('player_info', Player.get(user_id));
+        socket.emit('player_info', Player.get(my_name));
     });
 
     socket.on('room_list', function(data){
