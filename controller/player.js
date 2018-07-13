@@ -1,4 +1,5 @@
 var crypto = require('crypto');
+var nodemailer = require('nodemailer');
 
 var redisclient = require('../model').redis;
 var player_account = require('../model').player_account;
@@ -6,14 +7,29 @@ var player_rank = require('../model').player_rank;
 var player_chessboard = require('../model').player_chessboard;
 var ChessBoard = require('../controller').chessboard;
 
+
+// mail邮件
+const transport = nodemailer.createTransport({
+    service: 'qq',
+    auth: {
+        user: '437773935@qq.com',
+        pass: ''
+    }
+}); 
+
+const mailOptions = {
+    from: '437773935@qq.com',
+    to: '',
+    subject: '',
+    html: ''
+};
+
+
 // const player_automatch_key = 'automatch';
 const player_sessionid_key = 'sessionid:';
 const player_sessionid_key_expire_time = 60 * 60 * 24;
-const player_passcode_length = 4;
 
 const Status = {
-    REGISTER_FAILED: -2,
-    LOGIN_FAILED: -1,
     GAME_PLAY: 1,
     GAME_READY: 2,
     GAME_VISIT: 3    
@@ -91,66 +107,22 @@ class Player
         return this.md5.update(strings).digest('hex');
     }
 
-    // 登录 成功=> {username, sessionid}  失败=> LOGIN_FAILED(-1)
-    login(token) {
-        return new Promise((resolve, reject) => {
-            if (token == undefined) reject('undefined token');
-            if (token.length < player_passcode_length) resolve(Status.LOGIN_FAILED);
-            let username = token.substr(0, token.length - player_passcode_length);
-            let passcode = token.substr(token.length - player_passcode_length);
-            player_account.findOne({
-                name: username,
-                passcode: passcode
-            })
-            .then(res => {
-                if (!res) 
-                    resolve(Status.LOGIN_FAILED);
-                else
-                {
-                    let sessionid = cryptStr(username);
-                    redisclient._set(player_sessionid_key + sessionid, username)
-                    .then(res => {
-                        redisclient.expire(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
-                        resolve({username:username, sessionid:sessionid});
-                    })
-                    .catch(err => { reject(err); });
-                }
-            })
-            .catch(err => {
-                reject(err);
-            });
-        });
-    }
 
-    logout(sessionid) {
-        return redisclient.del(player_sessionid_key + sessionid);
-    }
-
-    // 验证登录状态 成功=> 返回username  失败=> 返回Status.LOGIN_FAILED(-1)
-    valid(sessionid) {
+    // 验证登录状态
+    validLogin(sessionid) {
         return redisclient._get(player_sessionid_key + sessionid);
     }
 
-    // 注册 成功=> {username, sessionid}  失败=> REGISTER_FAILED(-2)
-    register(username, uuid) {
-        let passcode = cryptStr(uuid.substr(0, player_passcode_length));
-        return new Promise((resolve, reject) => {
-            player_account.findOrCreate({ where: {name: username} }, { defaults: {passcode: passcode} })
-            .spread((res, created) => {
-                if (!created) resolve(Status.REGISTER_FAILED);
-                else 
-                {
-                    let sessionid = cryptStr(username);
-                    redisclient._set(player_sessionid_key + sessionid, username)
-                    .then(res => { resolve({username: username, sessionid:sessionid}); })
-                    .catch(err => { reject(err); });
-                }
-            })
-            .catch(err => {
-                reject(err);
-            });
-        });
+    logout(sessionid) {
+        return redisclient._del(player_sessionid_key + sessionid);
     }
+
+    // 发送验证邮件
+    sendEmail(email) { }
+
+    // 邮箱验证成功 绑定邮箱
+    validEmailCode(code) { }
+
 
     getPlayerCount() {
         return player_rank.findAll().count();

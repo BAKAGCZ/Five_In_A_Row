@@ -35,7 +35,7 @@ redisclient._del = function(key) {
     return new Promise((resolve, reject) => {
         redisclient.del(key, (err, res) => {
             if (err) reject(err);
-            else resolve();
+            else resolve(res);
         });
     });
 }

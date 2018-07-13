@@ -15,6 +15,10 @@ module.exports = function(sequelize, DataTypes) {
 	    chessboard: {
 	    	type: DataTypes.STRING,
 	    	comments: '棋谱'
+	    },
+	    chesstype: {
+	    	type: DataTypes.INTEGER,
+	    	comments: '棋的类型'
 	    }
 	},{
 		freezeTableName: true
