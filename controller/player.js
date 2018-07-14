@@ -130,6 +130,7 @@ class Player
 
 
     // 登录
+    // return { status:(true false), sessionid:(undefined) }
     login(email) {
         let _player = this;
         return new Promise((resolve, reject) => {
@@ -143,12 +144,15 @@ class Player
                     redisclient._set(player_sessionid_key + sessionid, res.name)
                     .then(res => {
                         redisclient.expires(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
-                        resolve(true); 
+                        resolve({
+                            status: true,
+                            sessionid: sessionid
+                        }); 
                     })
                     .catch(err => { reject(err); });
                 }
                 else
-                    resolve(false);
+                    resolve({ status: false});
             })
             .catch(err => { reject(err); })
         });
@@ -164,11 +168,33 @@ class Player
     }
 
     // 注册 如果成功写入redis
+    // return { status:(-1 -2 0), sessionid:(undefined) }
     register(username, email)
     {
-        return player_account.create({
-            name: username,
-            email: email
+        let _player = this;
+        return new Promise((resolve, reject) => {
+            if (_player.hasName(username)) resolve({ status: -1 }); // username 重复
+            else if (_player.hasMail(email)) resolve({ status: -2 }); // mail 重复
+            else
+            {
+                player_account.create({
+                    name: username,
+                    email: email
+                })
+                .then(res => {
+                    let sessionid = cryptStr(username);
+                    redisclient._set(player_sessionid_key + sessionid, username)
+                    .then(res => {
+                        redisclient.expires(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
+                        resolve({
+                            status: 1,
+                            sessionid: sessionid
+                        });
+                    })
+                    .catch(err => { reject(err); });
+                })
+                .catch(err => { reject(err); });
+            }
         });
     }
 
