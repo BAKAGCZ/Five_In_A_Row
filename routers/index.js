@@ -42,13 +42,14 @@ function Init()
 
     io.on('connection', function(socket){
         console.log('socket.id: ' + socket.id + ' connected. ' + Date());
-        var user_id = socket.id;
-        var room_id = ''; // 创建者的user_id
-        var times = TIME_LIMIT; // 每步时长
+        let user_id = socket.id;
+        let room_id = ''; // 创建者的user_id
+        let times = TIME_LIMIT; // 每步时长
+        let valid_code = user_id.substr(0, 4); // 验证码
 
         // 需要双方同步的信息
-        var my_name = '', enemy_name = '';
-        var my_chess = 0, enemy_chess = 0;
+        let my_name = '', enemy_name = '';
+        let my_chess = 0, enemy_chess = 0;
 
         /* ----- 倒计时 START ----- */
         function setCountDown(playing, waiting) {
@@ -296,23 +297,23 @@ function Init()
 
 
         /* ----- 登录绑定 START ----- */
-
-        socket.on('notify_sendemail', function(email){
-            Player.sendEmail(email);
-            socket.on('confirm_sendemail');
-            // .then(res => {
-            //     socket.emit('confirm_sendemail');
-            // })
-            // .catch(err => { throw err; });
+        socket.on('notify_registr', function(data){
+            Player.register(data.username, data.email, data.vcode)
+            .then(res => {
+                socket.emit('confirm_register');
+            })
+            .catch(err => { throw err; });
         });
 
-        socket.on('notify_validemail', function(Code){
-            Player.validEmailCode(Code);
-            socket.on('confirm_validemail');
-            // .then(res => {
-            //     socket.emit('confirm_sendemail');
-            // })
-            // .catch(err => { throw err; });
+        socket.on('notify_login', function(data){
+            if (data.vcode == valid_code)
+            {
+                Player.login(data.email)
+                .then(res => {
+                    socket.emit('confirm_login');
+                })
+                .catch(err => { throw err; });
+            }
         });
 
         socket.on('notify_logout', function(sessionid){
@@ -326,18 +327,25 @@ function Init()
             .catch(err => { throw err; });
         });
 
-        socket.on('notify_validlogin', function(sessionid){
-            Player.validLogin(sessionid)
+        socket.on('notify_login_valid', function(sessionid){
+            Player.valid(sessionid)
             .then(res => {
                 if (res)
                 {
                     my_name = res;
                     Player.create(my_name, socket);
-                    socket.emit('confirm_validlogin');
+                    socket.emit('confirm_login_valid');
                 }
                 else
-                    socket.emit('confirm_invalidlogin', res); 
+                    socket.emit('confirm_login_invalid'); 
             })
+            .catch(err => { throw err; });
+        });
+
+
+        socket.on('notify_sendmail', function(email){
+            Player.sendMail(user_id, "验证码: " + valid_code)
+            .then(res => { socket.on('confirm_sendmail'); })
             .catch(err => { throw err; });
         });
         /* ----- 登录绑定 START ----- */

@@ -11,7 +11,11 @@ module.exports = function(sequelize, DataTypes) {
 	        unique: true
 	    },
 	    email: {
-	    	type: DataTypes.STRING
+	    	type: DataTypes.STRING,
+	    	validate: {
+	    		isEmail: true
+	    	}
+	    	unique: true
 	    }
 	},{
 		freezeTableName: true

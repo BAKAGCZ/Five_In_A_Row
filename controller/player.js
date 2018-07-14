@@ -1,5 +1,7 @@
-var crypto = require('crypto');
-var nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 var redisclient = require('../model').redis;
 var player_account = require('../model').player_account;
@@ -7,18 +9,20 @@ var player_rank = require('../model').player_rank;
 var player_chessboard = require('../model').player_chessboard;
 var ChessBoard = require('../controller').chessboard;
 
+var filecontent = fs.readFileSync(path.join(__dirname, '../database/mail.txt'), 'utf-8').split(';');
+var user = filecontent[0].trim(), pass = filecontent[1].trim();
 
 // mail邮件
 const transport = nodemailer.createTransport({
     service: 'qq',
     auth: {
-        user: '437773935@qq.com',
-        pass: ''
+        user: user,
+        pass: pass
     }
 }); 
 
-const mailOptions = {
-    from: '437773935@qq.com',
+var mailOptions = {
+    from: user,
     to: '',
     subject: '',
     html: ''
@@ -38,6 +42,7 @@ const Status = {
 /* { username : { uname, room, chess } } */
 var player = {};
 var player_socket = {};
+var player_validcode = {};
 
 class Player
 {
@@ -101,6 +106,22 @@ class Player
     getSocket(username)    { return player_socket[username]; }
 
 
+    hasName(username) {
+        return new Promise((resolve, reject) => {
+            player_account.findOne({ name:username })
+            .then(res => { resolve(!res ? false : true); })
+            .catch(err => { throw err; });
+        });
+    }
+
+    hasMail(email) {
+        return new Promise((resolve, reject) => {
+            player_account.findOne({ email:email })
+            .then(res => { resolve(!res ? false : true); })
+            .catch(err => { throw err; });
+        });
+    }
+
 
     cryptStr(strings) {
         strings += Date();
@@ -108,8 +129,13 @@ class Player
     }
 
 
+    // 登录 如果成功写入redis
+    login(email) {
+        // return player_account.findOne({ email: email });
+    }
+
     // 验证登录状态
-    validLogin(sessionid) {
+    valid(sessionid) {
         return redisclient._get(player_sessionid_key + sessionid);
     }
 
@@ -117,11 +143,14 @@ class Player
         return redisclient._del(player_sessionid_key + sessionid);
     }
 
-    // 发送验证邮件
-    sendEmail(email) { }
-
-    // 邮箱验证成功 绑定邮箱
-    validEmailCode(code) { }
+    // 注册 如果成功写入redis
+    register(username, email)
+    {
+        return player_account.create({
+            name: username,
+            email: email
+        });
+    }
 
 
     getPlayerCount() {
@@ -155,10 +184,23 @@ class Player
             player_chessboard.create({
                 winner: winner, 
                 loser: loser, 
-                chessboard: ChessBoard.getChessManual(this.getRoomId(winner)).toString()
+                chessboard: ChessBoard.getChessManual(this.getRoomId(winner)).toString(),
+                chesstype: 0 // 0=>五子棋
             })
         ]);
 	}
+
+    // 发送邮件
+    sendMail(uuid, content) {
+        mailOptions.to = email;
+        mailOptions.subject = content;
+        return new Promise((resolve, reject) => {
+            transport.sendMail(mailOptions, function(err, res) {
+                if (err) reject(err);
+                else resolve(res);
+            })
+        });
+    }
 }
 
 Player.Status = Status;
