@@ -299,9 +299,7 @@ function Init()
         /* ----- 登录绑定 START ----- */
         socket.on('notify_registr', function(data){
             Player.register(data.username, data.email, data.vcode)
-            .then(res => {
-                socket.emit('confirm_register');
-            })
+            .then(res => { socket.emit('confirm_register', res); })
             .catch(err => { throw err; });
         });
 
@@ -309,9 +307,7 @@ function Init()
             if (data.vcode == valid_code)
             {
                 Player.login(data.email)
-                .then(res => {
-                    socket.emit('confirm_login');
-                })
+                .then(res => { socket.emit('confirm_login', res); })
                 .catch(err => { throw err; });
             }
         });

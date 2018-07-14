@@ -109,7 +109,7 @@ class Player
     hasName(username) {
         return new Promise((resolve, reject) => {
             player_account.findOne({ name:username })
-            .then(res => { resolve(!res ? false : true); })
+            .then(res => { resolve(res ? true : false); })
             .catch(err => { throw err; });
         });
     }
@@ -117,7 +117,7 @@ class Player
     hasMail(email) {
         return new Promise((resolve, reject) => {
             player_account.findOne({ email:email })
-            .then(res => { resolve(!res ? false : true); })
+            .then(res => { resolve(res ? true : false); })
             .catch(err => { throw err; });
         });
     }
@@ -129,9 +129,29 @@ class Player
     }
 
 
-    // 登录 如果成功写入redis
+    // 登录
     login(email) {
-        // return player_account.findOne({ email: email });
+        let _player = this;
+        return new Promise((resolve, reject) => {
+            player_account.findOne({ email:email })
+            .then(res => {
+                if (res)
+                {
+                    _player.create(res.name);
+                    let sessionid = cryptStr(res.name);
+                    // 写入redis
+                    redisclient._set(player_sessionid_key + sessionid, res.name)
+                    .then(res => {
+                        redisclient.expires(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
+                        resolve(true); 
+                    })
+                    .catch(err => { reject(err); });
+                }
+                else
+                    resolve(false);
+            })
+            .catch(err => { reject(err); })
+        });
     }
 
     // 验证登录状态
