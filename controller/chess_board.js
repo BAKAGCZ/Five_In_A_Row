@@ -31,8 +31,7 @@ class ChessBoard {
         cur_cb.chess = CBInfo.black;
         cur_cb.chess_manual = [];
         for (let i=0; i<CBInfo.row; i++)
-            for (let j=0; j<CBInfo.column; j++)
-                cur_cb.cb[i][j]=0;
+            cur_cb.cb[i].fill(CBInfo.none);
     };
 
 	create(roomid) {
