@@ -8,9 +8,12 @@ function 自动匹配()
 	退出自动匹配:
 		发送 'notify_leave_automatch' 参数:空
 		返回 'confirm_leave_automatch' 参数:用户名
+}
 
 
-	/* ----- 房间 ----- */
+/* ----- 房间 ----- */
+function 房间()
+{
 	创建房间:
 		发送 'notify_create_room' 参数:房间名
 		返回 'confirm_create_room' 参数:房间ID
@@ -26,6 +29,7 @@ function 自动匹配()
 			都返回 'notify_game_over' 参数:空
 			都返回 'confirm_leave_room' 参数:空
 }
+
 
 /* ----- 游戏 ----- */
 function 游戏()
@@ -73,6 +77,7 @@ function 游戏()
 		注释: 自动完成, 客户端不需要考虑
 
 }
+
 
 /* ----- 信息获取 ----- */
 function 信息获取()
@@ -138,6 +143,7 @@ function 信息获取()
 								}
 
 }
+
 
 /* ----- 通讯 ----- */
 function 通讯()
