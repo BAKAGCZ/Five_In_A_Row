@@ -1,0 +1,188 @@
+
+<style type="text/css">
+
+    #room_div_button, #room_div_list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+
+    #room_div_list {
+        margin: 7rem;
+    }
+
+    .room_info {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        border: 0.3rem solid lightblue;
+        width: 15rem;
+        height: 15rem;
+        padding: 0 1.5rem;
+    }
+
+    .room_info:hover {
+        border-color: blue;
+    }
+
+    .room_info p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .room_info button{
+        margin: 1rem;
+        font-size: 1rem;
+        width: 8rem;
+        height: 2.5rem;
+        margin: auto;
+    }
+
+    .room_info button:hover {
+        width: 8rem;
+        height: 2.5rem;
+    }
+
+    .room_info button:active {
+        width: 7rem;
+        height: 2.5rem;
+    }
+
+    .room_status {
+        color: red;
+        text-align: center;
+        text-shadow: 0.5px 0.5px red;
+    }
+
+    
+    .room_info_table {
+        text-align: center;
+    }
+
+    .room_info_table th {
+        color: blue;
+        text-shadow: none;
+    }
+
+    #room_div_button button {
+        width: 170px;
+        height: 80px;
+    }
+
+    #room_div_button button:active {
+        width: 165px;
+        height: 75px;
+    }
+
+</style>
+
+
+<div id="room_div_list">
+    <div class="room_info">
+        <p class="room_status">游戏中！/等待中..</p>
+        <table class="room_info_table">
+            <tr>
+                <th>房间号</th>
+                <td>room_num</td>
+            </tr>
+            <tr>
+                <th>玩家1</th>
+                <td>player_name</td>
+            </tr>
+            <tr>
+                <th>玩家2</th>
+                <td>暂无</td>
+            </tr>
+        </table>
+        <button class="button">进入房间</button>
+    </div>
+
+    <div class="room_info">
+        <p class="room_status">游戏中！/等待中..</p>
+        <table class="room_info_table">
+            <tr>
+                <th>房间号</th>
+                <td>room_num</td>
+            </tr>
+            <tr>
+                <th>玩家1</th>
+                <td>player_name</td>
+            </tr>
+            <tr>
+                <th>玩家2</th>
+                <td>暂无</td>
+            </tr>
+        </table>
+        <button class="button">进入房间</button>
+    </div>
+
+    <div class="room_info">
+        <p class="room_status">游戏中！/等待中..</p>
+        <table class="room_info_table">
+            <tr>
+                <th>房间号</th>
+                <td>room_num</td>
+            </tr>
+            <tr>
+                <th>玩家1</th>
+                <td>player_name</td>
+            </tr>
+            <tr>
+                <th>玩家2</th>
+                <td>暂无</td>
+            </tr>
+        </table>
+        <button class="button">进入房间</button>
+    </div>
+
+    <div class="room_info">
+        <p class="room_status">游戏中！/等待中..</p>
+        <table class="room_info_table">
+            <tr>
+                <th>房间号</th>
+                <td>room_num</td>
+            </tr>
+            <tr>
+                <th>玩家1</th>
+                <td>player_name</td>
+            </tr>
+            <tr>
+                <th>玩家2</th>
+                <td>暂无</td>
+            </tr>
+        </table>
+        <button class="button">进入房间</button>
+    </div>
+</div>
+
+<div id="room_div_button">
+    <button class="button">自动匹配</button>
+</div>
+
+<script>
+    (function(){
+        if (player_status == GAME_PLAY || player_status == GAME_WAIT)
+        {
+            socket.emit('leave');
+            player_status = GAME_VISIT;
+        }
+
+        socket.emit('room_list');
+        socket.off('room_list');
+        socket.on('room_list', function(){
+            
+        });
+
+        $('#room_div_button button').on('click', function(){
+            $.pjax({
+                url: '/waiting',
+                container: '#container'
+            });
+        });
+
+    })();
+</script>

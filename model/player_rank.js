@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 	        unique: true
 	    },
 		name: {
-			type: DataTypes.STRING,
+			type: DataTypes.STRING(64),
 	        unique: true
 		},
 		score: {

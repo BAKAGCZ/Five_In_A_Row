@@ -10,7 +10,7 @@ player_rank.belongsTo(player_account);
 player_account.hasOne(player_chessboard);
 player_chessboard.belongsTo(player_account);
 
-mysqlclient.sync(/*{ force: true }*/);
+mysqlclient.sync({ force: true });
 
 /* ----- redis wrapper ----- */
 redisclient._set = function(key, value) {

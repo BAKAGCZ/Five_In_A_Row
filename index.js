@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const path = require('path');
+const io = require('socket.io')(http);
 
 var mainFunc = require('./routers'); 
 
@@ -15,6 +16,12 @@ app.get('/generals', function(req, res){
 	if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
     else res.sendFile(__dirname + '/view/generals.html');
 });
+
+app.get('/room_list', function(req, res){
+    if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
+    else res.sendFile(__dirname + '/view/room_list.html');
+});
+
 
 app.get('/waiting', function(req, res){
     if (req.headers['x-pjax'] != 'true') res.sendFile(__dirname + '/view/index.html')
@@ -46,4 +53,4 @@ http.listen(2233, function(){
 });
 
 
-mainFunc();
+mainFunc(io);

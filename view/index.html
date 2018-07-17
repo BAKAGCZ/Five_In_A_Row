@@ -1,8 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>五子棋</title>
+        <!-- 
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
         <link rel="icon" href="/miao1.jpg" type="image/x-icon" />
         <link rel="shortcut icon" href="/miao1.jpg" type="image/x-icon"/>
         <link rel="stylesheet" type="text/css" href='/live2D/waifu.css'>
@@ -155,7 +158,7 @@
                 </div>
                 <div class="nav" id="nav2">
                     <div class="a">
-                        <a href="javascript:;"><span class="span">进入游戏</span></a>
+                        <a href="javascript:;"><span class="span">进入大厅</span></a>
                     </div>  
                 </div>
                 <div class="nav" id="nav3">
@@ -191,22 +194,26 @@
                 </div>
             </div> 
         </div>
-
+<!--
         <div id="modal-content">
             <p id="your_in_playing">您已在游戏中！</p>
             <p id="your_in_waiting">您已在等待中！</p>
         </div>
-
+-->
+        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <!-- script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> -->
         <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
         <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
         <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.js"></script>
+        <script src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
 
         <script src="/live2D/waifu-tips.js"></script>
         <script src="/live2D/live2d.js"></script>
         <script type="text/javascript">initModel("/live2D/")</script>
         <script src="/socket.io/socket.io.js"></script>
-
+<!--
         <script type="text/javascript">
             $("#your_in_playing").dialog(
                 { 
@@ -228,7 +235,7 @@
                 }
             }); 
         </script>
-
+ -->
         <script type="text/javascript">
             
             var is_white = false;      //持棋颜色
@@ -262,16 +269,10 @@
             }
                         
             function nav_click2() {
-                if(player_status == GAME_PLAY)
-                    $("#your_in_playing").dialog('open');
-                else if (player_status == GAME_WAIT)
-                    $("#your_in_waiting").dialog('open');
-                else {
-                    $.pjax({
-                        url: '/waiting',
+                $.pjax({
+                        url: '/room_list',
                         container: '#container'
-                    });
-                }
+                });
             }
 
             function nav_click3() {
@@ -334,7 +335,10 @@
                 });
 
                 $('#navmain').off('click', '#nav2');
-                $('#navmain').on('click', '#nav2', nav_click2);
+                $('#navmain').on('click', '#nav2', function(){
+                    exit_confirm(nav_click2)
+                });
+
                 
                 $('#navmain').off('click', '#nav3');
                 $('#navmain').on('click', '#nav3', function(){

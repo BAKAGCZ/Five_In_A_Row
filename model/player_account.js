@@ -7,11 +7,11 @@ module.exports = function(sequelize, DataTypes) {
 	        unique: true
 	    },
 	    name: {
-	        type: DataTypes.STRING,
+	        type: DataTypes.STRING(64),
 	        unique: true
 	    },
 	    email: {
-	    	type: DataTypes.STRING,
+	    	type: DataTypes.STRING(64),
 	    	validate: {
 	    		isEmail: true
 	    	},

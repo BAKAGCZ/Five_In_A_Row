@@ -7,13 +7,13 @@ module.exports = function(sequelize, DataTypes) {
 	        unique: true
 	    },
 		winner: {
-			type: DataTypes.STRING
+			type: DataTypes.STRING(64)
 		},
 	    loser: {
-	    	type: DataTypes.STRING
+	    	type: DataTypes.STRING(64)
 	    },
 	    chessboard: {
-	    	type: DataTypes.STRING,
+	    	type: DataTypes.TEXT,
 	    	comments: '棋谱'
 	    },
 	    chesstype: {

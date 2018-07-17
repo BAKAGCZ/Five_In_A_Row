@@ -1,8 +1,3 @@
-const express = require('express');
-const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-
 const redisclient = require('../model').redis;
 const ChatDB = require('../controller').chat,
       Room = require('../controller').room,
@@ -13,7 +8,7 @@ const TIME_LIMIT = 60; // 每步时长60s
 var timer = {};
 const autoMatchKey = 'autoMatch';
 
-function Init()
+function Init(io)
 {
     var autoMatch = setInterval(function(){
         redisclient._scard(autoMatchKey)
