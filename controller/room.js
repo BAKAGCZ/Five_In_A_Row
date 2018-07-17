@@ -13,10 +13,10 @@ class Room
 
 	create(roomid, roomname) {
         room[roomid] = {
-            white: {},
-            black: {},
-            player: [], // 前两名进入的用户为玩家 玩家uid
-            visitor: [], // 观众uid
+            white: '',
+            black: '',
+            player: [], // 前两名进入的用户为玩家 玩家名字
+            visitor: [], // 观众名字
             room_number: 0,
             room_name: roomname,
             room_id: roomid,

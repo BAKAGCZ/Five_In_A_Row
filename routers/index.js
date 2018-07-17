@@ -105,7 +105,7 @@ function Init(io)
             Room.join(room_id, my_name);
 
             socket.join(room_id);
-            socket.emit('confirm_create_room');
+            socket.emit('confirm_create_room', room_id);
         });
 
 
@@ -119,23 +119,6 @@ function Init(io)
             io.sockets.in(room_id).emit('confirm_join_room',room_id);
         });
 
-        socket.on('notify_game_ready', function(){
-            if (!Player.has(my_name) || !Player.isInRoom(my_name)) return;
-
-            Player.ready(my_name);
-            if (Room.isAllReady(room_id))
-            {
-                Room.start(room_id);
-                // 生成棋盘
-                if (!ChessBoard.has(room_id))
-                    ChessBoard.create(room_id);
-                else
-                    ChessBoard.reset(room_id);
-                
-                io.sockets.in(room_id).emit('notify_game_start');
-            }
-        });
-
         function leave_room()
         {
             if (!Player.has(my_name)) return; // 用户没有登录
@@ -144,7 +127,7 @@ function Init(io)
             if (Player.isPlaying(my_name))
             {
                 Room.end(room_id, enemy_name, my_name);
-                socket.broadcast.to(room_id).emit('play_defeat', my_chess);
+                socket.broadcast.to(room_id).emit('confirm_play_defeat', my_chess);
 
                 // 删除定时器
                 cancelCountDown();
@@ -176,6 +159,23 @@ function Init(io)
         /* ----- 房间 END ----- */
 
         /* ----- 游戏状态 START ----- */
+        socket.on('notify_game_ready', function(){
+            if (!Player.has(my_name) || !Player.isInRoom(my_name)) return;
+
+            Player.ready(my_name);
+            if (Room.isAllReady(room_id))
+            {
+                Room.start(room_id);
+                // 生成棋盘
+                if (!ChessBoard.has(room_id))
+                    ChessBoard.create(room_id);
+                else
+                    ChessBoard.reset(room_id);
+                
+                io.sockets.in(room_id).emit('notify_game_start');
+            }
+        });
+
         // 该房间游戏开始 同步状态
         socket.on('confirm_game_start', function(){
             if (!Player.has(my_name)) return;
@@ -236,23 +236,49 @@ function Init(io)
         /* ----- 信息获取 START ----- */
         // 获取自己所在的房间信息
         socket.on('get_my_room', function(){
-            if (!Player.isInRoom(my_name)) return;
+            if (!Player.isInRoom(my_name))
+            {
+                socket.emit('get_my_room', -1);
+                return;
+            }
             socket.emit('get_my_room', Room.get(Player.getRoomId(my_name)));
         });
 
         // 获取指定id的房间信息
         socket.on('get_room_info', function(room_id){
-            if (!Room.has(room_id)) return;
+            if (!Room.has(room_id)) 
+            {
+                socket.emit('get_room_info', -1);
+                return;
+            }
         	socket.emit('get_room_info', Room.get(room_id));
         });
 
-        socket.on('get_player_info', function(){
-            if (!Player.has(my_name)) return;
-            socket.emit('get_player_info', Player.get(my_name));
+        socket.on('get_my_info', function(){
+            if (!Player.has(my_name))
+            {
+                socket.emit('get_my_info', -1);
+                return;
+            }
+            socket.emit('get_my_info', Player.get(my_name));
+        });
+
+        // 获取指定玩家信息
+        socket.on('get_player_info', function(user_name){
+            if (!Player.has(user_name))
+            {
+                socket.emit('get_player_info', -1);
+                return;
+            }
+            socket.emit('get_player_info', Player.get(user_name));
         });
 
         socket.on('get_room_list', function(data){
-            if (!Player.has(my_name)) return;
+            if (!Player.has(my_name))
+            {
+                socket.emit('get_room_list', -1);
+                return;
+            }
             socket.emit('get_room_list', Room.getRoomList(data.currentPage, data.countPerPage));
         });
 
@@ -325,10 +351,10 @@ function Init(io)
                 {
                     my_name = res;
                     Player.create(my_name, socket);
-                    socket.emit('confirm_login_valid');
+                    socket.emit('confirm_login_valid', true);
                 }
                 else
-                    socket.emit('confirm_login_invalid'); 
+                    socket.emit('confirm_login_valid', false); 
             })
             .catch(err => { throw err; });
         });

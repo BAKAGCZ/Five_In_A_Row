@@ -168,7 +168,7 @@ class Player
     }
 
     // 注册 如果成功写入redis
-    // return { status:(-1 -2 0), sessionid:(undefined) }
+    // return { status:(-1 -2 1), sessionid:(undefined) }
     register(username, email)
     {
         let _player = this;
@@ -187,7 +187,7 @@ class Player
                     .then(res => {
                         redisclient.expires(player_sessionid_key + sessionid, player_sessionid_key_expire_time);
                         resolve({
-                            status: 1,
+                            status: 1, // 注册成功
                             sessionid: sessionid
                         });
                     })
