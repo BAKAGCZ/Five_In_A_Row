@@ -10,13 +10,9 @@ const redisclient = redis.createClient();
 const ChessBoard = require('./controller/chess_board');
 
 const ChessDB = require('./model/chess_db');
-const _ChatDB = require('./model/chat_db'),
-      _RoomDB = require('./model/room_db'),
-      _PlayerDB = require('./model/player_db');
+const _ChatDB = require('./model/chat_db');
 
-const ChatDB = new _ChatDB(redisclient),
-      RoomDB = new _RoomDB(redisclient),
-      PlayerDB = new _PlayerDB(redisclient);
+const ChatDB = new _ChatDB(redisclient);
 
 
 /* { room_id : [user_id, ...] } */
